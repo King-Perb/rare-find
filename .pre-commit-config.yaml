@@ -1,0 +1,65 @@
+# .pre-commit-config.yaml
+repos:
+  # Common, fast hygiene hooks (optional but handy)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+
+  # Gitleaks: scan for secrets before the commit is created
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.28.0           # use the latest stable tag in your project
+    hooks:
+      - id: gitleaks
+        name: gitleaks-staged
+        # pre-commit passes filenames by default; Gitleaks doesn't need them
+        pass_filenames: false
+        # Scan the staged (index) changes you're about to commit and redact output
+        args: [ "--staged", "--redact" ]
+        stages: [ "pre-commit" ]
+
+  # # Gitleaks: scan the whole repo for secrets on demand
+  #     - id: gitleaks
+  #       name: gitleaks-all
+  #       pass_filenames: false
+  #       args: ["--redact"]               # full repo or git defaults
+  #       stages: ["manual"]               # ← on demand only
+
+  # Local hooks: Run lint, type-check, tests, and build before pushing
+  - repo: local
+    hooks:
+      - id: lint
+        name: Lint
+        entry: npm run lint
+        language: system
+        stages: [pre-push]
+        pass_filenames: false
+        always_run: true
+
+      - id: type-check
+        name: Type Check
+        entry: npm run type:check
+        language: system
+        stages: [pre-push]
+        pass_filenames: false
+        always_run: true
+
+      - id: test
+        name: Test
+        entry: bash scripts/run-tests-if-needed.sh
+        language: system
+        stages: [pre-push]
+        pass_filenames: false
+        always_run: true
+
+      - id: build
+        name: Build
+        entry: bash scripts/run-build-if-needed.sh
+        language: system
+        stages: [pre-push]
+        pass_filenames: false
+        always_run: true
+

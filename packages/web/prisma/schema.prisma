@@ -1,0 +1,169 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+generator zod {
+  provider                = "zod-prisma-types"
+  output                  = "../src/generated/zod"
+  useMultipleFiles        = true
+  writeBarrelFiles        = true
+  useTypeAssertions       = true
+}
+
+datasource db {
+  provider = "postgresql"
+  // Note: DATABASE_URL is configured in prisma.config.ts for Prisma 7
+}
+
+// User model - Note: Supabase Auth handles authentication, this is for app-specific user data
+model User {
+  /// @zod.string.uuid({ message: "Invalid user ID format" })
+  id            String            @id @default(uuid()) @db.Uuid
+  /// @zod.string.email({ message: "Invalid email format" })
+  email         String            @unique
+  /// @zod.string.max(100, { message: "Name must be 100 characters or less" })
+  name          String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  
+  preferences   SearchPreference[]
+  recommendations Recommendation[]
+  notifications Notification[]
+  
+  @@index([email])
+  @@map("users")
+}
+
+model SearchPreference {
+  /// @zod.string.uuid({ message: "Invalid preference ID format" })
+  id          String   @id @default(uuid()) @db.Uuid
+  /// @zod.string.uuid({ message: "Invalid user ID format" })
+  userId      String   @db.Uuid
+  /// @zod.string.min(1, { message: "Preference name is required" }).max(100, { message: "Preference name must be 100 characters or less" })
+  name        String
+  categories  String[] // Array of categories: ["antique", "collectible", "vintage"]
+  keywords    String[] // Array of keywords (optional)
+  minPrice    Decimal? @db.Decimal(10, 2)
+  maxPrice    Decimal? @db.Decimal(10, 2)
+  marketplaces String[] // Array of marketplaces: ["amazon", "ebay"]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, isActive])
+  @@map("search_preferences")
+}
+
+model Listing {
+  /// @zod.string.uuid({ message: "Invalid listing ID format" })
+  id            String         @id @default(uuid()) @db.Uuid
+  /// @zod.string.regex(/^(amazon|ebay)$/, { message: "Marketplace must be 'amazon' or 'ebay'" })
+  marketplace   String         // "amazon" | "ebay"
+  /// @zod.string.min(1, { message: "Marketplace ID is required" }).max(100, { message: "Marketplace ID must be 100 characters or less" })
+  marketplaceId String         // ASIN, eBay item ID, etc.
+  /// @zod.string.min(1, { message: "Title is required" }).max(500, { message: "Title must be 500 characters or less" })
+  title         String
+  /// @zod.string.max(10000, { message: "Description must be 10000 characters or less" })
+  description   String?        @db.Text
+  price         Decimal        @db.Decimal(10, 2)
+  /// @zod.string.length(3, { message: "Currency must be 3 characters (ISO 4217)" })
+  currency      String         @default("USD")
+  images        String[]       // Array of image URLs
+  /// @zod.string.max(100, { message: "Category must be 100 characters or less" })
+  category      String?
+  /// @zod.string.regex(/^(new|used|vintage|refurbished|other)$/, { message: "Invalid condition" })
+  condition     String?        // "new", "used", "vintage", etc.
+  /// @zod.string.max(200, { message: "Seller name must be 200 characters or less" })
+  sellerName    String?
+  sellerRating  Decimal?       @db.Decimal(3, 2) // 0-5 scale
+  /// @zod.string.url({ message: "Invalid listing URL" })
+  listingUrl    String
+  available     Boolean        @default(true)
+  lastChecked   DateTime       @default(now())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  evaluation    AIEvaluation?
+  recommendations Recommendation[]
+  
+  @@unique([marketplace, marketplaceId])
+  @@index([marketplace, marketplaceId])
+  @@map("listings")
+}
+
+model AIEvaluation {
+  /// @zod.string.uuid({ message: "Invalid evaluation ID format" })
+  id                    String   @id @default(uuid()) @db.Uuid
+  /// @zod.string.uuid({ message: "Invalid listing ID format" })
+  listingId             String   @unique @db.Uuid
+  estimatedMarketValue  Decimal  @db.Decimal(10, 2)
+  undervaluationPercentage Decimal @db.Decimal(5, 2) // e.g., 25.5 for 25.5%
+  /// @zod.number.int().min(0, { message: "Confidence score must be between 0 and 100" }).max(100, { message: "Confidence score must be between 0 and 100" })
+  confidenceScore       Int      // 0-100
+  /// @zod.string.min(1, { message: "Reasoning is required" }).max(10000, { message: "Reasoning must be 10000 characters or less" })
+  reasoning             String   @db.Text
+  factors               String[] // Array of factors
+  /// @zod.string.min(1, { message: "Prompt version is required" }).max(50, { message: "Prompt version must be 50 characters or less" })
+  promptVersion         String
+  /// @zod.string.min(1, { message: "Model version is required" }).max(50, { message: "Model version must be 50 characters or less" })
+  modelVersion          String   // e.g., "gpt-4-turbo"
+  evaluatedAt           DateTime @default(now())
+  
+  listing               Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  
+  @@index([listingId])
+  @@map("ai_evaluations")
+}
+
+model Recommendation {
+  /// @zod.string.uuid({ message: "Invalid recommendation ID format" })
+  id          String      @id @default(uuid()) @db.Uuid
+  /// @zod.string.uuid({ message: "Invalid user ID format" })
+  userId      String      @db.Uuid
+  /// @zod.string.uuid({ message: "Invalid listing ID format" })
+  listingId   String      @db.Uuid
+  /// @zod.string.regex(/^(new|viewed|dismissed|purchased)$/, { message: "Status must be 'new', 'viewed', 'dismissed', or 'purchased'" })
+  status      String      @default("new") // "new" | "viewed" | "dismissed" | "purchased"
+  /// @zod.number.int().min(0, { message: "Priority must be non-negative" })
+  priority    Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  viewedAt    DateTime?
+  dismissedAt DateTime?
+  purchasedAt DateTime?
+  
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing     Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, listingId])
+  @@index([userId, status])
+  @@index([createdAt])
+  @@map("recommendations")
+}
+
+model Notification {
+  /// @zod.string.uuid({ message: "Invalid notification ID format" })
+  id        String   @id @default(uuid()) @db.Uuid
+  /// @zod.string.uuid({ message: "Invalid user ID format" })
+  userId    String   @db.Uuid
+  /// @zod.string.regex(/^(new_recommendation|system_update|preference_updated)$/, { message: "Invalid notification type" })
+  type      String   // "new_recommendation" | "system_update" | "preference_updated"
+  /// @zod.string.min(1, { message: "Title is required" }).max(200, { message: "Title must be 200 characters or less" })
+  title     String
+  /// @zod.string.min(1, { message: "Message is required" }).max(5000, { message: "Message must be 5000 characters or less" })
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, read])
+  @@map("notifications")
+}

@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@rare-find/shared": ["../shared/src"],
+      "@rare-find/shared/*": ["../shared/src/*"],
+      "@/generated/prisma": ["./src/generated/prisma/client.ts"],
+      "@/generated/prisma/*": ["./src/generated/prisma/*"],
+      "../../prisma": ["./src/generated/prisma/client.ts"],
+      "../prisma": ["./src/generated/prisma/client.ts"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts",
+    "src/generated/**/*.ts"
+  ],
+  "types": ["vitest/globals", "@testing-library/jest-dom"],
+  "exclude": ["node_modules"],
+  "references": [
+    { "path": "../shared" }
+  ]
+}
+

@@ -67,6 +67,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@rare-find/shared": path.resolve(__dirname, "../shared/src"),
     },
   },
 });

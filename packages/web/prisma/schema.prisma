@@ -21,9 +21,7 @@ datasource db {
 
 // User model - Note: Supabase Auth handles authentication, this is for app-specific user data
 model User {
-  /// @zod.string.uuid({ message: "Invalid user ID format" })
   id            String            @id @default(uuid()) @db.Uuid
-  /// @zod.string.email({ message: "Invalid email format" })
   email         String            @unique
   /// @zod.string.max(100, { message: "Name must be 100 characters or less" })
   name          String?
@@ -39,9 +37,7 @@ model User {
 }
 
 model SearchPreference {
-  /// @zod.string.uuid({ message: "Invalid preference ID format" })
   id          String   @id @default(uuid()) @db.Uuid
-  /// @zod.string.uuid({ message: "Invalid user ID format" })
   userId      String   @db.Uuid
   /// @zod.string.min(1, { message: "Preference name is required" }).max(100, { message: "Preference name must be 100 characters or less" })
   name        String
@@ -61,7 +57,6 @@ model SearchPreference {
 }
 
 model Listing {
-  /// @zod.string.uuid({ message: "Invalid listing ID format" })
   id            String         @id @default(uuid()) @db.Uuid
   /// @zod.string.regex(/^(amazon|ebay)$/, { message: "Marketplace must be 'amazon' or 'ebay'" })
   marketplace   String         // "amazon" | "ebay"
@@ -82,7 +77,6 @@ model Listing {
   /// @zod.string.max(200, { message: "Seller name must be 200 characters or less" })
   sellerName    String?
   sellerRating  Decimal?       @db.Decimal(3, 2) // 0-5 scale
-  /// @zod.string.url({ message: "Invalid listing URL" })
   listingUrl    String
   available     Boolean        @default(true)
   lastChecked   DateTime       @default(now())
@@ -98,9 +92,7 @@ model Listing {
 }
 
 model AIEvaluation {
-  /// @zod.string.uuid({ message: "Invalid evaluation ID format" })
   id                    String   @id @default(uuid()) @db.Uuid
-  /// @zod.string.uuid({ message: "Invalid listing ID format" })
   listingId             String   @unique @db.Uuid
   estimatedMarketValue  Decimal  @db.Decimal(10, 2)
   undervaluationPercentage Decimal @db.Decimal(5, 2) // e.g., 25.5 for 25.5%
@@ -122,11 +114,8 @@ model AIEvaluation {
 }
 
 model Recommendation {
-  /// @zod.string.uuid({ message: "Invalid recommendation ID format" })
   id          String      @id @default(uuid()) @db.Uuid
-  /// @zod.string.uuid({ message: "Invalid user ID format" })
   userId      String      @db.Uuid
-  /// @zod.string.uuid({ message: "Invalid listing ID format" })
   listingId   String      @db.Uuid
   /// @zod.string.regex(/^(new|viewed|dismissed|purchased)$/, { message: "Status must be 'new', 'viewed', 'dismissed', or 'purchased'" })
   status      String      @default("new") // "new" | "viewed" | "dismissed" | "purchased"
@@ -148,9 +137,7 @@ model Recommendation {
 }
 
 model Notification {
-  /// @zod.string.uuid({ message: "Invalid notification ID format" })
   id        String   @id @default(uuid()) @db.Uuid
-  /// @zod.string.uuid({ message: "Invalid user ID format" })
   userId    String   @db.Uuid
   /// @zod.string.regex(/^(new_recommendation|system_update|preference_updated)$/, { message: "Invalid notification type" })
   type      String   // "new_recommendation" | "system_update" | "preference_updated"

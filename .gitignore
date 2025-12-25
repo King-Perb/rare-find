@@ -13,9 +13,13 @@
 
 # testing
 /coverage
+packages/*/coverage
 /test-results
+packages/*/test-results
 /playwright-report
+packages/*/playwright-report
 /playwright/.cache
+packages/*/playwright/.cache
 
 # next.js
 /.next/

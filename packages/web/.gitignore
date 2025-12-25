@@ -2,4 +2,10 @@ node_modules
 # Keep environment variables out of version control
 .env
 
+# Testing
+coverage/
+test-results/
+playwright-report/
+
+# Generated files
 /src/generated/prisma

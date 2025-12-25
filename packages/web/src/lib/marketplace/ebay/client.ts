@@ -123,13 +123,89 @@ export class eBayClient {
 
   /**
    * Get item by marketplace ID (eBay item ID)
+   * 
+   * Uses findItemsAdvanced with ItemId filter since Finding API doesn't have GetSingleItem
    */
-  async getItemById(_marketplaceId: string): Promise<MarketplaceListing | null> {
+  async getItemById(marketplaceId: string): Promise<MarketplaceListing | null> {
     await waitForRateLimit('ebay');
 
-    // Use GetSingleItem API or findItemsByProduct
-    // This is a placeholder - would need full GetSingleItem implementation
-    throw new Error('getItemById not yet implemented - use search with specific item ID');
+    // Validate item ID format (numeric)
+    if (!/^\d+$/.test(marketplaceId)) {
+      throw new Error(`Invalid eBay item ID format: ${marketplaceId}`);
+    }
+
+    try {
+      const queryParams = new URLSearchParams();
+      
+      // Required parameters
+      queryParams.append('OPERATION-NAME', 'findItemsAdvanced');
+      queryParams.append('SERVICE-VERSION', '1.0.0');
+      queryParams.append('SECURITY-APPNAME', this.credentials.appId);
+      queryParams.append('RESPONSE-DATA-FORMAT', 'JSON');
+      queryParams.append('GLOBAL-ID', `EBAY-${this.siteId}`);
+      
+      // Filter by specific item ID
+      queryParams.append('itemFilter(0).name', 'ItemId');
+      queryParams.append('itemFilter(0).value', marketplaceId);
+      
+      // Request only 1 result
+      queryParams.append('paginationInput.entriesPerPage', '1');
+      queryParams.append('paginationInput.pageNumber', '1');
+
+      const url = `${this.endpoint}?${queryParams.toString()}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`eBay API error: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+
+      const data: eBaySearchResponse = await response.json();
+
+      // Check for errors in response
+      const searchResult = data.findItemsAdvancedResponse?.[0]?.searchResult;
+      const items = searchResult?.item || [];
+
+      if (items.length === 0) {
+        // Item not found
+        return null;
+      }
+
+      // Transform single item to MarketplaceListing
+      const item = items[0];
+      return this.transformItemToListing(item);
+    } catch (error) {
+      console.error('eBay getItemById error:', error);
+      throw new Error(`Failed to get eBay item: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Transform a single eBay item to MarketplaceListing
+   */
+  private transformItemToListing(item: eBayItem): MarketplaceListing {
+    return {
+      id: item.itemId[0],
+      marketplace: 'ebay',
+      marketplaceId: item.itemId[0],
+      title: item.title[0],
+      description: undefined, // Description not available in Finding API
+      price: this.extractPrice(item),
+      currency: item.sellingStatus?.[0]?.currentPrice?.[0]?.['@currencyId'] || 'USD',
+      images: this.extractImages(item),
+      category: item.categoryName?.[0],
+      condition: item.condition?.[0]?.conditionDisplayName?.[0]?.toLowerCase(),
+      sellerName: item.sellerInfo?.[0]?.sellerUserName?.[0],
+      sellerRating: this.extractSellerRating(item),
+      listingUrl: item.viewItemURL[0],
+      available: item.sellingStatus?.[0]?.listingStatus?.[0] !== 'Ended',
+    };
   }
 
   /**

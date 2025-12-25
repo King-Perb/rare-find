@@ -23,6 +23,26 @@ export interface AmazonSearchResponse {
   };
 }
 
+export interface AmazonGetItemsRequest {
+  ItemIds: string[]; // Array of ASINs
+  Resources?: string[]; // Optional: specific resources to retrieve
+  Condition?: 'New' | 'Used' | 'Collectible' | 'Refurbished' | 'All';
+  CurrencyOfPreference?: string; // e.g., 'USD'
+  LanguagesOfPreference?: string[]; // e.g., ['en_US']
+  Merchant?: 'All' | 'Amazon';
+  OfferCount?: number;
+}
+
+export interface AmazonGetItemsResponse {
+  ItemsResult?: {
+    Items?: AmazonItem[];
+  };
+  Errors?: Array<{
+    Code?: string;
+    Message?: string;
+  }>;
+}
+
 export interface AmazonItem {
   ASIN: string;
   DetailPageURL: string;

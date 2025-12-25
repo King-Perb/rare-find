@@ -6,21 +6,24 @@
  */
 
 import { createHash, createHmac } from 'node:crypto';
-import type { AmazonCredentials, AmazonItem, AmazonSearchRequest, AmazonSearchResponse } from './types';
+import type { AmazonCredentials, AmazonItem, AmazonSearchRequest, AmazonSearchResponse, AmazonGetItemsRequest, AmazonGetItemsResponse } from './types';
 import { waitForRateLimit } from '../rate-limiter';
 import type { MarketplaceListing, MarketplaceSearchParams, MarketplaceSearchResult } from '../types';
 
 export class AmazonClient {
-  private credentials: AmazonCredentials;
-  private endpoint: string;
-  private region: string;
+  private readonly credentials: AmazonCredentials;
+  private readonly endpoint: string;
+  private readonly region: string;
+  private readonly getItemsEndpoint: string;
 
   constructor(credentials: AmazonCredentials) {
     this.credentials = credentials;
     this.region = credentials.region || 'us-east-1';
+    const domain = this.getDomainForRegion();
     // PA-API 5.0 uses regional endpoints
-    // Format: https://webservices.amazon.{domain}/paapi5/searchitems
-    this.endpoint = `https://webservices.amazon.${this.getDomainForRegion()}/paapi5/searchitems`;
+    // Format: https://webservices.amazon.{domain}/paapi5/{operation}
+    this.endpoint = `https://webservices.amazon.${domain}/paapi5/searchitems`;
+    this.getItemsEndpoint = `https://webservices.amazon.${domain}/paapi5/getitems`;
   }
 
   private getDomainForRegion(): string {
@@ -48,7 +51,7 @@ export class AmazonClient {
     payload: string,
     operation: string = 'SearchItems'
   ): Record<string, string> {
-    const timestamp = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '');
+    const timestamp = new Date().toISOString().replaceAll(/[:-]|\.\d{3}/g, '');
     const dateStamp = timestamp.substring(0, 8);
     const url = new URL(uri);
     const host = url.hostname;
@@ -163,10 +166,93 @@ export class AmazonClient {
   async getItemById(marketplaceId: string): Promise<MarketplaceListing | null> {
     await waitForRateLimit('amazon');
 
-    // Use GetItems API endpoint
-    // Similar implementation to search but with GetItems operation
-    // This is a placeholder - would need full GetItems implementation
-    throw new Error('getItemById not yet implemented - use search with specific ASIN');
+    // Validate ASIN format (10 characters, alphanumeric)
+    if (!/^[A-Z0-9]{10}$/i.test(marketplaceId)) {
+      throw new Error(`Invalid ASIN format: ${marketplaceId}`);
+    }
+
+    const getItemsRequest: AmazonGetItemsRequest = {
+      ItemIds: [marketplaceId.toUpperCase()],
+      Resources: [
+        'Images.Primary.Large',
+        'Images.Variants',
+        'ItemInfo.Title',
+        'ItemInfo.Features',
+        'ItemInfo.Classifications',
+        'ItemInfo.ByLineInfo',
+        'Offers.Listings.Price',
+        'Offers.Listings.Availability',
+        'Offers.Listings.Condition',
+        'Offers.Listings.MerchantInfo',
+      ],
+      Condition: 'All',
+      CurrencyOfPreference: 'USD',
+      LanguagesOfPreference: ['en_US'],
+      Merchant: 'All',
+      OfferCount: 1,
+    };
+
+    try {
+      const payload = JSON.stringify(getItemsRequest);
+      const headers = this.createSignature('POST', this.getItemsEndpoint, payload, 'GetItems');
+      
+      const response = await fetch(this.getItemsEndpoint, {
+        method: 'POST',
+        headers,
+        body: payload,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Amazon API error: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+
+      const data: AmazonGetItemsResponse = await response.json();
+
+      // Check for API errors
+      if (data.Errors && data.Errors.length > 0) {
+        const error = data.Errors[0];
+        if (error.Code === 'InvalidParameterValue' || error.Code === 'ItemNotEligible') {
+          // Item not found or not eligible
+          return null;
+        }
+        throw new Error(`Amazon API error: ${error.Code} - ${error.Message || 'Unknown error'}`);
+      }
+
+      // Extract item from response
+      const items = data.ItemsResult?.Items;
+      if (!items || items.length === 0) {
+        return null;
+      }
+
+      const item = items[0];
+      return this.transformItemToListing(item);
+    } catch (error) {
+      console.error('Amazon getItemById error:', error);
+      throw new Error(`Failed to get Amazon item: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Transform a single Amazon item to MarketplaceListing
+   */
+  private transformItemToListing(item: AmazonItem): MarketplaceListing {
+    return {
+      id: item.ASIN,
+      marketplace: 'amazon',
+      marketplaceId: item.ASIN,
+      title: item.ItemInfo?.Title?.DisplayValue || 'Unknown Title',
+      description: item.ItemInfo?.Features?.DisplayValues?.join('\n') || undefined,
+      price: this.extractPrice(item),
+      currency: item.Offers?.Listings?.[0]?.Price?.Currency || 'USD',
+      images: this.extractImages(item),
+      category: item.ItemInfo?.Classifications?.ProductGroup?.DisplayValue,
+      condition: item.Offers?.Listings?.[0]?.Condition?.DisplayValue?.toLowerCase(),
+      sellerName: item.Offers?.Listings?.[0]?.MerchantInfo?.Name,
+      sellerRating: undefined, // Not available in PA-API 5.0
+      listingUrl: item.DetailPageURL,
+      available: item.Offers?.Listings?.[0]?.Availability?.Type === 'Now',
+    };
   }
 
   /**
@@ -205,8 +291,9 @@ export class AmazonClient {
     }
     if (listing?.Price?.DisplayAmount) {
       // Parse display amount like "$12.99"
-      const match = listing.Price.DisplayAmount.match(/[\d.]+/);
-      return match ? parseFloat(match[0]) : 0;
+      const priceRegex = /[\d.]+/;
+      const match = priceRegex.exec(listing.Price.DisplayAmount);
+      return match ? Number.parseFloat(match[0]) : 0;
     }
     return 0;
   }

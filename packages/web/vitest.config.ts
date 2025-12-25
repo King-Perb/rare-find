@@ -23,6 +23,8 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       exclude: [
+        // Generated files (auto-generated, no need to test)
+        "src/generated/**",
         // Type definition files (no testable logic)
         "src/types/**",
         // Config files (no testable logic)
@@ -30,6 +32,8 @@ export default defineConfig({
         "postcss.config.mjs",
         "eslint.config.mjs",
         "vitest.config.ts",
+        "playwright.config.ts",
+        "prisma.config.ts",
         // Test files themselves
         "**/*.test.{ts,tsx}",
         "**/__tests__/**",

@@ -57,7 +57,16 @@ class Logger {
   }
 }
 
-export const logger = new Logger();
+// Legacy export - use LoggerService from DI container for new code
+// This maintains backward compatibility
+import { container, ServiceKeys } from './di/container';
+import type { ILogger } from './services/interfaces';
+
+// Ensure DI is initialized (setup.ts auto-initializes on import)
+import './di/setup';
+
+// Get logger from DI container
+export const logger = container.resolve<ILogger>(ServiceKeys.Logger);
 
 /**
  * Log API request

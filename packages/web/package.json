@@ -19,6 +19,7 @@
     "db:setup:dev": "npx prisma migrate dev --name init --schema=./prisma/schema.prisma",
     "db:reset:dev": "npx prisma migrate reset --schema=./prisma/schema.prisma",
     "db:deploy": "npx prisma migrate deploy --schema=./prisma/schema.prisma",
+    "db:generate-types": "tsx scripts/generate-supabase-types.js",
     "db:test-connection": "tsx scripts/test-prisma-connection.ts",
     "test": "vitest run",
     "test:watch": "vitest",

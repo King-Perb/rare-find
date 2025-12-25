@@ -1,0 +1,385 @@
+---
+description: Prevent usage of 'any' type in TypeScript code
+alwaysApply: true
+---
+
+# TypeScript: No 'any' Type Rule
+
+**CRITICAL**: Never use the `any` type in TypeScript code. Always use proper types, type assertions, or `unknown` when the type is truly unknown.
+
+## Why This Rule Exists
+
+The `any` type disables TypeScript's type checking, defeating the purpose of using TypeScript. It:
+- Eliminates type safety
+- Hides bugs at compile time
+- Makes code harder to maintain
+- Reduces IDE autocomplete and IntelliSense
+- Makes refactoring dangerous
+
+## Rules
+
+### ❌ NEVER Use `any`
+
+```typescript
+// ❌ BAD - Never do this
+function processData(data: any): any {
+  return data.something;
+}
+
+// ❌ BAD - Never do this
+const result: any = await fetchData();
+
+// ❌ BAD - Never do this
+function handleEvent(event: any) {
+  console.log(event.target);
+}
+```
+
+### ✅ Use Proper Types Instead
+
+```typescript
+// ✅ GOOD - Use specific types
+function processData(data: UserData): ProcessedData {
+  return { processed: data.something };
+}
+
+// ✅ GOOD - Use interfaces or types
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+}
+
+function processData(data: UserData): ProcessedData {
+  return { processed: data.name };
+}
+```
+
+### ✅ Use `unknown` for Truly Unknown Types
+
+When the type is truly unknown at compile time, use `unknown` instead of `any`:
+
+```typescript
+// ✅ GOOD - Use unknown and type guard
+function processUnknownData(data: unknown): string {
+  if (typeof data === 'string') {
+    return data;
+  }
+  if (typeof data === 'object' && data !== null && 'message' in data) {
+    return String(data.message);
+  }
+  throw new Error('Invalid data type');
+}
+
+// ✅ GOOD - Type assertion with unknown
+function parseJSON(json: string): unknown {
+  return JSON.parse(json);
+}
+
+const data = parseJSON('{"id": 1}');
+if (typeof data === 'object' && data !== null && 'id' in data) {
+  const id = (data as { id: number }).id;
+}
+```
+
+### ✅ Use Type Assertions When Necessary
+
+When you know the type but TypeScript doesn't, use type assertions:
+
+```typescript
+// ✅ GOOD - Type assertion with proper type
+const element = document.getElementById('myId') as HTMLInputElement;
+element.value = 'test';
+
+// ✅ GOOD - Type assertion with interface
+interface ApiResponse {
+  data: UserData[];
+  status: number;
+}
+
+const response = await fetch('/api/users') as ApiResponse;
+```
+
+### ✅ Use Generic Types
+
+When working with generic data, use generics:
+
+```typescript
+// ✅ GOOD - Use generics
+function getValue<T>(obj: Record<string, T>, key: string): T | undefined {
+  return obj[key];
+}
+
+// ✅ GOOD - Generic constraints
+function processItems<T extends { id: string }>(items: T[]): T[] {
+  return items.filter(item => item.id !== '');
+}
+```
+
+### ✅ Use Union Types
+
+When a value can be one of several types:
+
+```typescript
+// ✅ GOOD - Union types
+type Status = 'pending' | 'completed' | 'failed';
+
+function handleStatus(status: Status): void {
+  switch (status) {
+    case 'pending':
+      // ...
+      break;
+    case 'completed':
+      // ...
+      break;
+    case 'failed':
+      // ...
+      break;
+  }
+}
+```
+
+## Common Scenarios and Solutions
+
+### Scenario 1: Third-Party Library Types
+
+```typescript
+// ❌ BAD
+import { SomeLibrary } from 'some-library';
+const config: any = SomeLibrary.getConfig();
+
+// ✅ GOOD - Check if types are available
+import { SomeLibrary } from 'some-library';
+import type { LibraryConfig } from 'some-library/types';
+
+const config: LibraryConfig = SomeLibrary.getConfig();
+
+// ✅ GOOD - If types don't exist, create them
+interface LibraryConfig {
+  apiKey: string;
+  endpoint: string;
+}
+
+const config = SomeLibrary.getConfig() as LibraryConfig;
+```
+
+### Scenario 2: JSON Parsing
+
+```typescript
+// ❌ BAD
+const data: any = JSON.parse(jsonString);
+
+// ✅ GOOD - Use unknown and validate
+function parseJSON<T>(json: string): T {
+  return JSON.parse(json) as T;
+}
+
+const data = parseJSON<UserData>(jsonString);
+
+// ✅ GOOD - Validate with type guard
+function isUserData(data: unknown): data is UserData {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'id' in data &&
+    'name' in data
+  );
+}
+
+const parsed = JSON.parse(jsonString);
+if (isUserData(parsed)) {
+  // parsed is now typed as UserData
+  console.log(parsed.name);
+}
+```
+
+### Scenario 3: Event Handlers
+
+```typescript
+// ❌ BAD
+function handleClick(event: any) {
+  console.log(event.target.value);
+}
+
+// ✅ GOOD - Use proper event types
+function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
+  console.log(event.currentTarget.value);
+}
+
+// ✅ GOOD - DOM events
+function handleInput(event: Event) {
+  const target = event.target as HTMLInputElement;
+  console.log(target.value);
+}
+```
+
+### Scenario 4: API Responses
+
+```typescript
+// ❌ BAD
+async function fetchUser(id: string): Promise<any> {
+  const response = await fetch(`/api/users/${id}`);
+  return response.json();
+}
+
+// ✅ GOOD - Define response type
+interface UserResponse {
+  id: string;
+  name: string;
+  email: string;
+}
+
+async function fetchUser(id: string): Promise<UserResponse> {
+  const response = await fetch(`/api/users/${id}`);
+  return response.json() as Promise<UserResponse>;
+}
+```
+
+### Scenario 5: Test Mocks
+
+```typescript
+// ❌ BAD
+const mockService: any = {
+  getData: vi.fn(),
+};
+
+// ✅ GOOD - Use proper interface
+interface MockService {
+  getData: ReturnType<typeof vi.fn>;
+}
+
+const mockService: MockService = {
+  getData: vi.fn(),
+};
+
+// ✅ GOOD - Use Partial for optional properties
+const mockService: Partial<IMyService> = {
+  getData: vi.fn(),
+};
+```
+
+### Scenario 6: Type Casting in Tests
+
+```typescript
+// ❌ BAD
+const result = service.method() as any;
+
+// ✅ GOOD - Use proper type assertion
+const result = service.method() as ExpectedType;
+
+// ✅ GOOD - Use type narrowing
+const result = service.method();
+if (isExpectedType(result)) {
+  // result is now typed correctly
+}
+```
+
+## Linter Configuration
+
+Ensure your ESLint configuration includes:
+
+```json
+{
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unsafe-assignment": "error",
+    "@typescript-eslint/no-unsafe-member-access": "error",
+    "@typescript-eslint/no-unsafe-call": "error",
+    "@typescript-eslint/no-unsafe-return": "error"
+  }
+}
+```
+
+## When You Encounter `any` in Existing Code
+
+1. **Identify the actual type**: Determine what the type should be
+2. **Create proper types**: Define interfaces or types
+3. **Refactor gradually**: Replace `any` with proper types
+4. **Add type guards**: Use type guards for runtime validation
+5. **Update tests**: Ensure tests still pass with new types
+
+## Exceptions
+
+**There are NO exceptions to this rule.** If you find yourself wanting to use `any`:
+
+1. **Stop and think**: What is the actual type?
+2. **Use `unknown`**: If truly unknown, use `unknown` with type guards
+3. **Create types**: Define proper types for the data
+4. **Use generics**: If the type varies, use generics
+5. **Ask for help**: If stuck, ask for assistance rather than using `any`
+
+## AI Assistant Guidance
+
+When helping users write TypeScript code:
+
+1. **Never suggest `any`**: Always propose proper types
+2. **Suggest type definitions**: Help create interfaces/types when needed
+3. **Use `unknown`**: When type is unknown, suggest `unknown` with type guards
+4. **Fix existing `any`**: When refactoring, replace `any` with proper types
+5. **Explain alternatives**: Show why proper types are better
+
+## Examples of Fixing `any` Usage
+
+### Example 1: Function Parameters
+
+```typescript
+// ❌ Before
+function process(data: any) {
+  return data.value * 2;
+}
+
+// ✅ After
+interface ProcessData {
+  value: number;
+}
+
+function process(data: ProcessData): number {
+  return data.value * 2;
+}
+```
+
+### Example 2: API Calls
+
+```typescript
+// ❌ Before
+async function getData(): Promise<any> {
+  const response = await fetch('/api/data');
+  return response.json();
+}
+
+// ✅ After
+interface ApiData {
+  id: string;
+  name: string;
+}
+
+async function getData(): Promise<ApiData> {
+  const response = await fetch('/api/data');
+  return response.json() as Promise<ApiData>;
+}
+```
+
+### Example 3: Dynamic Properties
+
+```typescript
+// ❌ Before
+function getProperty(obj: any, key: string): any {
+  return obj[key];
+}
+
+// ✅ After
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+```
+
+## Summary
+
+- **Never use `any`** - It defeats TypeScript's purpose
+- **Use proper types** - Define interfaces, types, or use generics
+- **Use `unknown`** - When type is truly unknown, use `unknown` with type guards
+- **Use type assertions** - When you know the type but TypeScript doesn't
+- **Fix existing `any`** - Replace `any` when refactoring code
+- **No exceptions** - This rule has no exceptions
+
+**Remember**: TypeScript's type system is there to help you. Using `any` disables that help and makes your code less safe and maintainable.

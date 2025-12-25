@@ -131,7 +131,7 @@ AI-powered analysis of a listing to determine if it's undervalued.
 - `reasoning` (Text, Required): Human-readable explanation of evaluation
 - `factors` (String[], Required): Array of factors indicating undervaluation (e.g., ["rare condition", "below market average"])
 - `promptVersion` (String, Required): Version of AI prompt used (for tracking)
-- `modelVersion` (String, Required): AI model version used (e.g., "gpt-4-turbo")
+- `modelVersion` (String, Required): AI model version used (e.g., "gpt-4o")
 - `evaluatedAt` (DateTime, Required): When evaluation was performed
 - `listing` (Relation): Evaluated listing
 

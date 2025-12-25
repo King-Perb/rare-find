@@ -94,17 +94,64 @@
 
 ## AI Evaluation Strategy
 
-### Decision: OpenAI GPT-4 with structured output for listing evaluation
+### Decision: OpenAI GPT-4o (multimodal) with structured output for listing evaluation
 
 **Rationale**:
-- OpenAI API provides powerful language model for analyzing listing descriptions, images, and metadata
-- GPT-4 can understand context, compare prices, identify undervaluation factors
+- OpenAI API provides powerful multimodal model for analyzing listing descriptions, images, and metadata
+- GPT-4o offers superior vision capabilities compared to GPT-4 Turbo, enabling detailed image analysis
+- Can analyze product images to assess condition, authenticity, rarity, and damage indicators
+- GPT-4o is faster and more cost-effective than GPT-4 Turbo while providing better vision performance
 - Structured output (JSON mode) ensures consistent evaluation results
-- Can process text descriptions and analyze image URLs (via vision capabilities)
+- Native multimodal support allows simultaneous processing of text descriptions and image URLs
 - Cost-effective when batched and cached appropriately
 
-**Evaluation Approach**:
-1. **Input**: Listing title, description, images, price, category, seller info
+**Evaluation Workflows**:
+
+#### Workflow 1: User-Provided Listing Evaluation (Full Multimodal)
+**Use Case**: User manually submits a listing URL for evaluation
+
+**Approach**:
+- **Full multimodal evaluation** using GPT-4o with image analysis
+- Analyze all available listing images to assess:
+  - Condition and authenticity
+  - Damage, wear, or restoration indicators
+  - Rarity markers visible in images
+  - Quality and completeness
+- Process title, description, price, category, seller info
+- Higher accuracy due to comprehensive image analysis
+- Slower and more expensive per evaluation
+
+**When to Use**:
+- User explicitly requests evaluation of a specific listing
+- Manual listing submission via UI
+- High-value items requiring detailed assessment
+- User wants maximum confidence in evaluation
+
+#### Workflow 2: Automated Recommendation Scanning (Optimized)
+**Use Case**: System automatically scanning marketplace listings for recommendations
+
+**Approach**:
+- **Optimized text-only evaluation** using GPT-4o (images optional/skipped)
+- Focus on text-based analysis:
+  - Title and description analysis
+  - Price comparison to market averages
+  - Category and keyword matching
+  - Seller information and ratings
+- **Skip image analysis** for initial screening to optimize:
+  - Speed: Faster evaluation (2-3s vs 5s+)
+  - Cost: Lower API costs (text-only cheaper than multimodal)
+  - Throughput: Process more listings per day
+- Only analyze images for listings that pass initial screening threshold
+- Can upgrade to full multimodal evaluation for high-confidence candidates
+
+**When to Use**:
+- Automated marketplace scanning
+- Bulk listing evaluation
+- Initial screening of search results
+- High-volume recommendation generation
+
+**Evaluation Approach** (Both Workflows):
+1. **Input**: Listing title, description, images (optional for Workflow 2), price, category, seller info
 2. **Prompt**: Structured prompt asking AI to:
    - Estimate market value based on item description and category
    - Compare current price to estimated value
@@ -119,12 +166,23 @@
    - `factors`: array of strings (e.g., "rare condition", "below market average", "limited edition")
 
 **Implementation Notes**:
-- Use OpenAI SDK with structured output
+- Use OpenAI SDK with GPT-4o model
+- **Workflow 1 (User-provided)**: Full multimodal evaluation with image analysis
+  - Pass listing images as image URLs in the API request
+  - Use GPT-4o vision capabilities for detailed assessment
+  - Higher cost but maximum accuracy
+- **Workflow 2 (Automated scanning)**: Optimized text-only evaluation
+  - Skip image analysis for initial screening
+  - Use text-only mode (title, description, metadata)
+  - Faster and cheaper for bulk processing
+  - Optionally upgrade to multimodal for high-confidence candidates
+- Use structured output (JSON mode) for consistent evaluation results
 - Implement prompt versioning (store prompts in code, version control)
-- Cache evaluation results for identical listings
+- Cache evaluation results for identical listings to reduce costs
 - Batch evaluations when possible to reduce API calls
 - Implement fallback for AI failures (retry with exponential backoff)
 - Track evaluation accuracy over time
+- Store model version ("gpt-4o") and evaluation mode ("multimodal" | "text-only") in evaluation records
 
 **Alternatives Considered**:
 - **Custom ML model**: Requires training data, infrastructure, ongoing maintenance

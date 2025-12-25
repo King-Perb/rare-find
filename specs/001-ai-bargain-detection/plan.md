@@ -7,27 +7,34 @@
 
 ## Summary
 
-Build an AI-powered bargain detection system that searches Amazon and eBay for undervalued antique and collectible items, evaluates listings using AI to determine undervaluation, and delivers buy recommendations to users. The system uses Next.js 15 with TypeScript, integrates with marketplace APIs (Amazon Product Advertising API, eBay Finding API), and leverages OpenAI for intelligent listing evaluation.
+Build an AI-powered bargain detection system that searches Amazon and eBay for undervalued antique and collectible items, evaluates listings using AI to determine undervaluation, and delivers buy recommendations to users. The system uses Next.js 15 with TypeScript, integrates with marketplace APIs (Amazon Product Advertising API, eBay Finding API), and leverages OpenAI GPT-4o (multimodal) for intelligent listing evaluation with image analysis capabilities.
 
 ## Technical Context
 
 **Language/Version**: TypeScript 5+ (strict mode enabled)  
 **Primary Dependencies**: Next.js 16.0.10, React 19.2.0, OpenAI SDK 6.10.0, Tailwind CSS v4, shadcn/ui components  
-**Storage**: Supabase (PostgreSQL) - Serverless PostgreSQL database with built-in authentication, real-time subscriptions, and row-level security. Supports both web and React Native via Supabase client SDKs.  
+**Storage**: Supabase (PostgreSQL) - Serverless PostgreSQL database with built-in authentication, real-time subscriptions, and row-level security. Supports both web and React Native via Supabase client SDKs. **Supabase client is used for all data access operations (respects RLS policies).**  
+**Schema Management**: Prisma 7.0.0 - Schema definition and migrations only. Prisma is NOT used for data access - it's only for managing database schema and generating types.  
+**Validation**: Zod 3.25.67 - Runtime type validation. Zod schemas are auto-generated from Prisma models via zod-prisma-types and used to validate Supabase client responses.  
 **Testing**: Vitest 4.0.16, React Testing Library, Playwright 1.57.0  
 **Target Platform**: Web application (browser-based, responsive design) with React Native mobile app planned for future  
 **Project Type**: Web application (Next.js App Router with API routes)  
 **Performance Goals**: 
-- AI evaluation response time < 5s per listing
+- AI evaluation response time:
+  - User-provided listing (multimodal): < 5s per listing
+  - Automated scanning (text-only): < 3s per listing
 - Marketplace search results load < 2s
 - Recommendation list renders < 2s
 - Support 100+ concurrent users evaluating listings
-- Process 1000+ listings per day per user
+- Process 1000+ listings per day per user (using optimized text-only evaluation)
 
 **Constraints**: 
 - Must respect Amazon Product Advertising API rate limits (1 request per second per IP)
 - Must respect eBay Finding API rate limits (varies by endpoint, typically 5000 calls per day)
-- AI evaluation costs must be optimized (batch processing, caching)
+- AI evaluation costs must be optimized:
+  - Use text-only evaluation for automated scanning (faster, cheaper)
+  - Use full multimodal evaluation only for user-provided listings or high-confidence candidates
+  - Batch processing and caching
 - All marketplace API credentials must be stored securely (server-side only)
 - User data and preferences must be encrypted at rest
 - Must handle API failures gracefully with retry logic
@@ -60,7 +67,7 @@ Build an AI-powered bargain detection system that searches Amazon and eBay for u
 ✅ **PASS**: Using shadcn/ui for base components. Feature components will be organized in `src/components/recommendations/`, `src/components/preferences/`, etc.
 
 ### VI. AI Evaluation Transparency
-✅ **PASS**: AI evaluation results will include confidence scores, reasoning factors, and estimated market value. Evaluation prompts will be version-controlled. Fallback mechanisms will be implemented for AI failures.
+✅ **PASS**: AI evaluation results will include confidence scores, reasoning factors, and estimated market value. GPT-4o multimodal model will analyze both text descriptions and product images. Evaluation prompts will be version-controlled. Fallback mechanisms will be implemented for AI failures.
 
 ### VII. Marketplace Integration Standards
 ✅ **PASS**: Will implement rate limit compliance, retry logic, error handling, and API response caching. All API interactions will be logged for debugging.
@@ -138,7 +145,9 @@ src/
 │       └── sidebar.tsx
 ├── lib/
 │   ├── ai/
-│   │   ├── evaluate-listing.ts        # AI evaluation logic
+│   │   ├── evaluate-listing.ts        # AI evaluation logic (supports both workflows)
+│   │   ├── evaluate-user-listing.ts   # User-provided listing evaluation (multimodal)
+│   │   ├── evaluate-scanning.ts       # Automated scanning evaluation (text-only optimized)
 │   │   ├── prompts.ts                 # AI prompts (version-controlled)
 │   │   └── types.ts                   # AI evaluation types
 │   ├── marketplace/
@@ -160,14 +169,18 @@ src/
 │   │   ├── server.ts                  # Supabase server client (API routes)
 │   │   └── auth.ts                   # Auth helpers
 │   └── db/
-│       ├── schema.ts                  # Database schema (Prisma optional)
-│       └── queries.ts                 # Database queries (Supabase)
+│       ├── prisma.ts                  # Prisma client (migrations only, not for data access)
+│       ├── queries.ts                 # Database queries using Supabase client (respects RLS)
+│       └── types.ts                   # Database types (generated from Prisma schema)
 ├── types/
 │   ├── recommendation.ts
 │   ├── preference.ts
 │   ├── listing.ts
 │   ├── ai-evaluation.ts
 │   └── marketplace.ts
+├── generated/
+│   ├── prisma/                        # Prisma generated types and client
+│   └── zod/                           # Zod schemas generated from Prisma models
 └── hooks/
     ├── use-recommendations.ts
     ├── use-preferences.ts
@@ -195,7 +208,7 @@ tests/
     └── preferences.spec.ts
 ```
 
-**Structure Decision**: Next.js App Router web application structure. API routes handle marketplace integration and AI evaluation server-side (reusable for future React Native app). Client components handle UI and user interactions. Supabase provides database, authentication, and real-time features. Business logic in `src/lib/` is platform-agnostic and can be shared with React Native app.
+**Structure Decision**: Next.js App Router web application structure. API routes handle marketplace integration and AI evaluation server-side (reusable for future React Native app). Client components handle UI and user interactions. Supabase provides database, authentication, and real-time features - **Supabase client is used for all data access (respects RLS policies)**. Prisma is used **only for schema definition and migrations** - not for data access. Zod provides runtime validation with schemas auto-generated from Prisma models, used to validate Supabase responses. Business logic in `src/lib/` is platform-agnostic and can be shared with React Native app.
 
 ## Constitution Check (Post-Design)
 
@@ -205,7 +218,7 @@ tests/
 ✅ **PASS**: Test structure defined in project structure. All API routes, components, and business logic will have corresponding tests.
 
 ### II. TypeScript Strictness
-✅ **PASS**: All data models, API contracts, and types are fully defined. Prisma will generate type-safe database access.
+✅ **PASS**: All data models, API contracts, and types are fully defined. Prisma generates types from schema (used for migrations). Supabase client provides type-safe data access with RLS. Zod provides runtime validation with schemas auto-generated from Prisma models via zod-prisma-types, used to validate Supabase responses, ensuring type safety at both compile-time and runtime.
 
 ### III. Feature Branch Workflow (NON-NEGOTIABLE)
 ✅ **PASS**: Working on feature branch `001-ai-bargain-detection`.
@@ -217,7 +230,7 @@ tests/
 ✅ **PASS**: Component structure defined with shadcn/ui base components and feature-specific components.
 
 ### VI. AI Evaluation Transparency
-✅ **PASS**: AI evaluation data model includes confidence scores, reasoning, factors, and prompt versioning. Evaluation results are stored and auditable.
+✅ **PASS**: AI evaluation data model includes confidence scores, reasoning, factors, and prompt versioning. GPT-4o multimodal model will analyze both text descriptions and product images for comprehensive evaluation. Evaluation results are stored and auditable.
 
 ### VII. Marketplace Integration Standards
 ✅ **PASS**: Rate limiting strategy defined. Error handling and retry logic specified. API interactions will be logged.
@@ -226,7 +239,10 @@ tests/
 ✅ **PASS**: API keys stored server-side only. Supabase provides encryption at rest and row-level security. All external calls use HTTPS. Supabase Auth handles secure authentication.
 
 ### IX. Performance Standards
-✅ **PASS**: Performance targets defined. Caching strategy implemented. AI evaluation optimized with batching.
+✅ **PASS**: Performance targets defined. Dual evaluation workflows implemented:
+- Text-only evaluation for automated scanning (faster, cheaper, < 3s)
+- Multimodal evaluation for user-provided listings (higher accuracy, < 5s)
+Caching strategy implemented. AI evaluation optimized with batching.
 
 ### X. Accessibility Compliance
 ✅ **PASS**: Will use semantic HTML, ARIA labels, and meet WCAG 2.1 Level AA standards in all components.
@@ -274,9 +290,10 @@ tests/
    - State management: RTK Query, React Query, or Zustand (all work on both platforms)
 
 4. **Database Access**: 
-   - Web: Supabase client or API routes
-   - Mobile: Supabase React Native SDK with RLS policies
-   - Direct database access on mobile (secure via RLS)
+   - Web: Supabase client for all data access (respects RLS policies) via API routes
+   - Mobile: Supabase React Native SDK for data access (respects RLS policies)
+   - Prisma is used ONLY for schema definition and migrations (not for data access)
+   - Zod schemas auto-generated from Prisma models validate Supabase responses at runtime
 
 5. **Authentication**:
    - Supabase Auth works identically on web and mobile

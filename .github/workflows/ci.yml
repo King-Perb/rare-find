@@ -137,6 +137,12 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: "https://dummy-project.supabase.co"
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "dummy-publishable-key"
 
+      - name: Run Storybook tests
+        run: npm test -- --project storybook
+        env:
+          GITHUB_TOKEN: "test-token-dummy-value"
+          DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+
       - name: Run E2E tests
         run: npm run test:e2e
         env:

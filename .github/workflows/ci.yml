@@ -102,6 +102,9 @@ jobs:
           # Dummy token for build - prevents errors when server components fetch GitHub stats
           GITHUB_TOKEN: "test-token-dummy-value"
           DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+          # Dummy Supabase URLs for build - Next.js embeds NEXT_PUBLIC_ vars at build time
+          NEXT_PUBLIC_SUPABASE_URL: "https://dummy-project.supabase.co"
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "dummy-publishable-key"
 
   e2e:
     name: E2E Tests
@@ -130,6 +133,9 @@ jobs:
         env:
           GITHUB_TOKEN: "test-token-dummy-value"
           DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+          # Dummy Supabase URLs for build - Next.js embeds NEXT_PUBLIC_ vars at build time
+          NEXT_PUBLIC_SUPABASE_URL: "https://dummy-project.supabase.co"
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "dummy-publishable-key"
 
       - name: Run E2E tests
         run: npm run test:e2e

@@ -1,6 +1,6 @@
 import type { StorybookConfig } from '@storybook/nextjs-vite';
 
-import { dirname } from "path"
+import { dirname, join } from "path"
 
 import { fileURLToPath } from "url"
 
@@ -26,7 +26,7 @@ const config: StorybookConfig = {
   ],
   "framework": getAbsolutePath('@storybook/nextjs-vite'),
   "staticDirs": [
-    "..\\public"
+    join(dirname(fileURLToPath(import.meta.url)), "..", "public")
   ],
   "features": {
     experimentalComponentsManifest: true,

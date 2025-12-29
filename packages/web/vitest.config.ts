@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
-import { playwright } from '@vitest/browser-playwright';
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -60,8 +59,9 @@ export default defineConfig({
           exclude: ['**/node_modules/**', '**/dist/**', '**/.next/**', '**/e2e/**', '**/*.e2e.{ts,tsx}', '**/*.spec.ts'],
         }
       },
-      // Storybook tests project
-      {
+      // Storybook tests project - only run when explicitly requested (not in CI)
+      // Storybook tests require browser mode which is handled separately in E2E tests
+      ...(process.env.RUN_STORYBOOK_TESTS === 'true' ? [{
         extends: true,
         plugins: [
         // The plugin will run tests for the stories defined in your Storybook config
@@ -71,17 +71,11 @@ export default defineConfig({
         })],
         test: {
           name: 'storybook',
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: playwright({}),
-            instances: [{
-              browser: 'chromium'
-            }]
-          },
+          environment: "jsdom",
+          // Use jsdom instead of browser mode - E2E tests handle real browser testing
           setupFiles: ['.storybook/vitest.setup.ts']
         }
-      }
+      }] : [])
     ]
   },
   resolve: {

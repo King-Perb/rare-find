@@ -3,6 +3,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { User, Session } from '@supabase/supabase-js';
 import { AuthService } from '../auth.service';
 
 // Mock Supabase auth functions
@@ -27,8 +28,8 @@ describe('AuthService', () => {
       const mockUser = {
         id: 'user-123',
         email: 'test@example.com',
-      };
-      vi.mocked(getCurrentUserImpl).mockResolvedValue(mockUser as any);
+      } as unknown as User;
+      vi.mocked(getCurrentUserImpl).mockResolvedValue(mockUser);
 
       const result = await service.getCurrentUser();
 
@@ -59,8 +60,8 @@ describe('AuthService', () => {
       const mockUser = {
         id: 'user-123',
         email: null,
-      };
-      vi.mocked(getCurrentUserImpl).mockResolvedValue(mockUser as any);
+      } as unknown as User;
+      vi.mocked(getCurrentUserImpl).mockResolvedValue(mockUser);
 
       const result = await service.getCurrentUser();
 
@@ -75,9 +76,9 @@ describe('AuthService', () => {
     it('should return session when available', async () => {
       const mockSession = {
         access_token: 'token-123',
-        user: { id: 'user-123' },
-      };
-      vi.mocked(getSessionImpl).mockResolvedValue(mockSession as any);
+        user: { id: 'user-123' } as unknown as User,
+      } as unknown as Session;
+      vi.mocked(getSessionImpl).mockResolvedValue(mockSession);
 
       const result = await service.getSession();
 

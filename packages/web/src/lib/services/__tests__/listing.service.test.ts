@@ -46,7 +46,7 @@ describe('ListingService', () => {
     });
 
     it('should throw ValidationError if marketplace is invalid', () => {
-      const listing = createSampleListing({ marketplace: 'invalid' as any });
+      const listing = createSampleListing({ marketplace: 'invalid' as unknown as 'amazon' | 'ebay' });
       expect(() => service.validateListing(listing)).toThrow(ValidationError);
       expect(() => service.validateListing(listing)).toThrow('Invalid marketplace');
     });
@@ -98,13 +98,13 @@ describe('ListingService', () => {
     });
 
     it('should default currency to USD if missing', () => {
-      const listing = createSampleListing({ currency: undefined as any });
+      const listing = createSampleListing({ currency: undefined as unknown as string });
       const normalized = service.normalizeListing(listing);
       expect(normalized.currency).toBe('USD');
     });
 
     it('should default available to true if missing', () => {
-      const listing = createSampleListing({ available: undefined as any });
+      const listing = createSampleListing({ available: undefined as unknown as boolean });
       const normalized = service.normalizeListing(listing);
       expect(normalized.available).toBe(true);
     });

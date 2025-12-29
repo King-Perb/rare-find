@@ -1,11 +1,6 @@
----
-description: Package management and version checking standards
-alwaysApply: true
----
-
 # Package Management Rule
 
-**IMPORTANT**: Always check for the latest stable versions of packages before installing or updating them.
+**IMPORTANT**: Always check for the latest stable version of packages before installing or updating them.
 
 ## Mandatory Version Checking
 
@@ -27,7 +22,7 @@ alwaysApply: true
    - Check for known issues or breaking changes
 
 4. **Document the version** in the installation command
-   - Use explicit version numbers (e.g., `^2.47.0`) rather than `latest`
+   - Use explicit version numbers (e.g., `^17.2.3`) rather than `latest`
    - Include version in commit messages when updating packages
    - Note any breaking changes in commit messages
 
@@ -35,8 +30,8 @@ alwaysApply: true
 
 ### Step 1: Check Latest Version
 ```bash
-# Example: Before installing @supabase/supabase-js
-# Search: "@supabase/supabase-js latest stable version npm 2024"
+# Example: Before installing dotenv
+# Search: "dotenv latest stable version npm 2024"
 # Verify: Check npm registry, GitHub releases, or official docs
 ```
 
@@ -48,39 +43,39 @@ alwaysApply: true
 ### Step 3: Install with Explicit Version
 ```bash
 # Good: Explicit version
-npm install @supabase/supabase-js@^2.47.0
+npm install dotenv@^17.2.3
 
 # Avoid: Latest tag (unless explicitly requested)
-npm install @supabase/supabase-js@latest
+npm install dotenv@latest
 ```
 
 ## Examples
 
 ### ✅ Good: Checked Version
 ```bash
-# 1. Search: "@supabase/supabase-js latest stable version"
-# 2. Found: Latest stable is 2.47.0 (as of Dec 2024)
+# 1. Search: "dotenv latest stable version"
+# 2. Found: Latest stable is 17.2.3 (as of Dec 2024)
 # 3. Install:
-npm install @supabase/supabase-js@^2.47.0
+npm install dotenv@^17.2.3
 ```
 
 ### ✅ Good: Updated Version
 ```bash
 # 1. Search: "prisma @prisma/client latest stable version"
-# 2. Found: Latest stable is 6.0.0 (as of Dec 2024)
+# 2. Found: Latest stable is 7.1.0 (as of Dec 2024)
 # 3. Update package.json with explicit versions
 ```
 
 ### ❌ Bad: No Version Check
 ```bash
 # Don't do this - installing without checking latest version
-npm install @supabase/supabase-js
+npm install dotenv
 ```
 
 ### ❌ Bad: Using Latest Tag
 ```bash
 # Don't do this - using @latest without verification
-npm install @supabase/supabase-js@latest
+npm install dotenv@latest
 ```
 
 ## Common Packages to Check

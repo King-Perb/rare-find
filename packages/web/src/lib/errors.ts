@@ -67,6 +67,53 @@ export function logError(error: unknown, context?: Record<string, unknown>) {
 }
 
 /**
+ * Extract user-friendly error message from various error types
+ * 
+ * Handles:
+ * - String errors (returns as-is)
+ * - Error objects (extracts message)
+ * - AppError instances (extracts message)
+ * - Error objects with message/error properties
+ * - Unknown types (returns generic message)
+ * 
+ * @param error - Error of any type
+ * @returns User-friendly error message string, or null if no error
+ */
+export function getErrorMessage(error: string | null | Error | Record<string, unknown>): string | null {
+  if (!error) return null;
+  
+  // String errors
+  if (typeof error === 'string') return error;
+  
+  // Error instances (including AppError and subclasses)
+  if (error instanceof Error) return error.message;
+  
+  // Error objects with message/error properties
+  if (typeof error === 'object' && error !== null) {
+    // Check for direct message property
+    if ('message' in error && typeof error.message === 'string') {
+      return error.message;
+    }
+    
+    // Check for error property (string)
+    if ('error' in error && typeof error.error === 'string') {
+      return error.error;
+    }
+    
+    // Check for nested error object with message
+    if ('error' in error && typeof error.error === 'object' && error.error !== null) {
+      const nestedError = error.error as Record<string, unknown>;
+      if ('message' in nestedError && typeof nestedError.message === 'string') {
+        return nestedError.message;
+      }
+    }
+  }
+  
+  // Fallback: return generic message instead of "[object Object]"
+  return 'An error occurred. Please try again.';
+}
+
+/**
  * Format error for API response
  */
 export function formatErrorResponse(error: unknown) {

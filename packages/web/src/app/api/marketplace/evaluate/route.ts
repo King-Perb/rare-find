@@ -41,8 +41,9 @@ import type { MarketplaceListing } from '@/lib/marketplace/types';
 
 export const POST = withApiHandler<EvaluateListingApiResponse>(
   async (req, context) => {
-    // Require authentication for evaluation endpoint
-    await requireAuth();
+    // Authentication is optional - allow public evaluation for home page
+    // Logged-in users will have context.userId set for tracking
+    // Public users can still evaluate listings
 
     // Resolve services from DI container
     const logger = container.resolve<ILogger>(ServiceKeys.Logger);

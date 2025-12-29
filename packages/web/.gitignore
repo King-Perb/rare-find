@@ -9,3 +9,6 @@ playwright-report/
 
 # Generated files
 /src/generated/prisma
+
+*storybook.log
+storybook-static

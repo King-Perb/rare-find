@@ -1,10 +1,12 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
-import path from "path";
-import { fileURLToPath } from "url";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
+import { playwright } from '@vitest/browser-playwright';
 
+// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 export default defineConfig({
   plugins: [react()],
   test: {
@@ -12,67 +14,80 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.tsx"],
     css: true,
-    exclude: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/.next/**",
-      "**/e2e/**", // Exclude Playwright E2E tests
-      "**/*.e2e.{ts,tsx}",
-      "**/*.spec.ts", // Exclude Playwright spec files
+    exclude: ["**/node_modules/**", "**/dist/**", "**/.next/**", "**/e2e/**",
+    // Exclude Playwright E2E tests
+    "**/*.e2e.{ts,tsx}", "**/*.spec.ts" // Exclude Playwright spec files
     ],
     coverage: {
       provider: "v8",
       exclude: [
-        // Generated files (auto-generated, no need to test)
-        "src/generated/**",
-        // Type definition files (no testable logic)
-        "src/types/**",
-        // Config files (no testable logic)
-        "next.config.ts",
-        "postcss.config.mjs",
-        "eslint.config.mjs",
-        "vitest.config.ts",
-        "playwright.config.ts",
-        "prisma.config.ts",
-        // Test files themselves
-        "**/*.test.{ts,tsx}",
-        "**/__tests__/**",
-        "**/test/**",
-        // Setup files
-        "src/test/**",
-        // Build outputs
-        "**/*.d.ts",
-        "**/dist/**",
-        "**/build/**",
-        ".next/**",
-        "node_modules/**",
-        // Documentation
-        "doc/**",
-        "**/*.md",
-        // Public assets
-        "public/**",
-        // UI component library (shadcn/ui - thin wrappers around Radix UI)
-        // These are third-party component wrappers with minimal logic
-        // Testing them would be testing Radix UI itself, which is already tested
-        "src/components/ui/**",
-        // Data-only files (no logic, just exports)
-        "src/data/manual-technologies.ts",
-        "src/data/mock-data.ts",
-        // Theme provider (thin wrapper around next-themes)
-        "src/components/theme-provider.tsx",
-      ],
-      include: [
-        "src/**/*.{ts,tsx}",
-        // Include root config files if they have testable logic (currently none do)
-        // "next.config.ts", // Empty config, no logic to test
-      ],
+      // Generated files (auto-generated, no need to test)
+      "src/generated/**",
+      // Type definition files (no testable logic)
+      "src/types/**",
+      // Config files (no testable logic)
+      "next.config.ts", "postcss.config.mjs", "eslint.config.mjs", "vitest.config.ts", "playwright.config.ts", "prisma.config.ts",
+      // Test files themselves
+      "**/*.test.{ts,tsx}", "**/__tests__/**", "**/test/**",
+      // Setup files
+      "src/test/**",
+      // Build outputs
+      "**/*.d.ts", "**/dist/**", "**/build/**", ".next/**", "node_modules/**",
+      // Documentation
+      "doc/**", "**/*.md",
+      // Public assets
+      "public/**",
+      // UI component library (shadcn/ui - thin wrappers around Radix UI)
+      // These are third-party component wrappers with minimal logic
+      // Testing them would be testing Radix UI itself, which is already tested
+      "src/components/ui/**",
+      // Data-only files (no logic, just exports)
+      "src/data/manual-technologies.ts", "src/data/mock-data.ts",
+      // Theme provider (thin wrapper around next-themes)
+      "src/components/theme-provider.tsx"],
+      include: ["src/**/*.{ts,tsx}"
+      // Include root config files if they have testable logic (currently none do)
+      // "next.config.ts", // Empty config, no logic to test
+      ]
     },
+    projects: [
+      // Unit tests project
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          include: ['src/**/*.test.{ts,tsx}', 'src/**/__tests__/**/*.test.{ts,tsx}'],
+          exclude: ['**/node_modules/**', '**/dist/**', '**/.next/**', '**/e2e/**', '**/*.e2e.{ts,tsx}', '**/*.spec.ts'],
+        }
+      },
+      // Storybook tests project
+      {
+        extends: true,
+        plugins: [
+        // The plugin will run tests for the stories defined in your Storybook config
+        // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
+        storybookTest({
+          configDir: path.join(__dirname, '.storybook')
+        })],
+        test: {
+          name: 'storybook',
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright({}),
+            instances: [{
+              browser: 'chromium'
+            }]
+          },
+          setupFiles: ['.storybook/vitest.setup.ts']
+        }
+      }
+    ]
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@rare-find/shared": path.resolve(__dirname, "../shared/src"),
-    },
-  },
+      "@rare-find/shared": path.resolve(__dirname, "../shared/src")
+    }
+  }
 });
-

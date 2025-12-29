@@ -45,7 +45,9 @@ describe('DatabaseService', () => {
   describe('User operations', () => {
     it('should get user by ID', async () => {
       const mockUser = { id: 'user-123', email: 'test@example.com' };
-      vi.mocked(dbQueries.getUserById).mockResolvedValue(mockUser as any);
+      vi.mocked(dbQueries.getUserById).mockResolvedValue(
+        mockUser as unknown as Awaited<ReturnType<typeof dbQueries.getUserById>>
+      );
 
       const result = await service.getUserById('user-123');
 
@@ -56,7 +58,9 @@ describe('DatabaseService', () => {
     it('should create user', async () => {
       const userData = { email: 'test@example.com' };
       const mockUser = { id: 'user-123', ...userData };
-      vi.mocked(dbQueries.createUser).mockResolvedValue(mockUser as any);
+      vi.mocked(dbQueries.createUser).mockResolvedValue(
+        mockUser as unknown as Awaited<ReturnType<typeof dbQueries.createUser>>
+      );
 
       const result = await service.createUser(userData);
 
@@ -67,7 +71,9 @@ describe('DatabaseService', () => {
     it('should update user', async () => {
       const updateData = { email: 'new@example.com' };
       const mockUser = { id: 'user-123', ...updateData };
-      vi.mocked(dbQueries.updateUser).mockResolvedValue(mockUser as any);
+      vi.mocked(dbQueries.updateUser).mockResolvedValue(
+        mockUser as unknown as Awaited<ReturnType<typeof dbQueries.updateUser>>
+      );
 
       const result = await service.updateUser('user-123', updateData);
 
@@ -79,7 +85,9 @@ describe('DatabaseService', () => {
   describe('Listing operations', () => {
     it('should get listing by ID', async () => {
       const mockListing = { id: 'listing-123', title: 'Test Listing' };
-      vi.mocked(dbQueries.getListingById).mockResolvedValue(mockListing as any);
+      vi.mocked(dbQueries.getListingById).mockResolvedValue(
+        mockListing as unknown as Awaited<ReturnType<typeof dbQueries.getListingById>>
+      );
 
       const result = await service.getListingById('listing-123');
 
@@ -90,7 +98,9 @@ describe('DatabaseService', () => {
     it('should create listing', async () => {
       const listingData = { title: 'Test Listing', price: 99.99 };
       const mockListing = { id: 'listing-123', ...listingData };
-      vi.mocked(dbQueries.createListing).mockResolvedValue(mockListing as any);
+      vi.mocked(dbQueries.createListing).mockResolvedValue(
+        mockListing as unknown as Awaited<ReturnType<typeof dbQueries.createListing>>
+      );
 
       const result = await service.createListing(listingData);
 
@@ -100,7 +110,9 @@ describe('DatabaseService', () => {
 
     it('should find listing by marketplace', async () => {
       const mockListing = { id: 'listing-123', marketplace: 'amazon', marketplaceId: 'B08XYZ123' };
-      vi.mocked(dbQueries.findListingByMarketplace).mockResolvedValue(mockListing as any);
+      vi.mocked(dbQueries.findListingByMarketplace).mockResolvedValue(
+        mockListing as unknown as Awaited<ReturnType<typeof dbQueries.findListingByMarketplace>>
+      );
 
       const result = await service.findListingByMarketplace('amazon', 'B08XYZ123');
 
@@ -113,7 +125,9 @@ describe('DatabaseService', () => {
     it('should create AI evaluation', async () => {
       const evaluationData = { listingId: 'listing-123', confidenceScore: 85 };
       const mockEvaluation = { id: 'eval-123', ...evaluationData };
-      vi.mocked(dbQueries.createAIEvaluation).mockResolvedValue(mockEvaluation as any);
+      vi.mocked(dbQueries.createAIEvaluation).mockResolvedValue(
+        mockEvaluation as unknown as Awaited<ReturnType<typeof dbQueries.createAIEvaluation>>
+      );
 
       const result = await service.createAIEvaluation(evaluationData);
 
@@ -123,7 +137,9 @@ describe('DatabaseService', () => {
 
     it('should get evaluation by listing ID', async () => {
       const mockEvaluation = { id: 'eval-123', listingId: 'listing-123' };
-      vi.mocked(dbQueries.getEvaluationByListingId).mockResolvedValue(mockEvaluation as any);
+      vi.mocked(dbQueries.getEvaluationByListingId).mockResolvedValue(
+        mockEvaluation as unknown as Awaited<ReturnType<typeof dbQueries.getEvaluationByListingId>>
+      );
 
       const result = await service.getEvaluationByListingId('listing-123');
 
@@ -138,7 +154,9 @@ describe('DatabaseService', () => {
         { id: 'rec-1', userId: 'user-123' },
         { id: 'rec-2', userId: 'user-123' },
       ];
-      vi.mocked(dbQueries.getRecommendationsByUserId).mockResolvedValue(mockRecommendations as any);
+      vi.mocked(dbQueries.getRecommendationsByUserId).mockResolvedValue(
+        mockRecommendations as unknown as Awaited<ReturnType<typeof dbQueries.getRecommendationsByUserId>>
+      );
 
       const result = await service.getRecommendationsByUserId('user-123');
 
@@ -149,7 +167,9 @@ describe('DatabaseService', () => {
     it('should get recommendations with options', async () => {
       const options = { status: 'active', limit: 10 };
       const mockRecommendations = [{ id: 'rec-1' }];
-      vi.mocked(dbQueries.getRecommendationsByUserId).mockResolvedValue(mockRecommendations as any);
+      vi.mocked(dbQueries.getRecommendationsByUserId).mockResolvedValue(
+        mockRecommendations as unknown as Awaited<ReturnType<typeof dbQueries.getRecommendationsByUserId>>
+      );
 
       const result = await service.getRecommendationsByUserId('user-123', options);
 
@@ -164,7 +184,9 @@ describe('DatabaseService', () => {
         { id: 'notif-1', read: false },
         { id: 'notif-2', read: false },
       ];
-      vi.mocked(dbQueries.getUnreadNotifications).mockResolvedValue(mockNotifications as any);
+      vi.mocked(dbQueries.getUnreadNotifications).mockResolvedValue(
+        mockNotifications as unknown as Awaited<ReturnType<typeof dbQueries.getUnreadNotifications>>
+      );
 
       const result = await service.getUnreadNotifications('user-123');
 
@@ -174,7 +196,9 @@ describe('DatabaseService', () => {
 
     it('should mark notification as read', async () => {
       const mockNotification = { id: 'notif-1', read: true };
-      vi.mocked(dbQueries.markNotificationAsRead).mockResolvedValue(mockNotification as any);
+      vi.mocked(dbQueries.markNotificationAsRead).mockResolvedValue(
+        mockNotification as unknown as Awaited<ReturnType<typeof dbQueries.markNotificationAsRead>>
+      );
 
       const result = await service.markNotificationAsRead('notif-1');
 
@@ -189,7 +213,9 @@ describe('DatabaseService', () => {
         { id: 'pref-1', isActive: true },
         { id: 'pref-2', isActive: true },
       ];
-      vi.mocked(dbQueries.getActivePreferences).mockResolvedValue(mockPreferences as any);
+      vi.mocked(dbQueries.getActivePreferences).mockResolvedValue(
+        mockPreferences as unknown as Awaited<ReturnType<typeof dbQueries.getActivePreferences>>
+      );
 
       const result = await service.getActivePreferences('user-123');
 
@@ -206,4 +232,3 @@ describe('DatabaseService', () => {
     });
   });
 });
-

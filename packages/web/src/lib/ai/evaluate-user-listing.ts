@@ -3,6 +3,7 @@
  * 
  * Full multimodal evaluation using GPT-4o for user-submitted listings.
  * This workflow analyzes both text descriptions and product images for maximum accuracy.
+ * Uses the OpenAI Responses API with built-in web search for real-time market data.
  * 
  * Use this for:
  * - User explicitly requests evaluation of a specific listing
@@ -18,9 +19,19 @@ import type {
   EvaluationInput,
   EvaluationResult,
   AIEvaluationResponse,
+  WebSearchCitation,
 } from './types';
 import { getEvaluationPrompt, PROMPT_VERSION, MODEL_VERSION } from './prompts';
 import type { MarketplaceListing } from '../marketplace/types';
+
+/**
+ * Get the model to use for evaluation
+ * 
+ * Uses the configured model from OPENAI_MODEL environment variable (default: gpt-4o).
+ */
+function getModelForEvaluation(): string {
+  return MODEL_VERSION;
+}
 
 /**
  * Initialize OpenAI client
@@ -77,56 +88,98 @@ function formatListingForEvaluation(listing: MarketplaceListing): string {
 }
 
 /**
- * Build messages for OpenAI API
+ * Build input content for OpenAI Responses API
+ * 
+ * The Responses API uses a different format than Chat Completions.
+ * For multimodal, we include image URLs in the input array.
  */
-function buildMessages(
+function buildResponsesInput(
   prompt: string,
   listing: MarketplaceListing,
   mode: 'multimodal' | 'text-only'
-): OpenAI.Chat.Completions.ChatCompletionMessageParam[] {
-  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-    {
-      role: 'system',
-      content: prompt,
-    },
-  ];
+): string | OpenAI.Responses.ResponseInputItem[] {
+  const listingData = formatListingForEvaluation(listing);
+  const fullPrompt = `${prompt}\n\n${listingData}`;
 
-  // For multimodal mode, include images in the user message
+  // For multimodal mode, include images in the input
   if (mode === 'multimodal' && listing.images && listing.images.length > 0) {
-    const content: OpenAI.Chat.Completions.ChatCompletionContentPart[] = [
+    // Build content array with text and images
+    const contentParts: OpenAI.Responses.ResponseInputContent[] = [
       {
-        type: 'text',
-        text: formatListingForEvaluation(listing),
+        type: 'input_text',
+        text: fullPrompt,
       },
     ];
 
-    // Add image URLs (GPT-4o supports image URLs)
+    // Add image URLs (limit to 10 to avoid token limits)
     for (const imageUrl of listing.images.slice(0, 10)) {
-      // Limit to 10 images to avoid token limits
-      // Only include valid HTTP/HTTPS URLs
       if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-        content.push({
-          type: 'image_url',
-          image_url: {
-            url: imageUrl,
-          },
+        contentParts.push({
+          type: 'input_image',
+          image_url: imageUrl,
+          detail: 'auto', // Let the model determine the appropriate detail level
         });
       }
     }
 
-    messages.push({
-      role: 'user',
-      content,
-    });
-  } else {
-    // Text-only mode
-    messages.push({
-      role: 'user',
-      content: formatListingForEvaluation(listing),
-    });
+    const inputParts: OpenAI.Responses.ResponseInputItem[] = [
+      {
+        type: 'message',
+        role: 'user',
+        content: contentParts,
+      },
+    ];
+
+    return inputParts;
   }
 
-  return messages;
+  // Text-only mode - simple string input
+  return fullPrompt;
+}
+
+/**
+ * Extract web search usage information from OpenAI Responses API response
+ * 
+ * The Responses API includes information about tool usage in the output array.
+ * We look for web_search_call items to detect if web search was used.
+ */
+function extractWebSearchInfo(response: OpenAI.Responses.Response): {
+  webSearchUsed: boolean;
+  citations: WebSearchCitation[];
+} {
+  const citations: WebSearchCitation[] = [];
+  let webSearchUsed = false;
+
+  // Check the output array for web search calls and message annotations
+  if (response.output && Array.isArray(response.output)) {
+    for (const outputItem of response.output) {
+      // Check for web_search_call type items
+      if (outputItem.type === 'web_search_call') {
+        webSearchUsed = true;
+      }
+      
+      // Check for message items with annotations (citations)
+      if (outputItem.type === 'message' && outputItem.content) {
+        for (const contentPart of outputItem.content) {
+          // Check for output_text with annotations
+          if (contentPart.type === 'output_text' && contentPart.annotations) {
+            for (const annotation of contentPart.annotations) {
+              if (annotation.type === 'url_citation') {
+                citations.push({
+                  url: annotation.url,
+                  title: annotation.title,
+                  startIndex: annotation.start_index,
+                  endIndex: annotation.end_index,
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return { webSearchUsed, citations };
 }
 
 /**
@@ -177,6 +230,7 @@ function parseAIResponse(
     const factors = Array.isArray(response.factors)
       ? response.factors.map(String)
       : [];
+    const isReplicaOrNovelty = response.isReplicaOrNovelty === true;
 
     // Validate ranges
     if (
@@ -212,6 +266,7 @@ function parseAIResponse(
       confidenceScore: Math.round(confidenceScore), // Ensure integer
       reasoning: reasoning.trim(),
       factors,
+      isReplicaOrNovelty,
     };
   } catch (error) {
     logger.error('Failed to parse AI response', {
@@ -239,11 +294,14 @@ export async function evaluateUserListing(
 ): Promise<EvaluationResult> {
   const { listing, mode } = input;
 
+  const modelToUse = getModelForEvaluation();
+  
   logger.info('Starting user-provided listing evaluation', {
     listingId: listing.marketplaceId,
     marketplace: listing.marketplace,
     mode,
     hasImages: listing.images?.length > 0,
+    model: modelToUse,
   });
 
   // Validate mode
@@ -264,38 +322,80 @@ export async function evaluateUserListing(
   try {
     const openai = getOpenAIClient();
     const prompt = getEvaluationPrompt(effectiveMode);
-    const messages = buildMessages(prompt, listing, effectiveMode);
+    const input = buildResponsesInput(prompt, listing, effectiveMode);
 
-    logger.debug('Sending request to OpenAI', {
-      model: MODEL_VERSION,
+    logger.debug('Sending request to OpenAI Responses API', {
+      model: modelToUse,
       mode: effectiveMode,
       imageCount: effectiveMode === 'multimodal' ? listing.images?.length : 0,
+      webSearchEnabled: true,
     });
 
     const startTime = Date.now();
-    const completion = await openai.chat.completions.create({
-      model: MODEL_VERSION,
-      messages,
-      response_format: { type: 'json_object' }, // Force JSON output
+    
+    // Use Responses API with web search tool enabled
+    // Note: Web search cannot be used with JSON mode, so we parse JSON manually from the response
+    const response = await openai.responses.create({
+      model: modelToUse,
+      input,
+      tools: [
+        { type: 'web_search_preview' }, // Enable web search for real-time market data
+      ],
       temperature: 0.7, // Balance between creativity and consistency
-      max_tokens: 1000, // Sufficient for evaluation response
+      max_output_tokens: 1000, // Sufficient for evaluation response
+      // Note: Cannot use json_object format with web_search_preview - the prompt instructs JSON output
     });
 
     const duration = Date.now() - startTime;
-    logger.info('Received OpenAI response', {
+    
+    // Extract web search usage from response
+    const { webSearchUsed, citations } = extractWebSearchInfo(response);
+    
+    logger.info('Received OpenAI Responses API response', {
       duration,
-      tokensUsed: completion.usage?.total_tokens,
+      tokensUsed: response.usage?.total_tokens,
+      webSearchUsed,
+      citationCount: citations.length,
     });
 
-    const content = completion.choices[0]?.message?.content;
+    // Get the output text from the response
+    const content = response.output_text;
+    
+    // Log the full AI response for debugging
+    console.log('=== FULL AI RESPONSE ===');
+    console.log('Raw content:', content);
+    console.log('Content type:', typeof content);
+    console.log('Content length:', content?.length);
+    console.log('Web search used:', webSearchUsed);
+    console.log('Citations:', citations);
+    console.log('========================');
+    
+    logger.debug('Raw AI response content', {
+      content,
+      contentLength: content?.length,
+      listingId: listing.marketplaceId,
+      webSearchUsed,
+    });
+    
     const aiResponse = parseAIResponse(content);
+    
+    // Log parsed response
+    console.log('=== PARSED AI RESPONSE ===');
+    console.log('Estimated Market Value:', aiResponse.estimatedMarketValue);
+    console.log('Undervaluation Percentage:', aiResponse.undervaluationPercentage);
+    console.log('Confidence Score:', aiResponse.confidenceScore);
+    console.log('Reasoning:', aiResponse.reasoning);
+    console.log('Factors:', aiResponse.factors);
+    console.log('==========================');
 
     const result: EvaluationResult = {
       evaluation: aiResponse,
-      modelVersion: MODEL_VERSION,
+      modelVersion: modelToUse,
       promptVersion: PROMPT_VERSION,
       evaluationMode: effectiveMode,
       evaluatedAt: new Date(),
+      webSearchUsed,
+      webSearchCitations: citations.length > 0 ? citations : undefined,
     };
 
     logger.info('Evaluation completed successfully', {
@@ -304,6 +404,7 @@ export async function evaluateUserListing(
       undervaluationPercentage: aiResponse.undervaluationPercentage,
       mode: effectiveMode,
       duration,
+      webSearchUsed,
     });
 
     return result;

@@ -74,8 +74,8 @@
 - [x] T026 [US1] Create rate limiter for marketplace APIs in `packages/web/src/lib/marketplace/rate-limiter.ts`
 - [x] T027 [US1] Implement Amazon search functionality in `packages/web/src/lib/marketplace/amazon/search.ts`
 - [x] T028 [US1] Implement eBay search functionality in `packages/web/src/lib/marketplace/ebay/search.ts`
-- [ ] T028a [US1] Implement Amazon getItemById functionality in `packages/web/src/lib/marketplace/amazon/client.ts` (required for URL-based evaluation)
-- [ ] T028b [US1] Implement eBay getItemById functionality in `packages/web/src/lib/marketplace/ebay/client.ts` (required for URL-based evaluation)
+- [x] T028a [US1] Implement Amazon getItemById functionality in `packages/web/src/lib/marketplace/amazon/client.ts` (required for URL-based evaluation)
+- [x] T028b [US1] Implement eBay getItemById functionality in `packages/web/src/lib/marketplace/ebay/client.ts` (required for URL-based evaluation)
 - [ ] T029 [P] [US1] Create automated scanning evaluation logic (text-only optimized) in `packages/web/src/lib/ai/evaluate-scanning.ts`
 - [x] T029a [P] [US1] Create user-provided listing evaluation logic (full multimodal) in `packages/web/src/lib/ai/evaluate-user-listing.ts`
 - [ ] T030 [P] [US1] Create AI prompts (version-controlled) in `packages/web/src/lib/ai/prompts.ts` (include prompts for both text-only and multimodal workflows)
@@ -84,7 +84,11 @@
 - [ ] T033 [US1] Implement notification delivery in `packages/web/src/lib/recommendations/notifications.ts`
 - [ ] T034 [US1] Create POST /api/marketplace/search endpoint in `packages/web/src/app/api/marketplace/search/route.ts`
 - [x] T035 [US1] Create POST /api/marketplace/evaluate endpoint in `packages/web/src/app/api/marketplace/evaluate/route.ts` (supports both workflows: user-provided with multimodal, automated scanning with text-only)
-- [ ] T035a [US1] Implement URL parsing and fetching in `/api/marketplace/evaluate` endpoint (parseMarketplaceUrl and fetchListingFromUrl functions) - depends on T028a and T028b
+- [x] T035a [US1] Implement URL parsing and fetching in `/api/marketplace/evaluate` endpoint (parseMarketplaceUrl and fetchListingFromUrl functions) - depends on T028a and T028b
+- [ ] T035b [P] [US1] Create evaluation page in `packages/web/src/app/evaluate/page.tsx` - URL input form and results display
+- [ ] T035c [P] [US1] Create evaluation form component in `packages/web/src/components/evaluation/evaluation-form.tsx` - handles URL input, validation, and submission
+- [ ] T035d [P] [US1] Create evaluation results component in `packages/web/src/components/evaluation/evaluation-results.tsx` - displays listing details, AI evaluation, and reasoning
+- [ ] T035e [P] [US1] Create use-evaluation hook in `packages/web/src/hooks/use-evaluation.ts` - handles API calls, loading states, and error handling
 - [ ] T036 [US1] Create GET /api/recommendations endpoint in `packages/web/src/app/api/recommendations/route.ts`
 - [ ] T037 [US1] Create POST /api/recommendations endpoint in `packages/web/src/app/api/recommendations/route.ts`
 - [ ] T038 [US1] Create recommendation list component in `packages/web/src/components/recommendations/recommendation-list.tsx`
@@ -276,10 +280,10 @@ With multiple developers:
 
 ## Task Summary
 
-- **Total Tasks**: 87
+- **Total Tasks**: 92
 - **Phase 1 (Setup)**: 5 tasks
 - **Phase 2 (Foundational)**: 11 tasks
-- **Phase 3 (User Story 1 - MVP)**: 30 tasks (added T029a, T028a, T028b, T035a)
+- **Phase 3 (User Story 1 - MVP)**: 35 tasks (added T029a, T028a, T028b, T035a, T035b-T035e for frontend evaluation UI)
 - **Phase 4 (User Story 2)**: 11 tasks
 - **Phase 5 (User Story 3)**: 8 tasks
 - **Phase 6 (User Story 4)**: 8 tasks
@@ -288,7 +292,7 @@ With multiple developers:
 **Parallel Opportunities**: 
 - Setup tasks: 5 parallel
 - Foundational tasks: 8 parallel
-- User Story 1: 17 parallel (marketplace clients, AI logic for both workflows, types)
+- User Story 1: 22 parallel (marketplace clients, AI logic for both workflows, types, frontend evaluation UI)
 - User Story 2: 6 parallel
 - User Story 3: 4 parallel
 - User Story 4: 4 parallel

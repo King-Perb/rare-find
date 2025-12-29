@@ -2,11 +2,17 @@
  * Rate limiter for marketplace APIs
  * 
  * Implements token bucket algorithm to respect API rate limits:
- * - Amazon: 1 request per second (86400/day)
+ * - Amazon PA-API: 1 request per second (86400/day)
+ * - Amazon RapidAPI: 5 requests per second (depends on plan)
  * - eBay: ~0.058 requests per second (5000/day)
  */
 
 import type { Marketplace } from './types';
+
+/**
+ * Rate limit source - extends Marketplace with API-specific sources
+ */
+export type RateLimitSource = Marketplace | 'amazon-rapidapi';
 
 interface TokenBucket {
   tokens: number;
@@ -16,15 +22,25 @@ interface TokenBucket {
 }
 
 class MarketplaceRateLimiter {
-  private buckets: Map<Marketplace, TokenBucket> = new Map();
+  private buckets: Map<RateLimitSource, TokenBucket> = new Map();
 
   constructor() {
-    // Initialize token buckets for each marketplace
+    // Initialize token buckets for each marketplace/API source
     this.buckets.set('amazon', {
       tokens: 1, // Start with 1 token (can make immediate request)
       lastRefill: Date.now(),
       capacity: 1,
-      refillRate: 1, // 1 token per second
+      refillRate: 1, // 1 token per second (PA-API limit)
+    });
+
+    // RapidAPI has more generous limits (depends on subscription tier)
+    // Free tier: ~500 requests/month, Pro: 10,000+/month
+    // Setting to 5 req/sec as a reasonable default
+    this.buckets.set('amazon-rapidapi', {
+      tokens: 5,
+      lastRefill: Date.now(),
+      capacity: 5,
+      refillRate: 5, // 5 tokens per second
     });
 
     this.buckets.set('ebay', {
@@ -38,8 +54,8 @@ class MarketplaceRateLimiter {
   /**
    * Refill tokens based on elapsed time
    */
-  private refillTokens(marketplace: Marketplace): void {
-    const bucket = this.buckets.get(marketplace);
+  private refillTokens(source: RateLimitSource): void {
+    const bucket = this.buckets.get(source);
     if (!bucket) return;
 
     const now = Date.now();
@@ -53,18 +69,18 @@ class MarketplaceRateLimiter {
   /**
    * Check if a request can be made immediately
    */
-  canMakeRequest(marketplace: Marketplace): boolean {
-    this.refillTokens(marketplace);
-    const bucket = this.buckets.get(marketplace);
+  canMakeRequest(source: RateLimitSource): boolean {
+    this.refillTokens(source);
+    const bucket = this.buckets.get(source);
     return bucket ? bucket.tokens >= 1 : false;
   }
 
   /**
    * Consume a token (make a request)
    */
-  consumeToken(marketplace: Marketplace): void {
-    this.refillTokens(marketplace);
-    const bucket = this.buckets.get(marketplace);
+  consumeToken(source: RateLimitSource): void {
+    this.refillTokens(source);
+    const bucket = this.buckets.get(source);
     if (bucket && bucket.tokens >= 1) {
       bucket.tokens -= 1;
     }
@@ -73,9 +89,9 @@ class MarketplaceRateLimiter {
   /**
    * Get the time to wait before next request can be made (in milliseconds)
    */
-  getWaitTime(marketplace: Marketplace): number {
-    this.refillTokens(marketplace);
-    const bucket = this.buckets.get(marketplace);
+  getWaitTime(source: RateLimitSource): number {
+    this.refillTokens(source);
+    const bucket = this.buckets.get(source);
     if (!bucket) return 0;
 
     if (bucket.tokens >= 1) {
@@ -91,12 +107,12 @@ class MarketplaceRateLimiter {
   /**
    * Wait until a token is available, then consume it
    */
-  async waitAndConsume(marketplace: Marketplace): Promise<void> {
-    const waitTime = this.getWaitTime(marketplace);
+  async waitAndConsume(source: RateLimitSource): Promise<void> {
+    const waitTime = this.getWaitTime(source);
     if (waitTime > 0) {
       await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
-    this.consumeToken(marketplace);
+    this.consumeToken(source);
   }
 }
 
@@ -117,8 +133,8 @@ export function getRateLimiter(): MarketplaceRateLimiter {
  * Wait for rate limit and make request
  * Use this before making marketplace API calls
  */
-export async function waitForRateLimit(marketplace: Marketplace): Promise<void> {
+export async function waitForRateLimit(source: RateLimitSource): Promise<void> {
   const limiter = getRateLimiter();
-  await limiter.waitAndConsume(marketplace);
+  await limiter.waitAndConsume(source);
 }
 

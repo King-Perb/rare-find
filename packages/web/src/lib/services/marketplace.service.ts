@@ -2,26 +2,99 @@
  * Marketplace Service
  * 
  * Handles marketplace URL parsing, fetching listings, and marketplace client management
+ * 
+ * Supports multiple Amazon API sources:
+ * - PA-API 5.0 (official Amazon Product Advertising API)
+ * - RapidAPI Real-Time Amazon Data (alternative, easier setup)
+ * 
+ * Set AMAZON_API_SOURCE environment variable to choose:
+ * - 'pa-api' (default) - Use Amazon PA-API 5.0
+ * - 'rapidapi' - Use RapidAPI Real-Time Amazon Data
  */
 
 import type { IMarketplaceService, ILogger } from './interfaces';
-import type { MarketplaceListing, MarketplaceSearchParams, MarketplaceSearchResult } from '../marketplace/types';
+import type { MarketplaceListing, MarketplaceSearchParams, MarketplaceSearchResult, MarketplaceClient } from '../marketplace/types';
 import { ValidationError, AppError } from '../errors';
 import { createAmazonClient, type AmazonClient } from '../marketplace/amazon/client';
+import { createRapidAPIAmazonClient, isRapidAPIConfigured, type RapidAPIAmazonClient } from '../marketplace/amazon/rapidapi-client';
 import { createEbayClient, type eBayClient } from '../marketplace/ebay/client';
 
+/**
+ * Amazon API source type
+ */
+export type AmazonAPISource = 'pa-api' | 'rapidapi';
+
+/**
+ * Get the configured Amazon API source
+ */
+function getAmazonAPISource(): AmazonAPISource {
+  const source = process.env.AMAZON_API_SOURCE?.toLowerCase();
+  if (source === 'rapidapi') {
+    return 'rapidapi';
+  }
+  return 'pa-api';
+}
+
+/**
+ * Create the appropriate Amazon client based on configuration
+ */
+function createConfiguredAmazonClient(logger: ILogger): MarketplaceClient {
+  const source = getAmazonAPISource();
+  
+  if (source === 'rapidapi') {
+    if (!isRapidAPIConfigured()) {
+      logger.warn('RapidAPI selected but not configured, falling back to PA-API');
+      return createAmazonClient();
+    }
+    logger.info('Using RapidAPI Real-Time Amazon Data client');
+    return createRapidAPIAmazonClient();
+  }
+  
+  logger.info('Using Amazon PA-API 5.0 client');
+  return createAmazonClient();
+}
+
 export class MarketplaceService implements IMarketplaceService {
-  private readonly amazonClient: AmazonClient;
-  private readonly ebayClient: eBayClient;
+  private readonly amazonClient: MarketplaceClient;
+  private ebayClient: eBayClient | null = null;
+  private readonly amazonAPISource: AmazonAPISource;
 
   constructor(
     private readonly logger: ILogger,
-    amazonClient?: AmazonClient,
+    amazonClient?: MarketplaceClient,
     ebayClient?: eBayClient
   ) {
     // Allow injection of clients for testing, or create new instances
-    this.amazonClient = amazonClient || createAmazonClient();
-    this.ebayClient = ebayClient || createEbayClient();
+    this.amazonClient = amazonClient || createConfiguredAmazonClient(logger);
+    // eBay client is lazy-loaded - only create when needed
+    if (ebayClient) {
+      this.ebayClient = ebayClient;
+    }
+    this.amazonAPISource = getAmazonAPISource();
+    
+    this.logger.info('MarketplaceService initialized', {
+      amazonAPISource: this.amazonAPISource,
+    });
+  }
+
+  /**
+   * Get eBay client (lazy initialization)
+   * Only creates the client when actually needed
+   */
+  private getEbayClient(): eBayClient {
+    if (!this.ebayClient) {
+      try {
+        this.ebayClient = createEbayClient();
+      } catch (error) {
+        throw new AppError(
+          'eBay API is not configured. Set EBAY_APP_ID environment variable to enable eBay support.',
+          500,
+          'EBAY_NOT_CONFIGURED',
+          error instanceof Error ? error : undefined
+        );
+      }
+    }
+    return this.ebayClient;
   }
 
   parseMarketplaceUrl(url: string): {
@@ -109,7 +182,7 @@ export class MarketplaceService implements IMarketplaceService {
       }
 
       if (marketplace === 'ebay') {
-        return await this.ebayClient.getItemById(marketplaceId);
+        return await this.getEbayClient().getItemById(marketplaceId);
       }
 
       throw new ValidationError(`Unsupported marketplace: ${marketplace}`);
@@ -136,7 +209,7 @@ export class MarketplaceService implements IMarketplaceService {
     }
     
     if (params.marketplace === 'ebay') {
-      return await this.ebayClient.search(params);
+      return await this.getEbayClient().search(params);
     }
 
     // Default to Amazon if no marketplace specified

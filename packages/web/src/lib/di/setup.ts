@@ -1,6 +1,6 @@
 /**
  * Dependency Injection Setup
- * 
+ *
  * Registers all services with the DI container
  */
 
@@ -53,4 +53,3 @@ export function initializeDI(): void {
 
 // Auto-initialize on module load
 initializeDI();
-

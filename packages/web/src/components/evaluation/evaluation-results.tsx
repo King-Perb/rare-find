@@ -1,6 +1,6 @@
 /**
  * Evaluation Results Component
- * 
+ *
  * Displays listing details and AI evaluation results
  */
 
@@ -63,7 +63,7 @@ function getConfidenceBarColor(score: number): string {
 
 /**
  * Evaluation results component
- * 
+ *
  * Displays listing information, AI evaluation, and reasoning
  */
 export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
@@ -71,17 +71,17 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
   const priceDifference = evaluation.estimatedMarketValue - listing.price;
   const isGoodDeal = evaluation.undervaluationPercentage > 0;
   const isReplicaOrNovelty = evaluation.isReplicaOrNovelty ?? false;
-  
+
   // Debug: Log replica status (remove in production)
   if (process.env.NODE_ENV === 'development') {
     console.log('isReplicaOrNovelty:', isReplicaOrNovelty, 'evaluation.isReplicaOrNovelty:', evaluation.isReplicaOrNovelty);
   }
-  
+
   // Determine savings/overpayment display
   const hasSavings = priceDifference > 0;
   const overpaymentAmount = Math.max(0, -priceDifference);
   const savingsAmount = Math.max(0, priceDifference);
-  
+
   // Determine color class - replica takes priority (yellow), then good deals (green)
   const getValueColorClass = (): string => {
     if (isReplicaOrNovelty) {
@@ -100,7 +100,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
       {/* Listing Details */}
       <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold mb-4 text-foreground">Listing Details</h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Images */}
           {listing.images && listing.images.length > 0 && (
@@ -147,7 +147,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
                   {formatCurrency(listing.price, listing.currency)}
                 </span>
               </div>
-              
+
               {listing.condition && (
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Condition:</span>
@@ -214,7 +214,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
                   Replica or Novelty Item
                 </h3>
                 <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                  This item has been identified as a replica, reproduction, or novelty item, not an authentic collectible. 
+                  This item has been identified as a replica, reproduction, or novelty item, not an authentic collectible.
                   The estimated value reflects its value as a replica/novelty item, which is typically much lower than an authentic version.
                 </p>
               </div>
@@ -238,8 +238,8 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
               {hasSavings ? 'Potential Savings' : 'Overpriced By'}
             </div>
             <div className={`text-2xl font-bold ${hasSavings ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-              {hasSavings 
-                ? `+${formatCurrency(savingsAmount)}` 
+              {hasSavings
+                ? `+${formatCurrency(savingsAmount)}`
                 : formatCurrency(overpaymentAmount)}
             </div>
           </div>
@@ -249,8 +249,8 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
               {isGoodDeal ? 'Undervaluation' : 'Overvaluation'}
             </div>
             <div className={`text-2xl font-bold ${isGoodDeal ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-              {isGoodDeal 
-                ? `+${formatPercentage(evaluation.undervaluationPercentage)}` 
+              {isGoodDeal
+                ? `+${formatPercentage(evaluation.undervaluationPercentage)}`
                 : formatPercentage(Math.abs(evaluation.undervaluationPercentage))}
             </div>
           </div>
@@ -297,4 +297,3 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
     </div>
   );
 }
-

@@ -1,14 +1,14 @@
 /**
  * RapidAPI Real-Time Amazon Data Client
- * 
+ *
  * Alternative Amazon client using the Real-Time Amazon Data API from RapidAPI
  * API: https://rapidapi.com/letscrape-6bRBa3QguO5/api/real-time-amazon-data
- * 
+ *
  * Advantages over PA-API:
  * - Simple API key authentication (no AWS Signature v4)
  * - No Amazon Associates account required
  * - Richer data (reviews, seller details, etc.)
- * 
+ *
  * Use when:
  * - You don't have Amazon PA-API access
  * - You need simpler setup for development/testing
@@ -136,7 +136,7 @@ export class RapidAPIAmazonClient {
   private transformProductToListing(product: RapidAPIProductDetails): MarketplaceListing {
     // Try to get price from multiple possible fields
     const price = this.extractPrice(product);
-    
+
     return {
       id: product.asin,
       marketplace: 'amazon',
@@ -203,13 +203,13 @@ export class RapidAPIAmazonClient {
       const price = this.parsePrice(product.product_price);
       if (price > 0) return price;
     }
-    
+
     // Fall back to original_price if current price is missing
     if (product.product_original_price) {
       const price = this.parsePrice(product.product_original_price);
       if (price > 0) return price;
     }
-    
+
     // If no price found, return 0 (will be caught by validation)
     return 0;
   }
@@ -220,7 +220,7 @@ export class RapidAPIAmazonClient {
    */
   private parsePrice(priceStr?: string): number {
     if (!priceStr) return 0;
-    
+
     // Remove currency symbols, commas, and whitespace, then parse
     const cleaned = priceStr.replace(/[$,\s]/g, '');
     const price = parseFloat(cleaned);
@@ -232,7 +232,7 @@ export class RapidAPIAmazonClient {
    */
   private parseRating(ratingStr?: string): number | undefined {
     if (!ratingStr) return undefined;
-    
+
     // Extract number from "4.5 out of 5 stars" or "4.5"
     const match = ratingStr.match(/(\d+\.?\d*)/);
     if (match) {
@@ -274,9 +274,9 @@ export class RapidAPIAmazonClient {
    */
   private isAvailable(availability?: string): boolean {
     if (!availability) return true;
-    
+
     const lower = availability.toLowerCase();
-    return !lower.includes('out of stock') && 
+    return !lower.includes('out of stock') &&
            !lower.includes('unavailable') &&
            !lower.includes('currently unavailable');
   }
@@ -344,4 +344,3 @@ export function createRapidAPIAmazonClient(): RapidAPIAmazonClient {
 export function isRapidAPIConfigured(): boolean {
   return !!process.env.RAPIDAPI_KEY;
 }
-

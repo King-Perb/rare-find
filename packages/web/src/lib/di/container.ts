@@ -1,6 +1,6 @@
 /**
  * Dependency Injection Container
- * 
+ *
  * Simple DI container for managing service dependencies and enabling testability
  */
 
@@ -45,7 +45,7 @@ class DIContainer {
     }
 
     const instance = factory() as T;
-    
+
     // Cache as singleton if it's a singleton service
     // (We check if it was registered as singleton by checking if it's already in singletons)
     // For now, we'll cache all resolved services as singletons
@@ -94,4 +94,3 @@ export const ServiceKeys = {
   DatabaseService: Symbol('DatabaseService'),
   AuthService: Symbol('AuthService'),
 } as const;
-

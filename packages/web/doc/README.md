@@ -39,4 +39,3 @@ These documents provide:
 - **Test documentation**: See `src/lib/services/__tests__/README.md` for test usage
 - **API documentation**: See `src/app/api/README.md` for API route documentation
 - **Prisma documentation**: See `prisma/README.md` for database schema
-

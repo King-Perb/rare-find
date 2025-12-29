@@ -1,10 +1,10 @@
 /**
  * User-Provided Listing Evaluation
- * 
+ *
  * Full multimodal evaluation using GPT-4o for user-submitted listings.
  * This workflow analyzes both text descriptions and product images for maximum accuracy.
  * Uses the OpenAI Responses API with built-in web search for real-time market data.
- * 
+ *
  * Use this for:
  * - User explicitly requests evaluation of a specific listing
  * - Manual listing submission via UI
@@ -26,7 +26,7 @@ import type { MarketplaceListing } from '../marketplace/types';
 
 /**
  * Get the model to use for evaluation
- * 
+ *
  * Uses the configured model from OPENAI_MODEL environment variable (default: gpt-4o).
  */
 function getModelForEvaluation(): string {
@@ -55,7 +55,7 @@ function formatListingForEvaluation(listing: MarketplaceListing): string {
   const parts: string[] = [];
 
   parts.push(`**Title**: ${listing.title}`);
-  
+
   if (listing.description) {
     parts.push(`**Description**: ${listing.description}`);
   }
@@ -89,7 +89,7 @@ function formatListingForEvaluation(listing: MarketplaceListing): string {
 
 /**
  * Build input content for OpenAI Responses API
- * 
+ *
  * The Responses API uses a different format than Chat Completions.
  * For multimodal, we include image URLs in the input array.
  */
@@ -139,7 +139,7 @@ function buildResponsesInput(
 
 /**
  * Extract web search usage information from OpenAI Responses API response
- * 
+ *
  * The Responses API includes information about tool usage in the output array.
  * We look for web_search_call items to detect if web search was used.
  */
@@ -157,7 +157,7 @@ function extractWebSearchInfo(response: OpenAI.Responses.Response): {
       if (outputItem.type === 'web_search_call') {
         webSearchUsed = true;
       }
-      
+
       // Check for message items with annotations (citations)
       if (outputItem.type === 'message' && outputItem.content) {
         for (const contentPart of outputItem.content) {
@@ -284,7 +284,7 @@ function parseAIResponse(
 
 /**
  * Evaluate a user-provided listing using GPT-4o multimodal capabilities
- * 
+ *
  * @param input - Evaluation input containing listing data and mode
  * @returns Evaluation result with AI assessment
  * @throws AppError if evaluation fails
@@ -295,7 +295,7 @@ export async function evaluateUserListing(
   const { listing, mode } = input;
 
   const modelToUse = getModelForEvaluation();
-  
+
   logger.info('Starting user-provided listing evaluation', {
     listingId: listing.marketplaceId,
     marketplace: listing.marketplace,
@@ -332,7 +332,7 @@ export async function evaluateUserListing(
     });
 
     const startTime = Date.now();
-    
+
     // Use Responses API with web search tool enabled
     // Note: Web search cannot be used with JSON mode, so we parse JSON manually from the response
     const response = await openai.responses.create({
@@ -347,10 +347,10 @@ export async function evaluateUserListing(
     });
 
     const duration = Date.now() - startTime;
-    
+
     // Extract web search usage from response
     const { webSearchUsed, citations } = extractWebSearchInfo(response);
-    
+
     logger.info('Received OpenAI Responses API response', {
       duration,
       tokensUsed: response.usage?.total_tokens,
@@ -360,7 +360,7 @@ export async function evaluateUserListing(
 
     // Get the output text from the response
     const content = response.output_text;
-    
+
     // Log the full AI response for debugging
     console.log('=== FULL AI RESPONSE ===');
     console.log('Raw content:', content);
@@ -369,16 +369,16 @@ export async function evaluateUserListing(
     console.log('Web search used:', webSearchUsed);
     console.log('Citations:', citations);
     console.log('========================');
-    
+
     logger.debug('Raw AI response content', {
       content,
       contentLength: content?.length,
       listingId: listing.marketplaceId,
       webSearchUsed,
     });
-    
+
     const aiResponse = parseAIResponse(content);
-    
+
     // Log parsed response
     console.log('=== PARSED AI RESPONSE ===');
     console.log('Estimated Market Value:', aiResponse.estimatedMarketValue);
@@ -427,4 +427,3 @@ export async function evaluateUserListing(
     );
   }
 }
-

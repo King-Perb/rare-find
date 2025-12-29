@@ -1,6 +1,6 @@
 /**
  * Service Interfaces
- * 
+ *
  * Define contracts for all services to enable dependency injection and testing
  */
 
@@ -127,4 +127,3 @@ export interface IAuthService {
    */
   signOut(): Promise<void>;
 }
-

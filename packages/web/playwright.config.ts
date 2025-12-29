@@ -72,4 +72,3 @@ export default defineConfig({
     cwd: process.cwd(),
   },
 });
-

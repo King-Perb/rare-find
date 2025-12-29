@@ -669,4 +669,3 @@ describe('isRapidAPIConfigured', () => {
     expect(isRapidAPIConfigured()).toBe(false);
   });
 });
-

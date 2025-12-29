@@ -1,13 +1,13 @@
 /**
  * Generate Supabase Database types from the database schema
- * 
+ *
  * This script generates TypeScript types from the Supabase database
  * and writes them to src/lib/db/types.ts
- * 
+ *
  * Required environment variables (in .env.local or .env):
  *   SUPABASE_ACCESS_TOKEN - Supabase access token (get from Supabase Dashboard)
  *   SUPABASE_PROJECT_ID - Supabase project ID (defaults to xabpmvuubgfjuroenxuq if not set)
- * 
+ *
  * Usage:
  *   npm run db:generate-types
  */
@@ -79,7 +79,7 @@ try {
   // Remove quotes from start and end if present, and any newlines/carriage returns
   // Also remove any trailing non-hex characters (tokens should be sbp_ + hex only)
   let cleanToken = accessToken.trim().replaceAll(/(^["']+)|(["']+$)/g, '').replaceAll(/\r?\n/g, '').trim();
-  
+
   // Remove any trailing non-hex characters after sbp_ prefix
   // Token format should be: sbp_[hex characters only]
   if (cleanToken.startsWith('sbp_')) {
@@ -89,19 +89,19 @@ try {
     const cleanHexPart = hexPart.replaceAll(/[^0-9a-fA-F]/g, '');
     cleanToken = prefix + cleanHexPart;
   }
-  
+
   // Verify token is still valid after cleaning
   if (!cleanToken.startsWith('sbp_')) {
     console.error('❌ Error: Token became invalid after cleaning');
     console.error(`   Token starts with: "${cleanToken.substring(0, 10)}..."`);
     process.exit(1);
   }
-  
+
   // Debug: Show token info (without exposing full token)
   console.log(`🔑 Using access token: ${cleanToken.substring(0, 10)}...${cleanToken.substring(cleanToken.length - 4)}`);
   console.log(`📏 Token length: ${cleanToken.length} characters`);
   console.log(`📦 Project ID: ${projectId}`);
-  
+
   // Supabase tokens should be around 40+ characters (sbp_ + 36+ hex chars)
   if (cleanToken.length < 20) {
     console.error('❌ Error: Token appears to be too short');
@@ -109,7 +109,7 @@ try {
     console.error(`   Token might be incomplete in .env file`);
     process.exit(1);
   }
-  
+
   // Verify token format matches expected pattern (sbp_ followed by hex characters)
   const tokenPattern = /^sbp_[a-f0-9]+$/i;
   if (!tokenPattern.test(cleanToken)) {
@@ -120,9 +120,9 @@ try {
     console.error(`   Last 10 chars: ${cleanToken.substring(cleanToken.length - 10)}`);
     process.exit(1);
   }
-  
+
   const command = `npx supabase gen types typescript --project-id ${projectId}`;
-  const types = execSync(command, { 
+  const types = execSync(command, {
     encoding: 'utf-8',
     cwd: rootDir,
     stdio: 'pipe',
@@ -131,9 +131,9 @@ try {
       SUPABASE_ACCESS_TOKEN: cleanToken
     }
   });
-  
+
   writeFileSync(outputFile, types, 'utf-8');
-  
+
   console.log(`✅ Types generated successfully: ${outputFile}`);
   console.log('');
   console.log('✨ Types are ready to use!');
@@ -142,4 +142,3 @@ try {
   console.error('❌ Failed to generate types:', error.message);
   process.exit(1);
 }
-

@@ -1,6 +1,6 @@
 /**
  * Common marketplace types
- * 
+ *
  * Shared types and interfaces for marketplace integrations (Amazon, eBay)
  */
 
@@ -44,4 +44,3 @@ export interface MarketplaceClient {
   search(params: MarketplaceSearchParams): Promise<MarketplaceSearchResult>;
   getItemById(marketplaceId: string): Promise<MarketplaceListing | null>;
 }
-

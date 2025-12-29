@@ -1,6 +1,6 @@
 /**
  * Home Page
- * 
+ *
  * Landing page with integrated URL evaluation in the hero section
  */
 
@@ -72,9 +72,9 @@ export default function Home() {
       console.log('[page] evaluation.error:', evaluation.error, 'type:', typeof evaluation.error);
     }
   }
-  
+
   let displayError = getErrorMessage(localError) || getErrorMessage(evaluation.error);
-  
+
   // Safety check: Ensure displayError is always a string (never an object)
   if (displayError && typeof displayError !== 'string') {
     console.error('[page] ERROR: displayError is not a string! Converting...', displayError);
@@ -84,12 +84,12 @@ export default function Home() {
       displayError = 'An error occurred. Please try again.';
     }
   }
-  
+
   // Debug: Verify displayError is a string
   if (process.env.NODE_ENV === 'development' && displayError) {
     console.log('[page] displayError:', displayError, 'type:', typeof displayError);
   }
-  
+
   const hasResults = evaluation.result && evaluation.listing;
 
   return (
@@ -123,7 +123,7 @@ export default function Home() {
           <h1 className="text-4xl font-bold leading-tight tracking-tight text-black dark:text-zinc-50 sm:text-5xl lg:text-6xl">
             AI-Powered Bargain Detection
           </h1>
-          
+
           <p className="max-w-2xl text-lg leading-8 text-zinc-600 dark:text-zinc-400 sm:text-xl">
             Find undervalued items on Amazon and eBay. Paste a listing URL and get instant AI analysis.
           </p>
@@ -187,8 +187,8 @@ export default function Home() {
               </div>
 
               {/* Error Message */}
-              <ErrorDisplay 
-                error={displayError} 
+              <ErrorDisplay
+                error={displayError}
                 id="url-error"
                 className="mt-3"
                 align="left"

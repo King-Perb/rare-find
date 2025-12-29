@@ -63,7 +63,7 @@ exclude: [
 ### 1. ⚠️ Generated Files Not Excluded
 **Issue**: `src/generated/**` folder contains auto-generated Prisma and Zod types that shouldn't be included in coverage.
 
-**Impact**: 
+**Impact**:
 - Generated files will be included in coverage reports
 - Coverage percentage may be skewed
 - No need to test auto-generated code
@@ -117,4 +117,3 @@ Consider excluding:
 1. ✅ Add `src/generated/**` to coverage exclusions
 2. ⚠️ Optional: Remove `src/types/**` (doesn't exist, but harmless)
 3. ✅ Verify test structure is correct (already verified)
-

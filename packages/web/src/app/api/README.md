@@ -34,7 +34,7 @@ import { withApiHandler, requireAuth } from '../middleware';
 export const GET = withApiHandler(async (req, context) => {
   // context.userId and context.user are available if authenticated
   // Use requireAuth(req) if authentication is required
-  
+
   return NextResponse.json({ data: 'example' });
 });
 ```
@@ -59,5 +59,3 @@ All API requests and responses are automatically logged with:
 - Status code
 - Duration
 - User ID (if authenticated)
-
-

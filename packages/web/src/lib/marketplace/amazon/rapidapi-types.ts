@@ -1,6 +1,6 @@
 /**
  * RapidAPI Real-Time Amazon Data API Types
- * 
+ *
  * Types for the Real-Time Amazon Data API from RapidAPI
  * API: https://rapidapi.com/letscrape-6bRBa3QguO5/api/real-time-amazon-data
  */
@@ -158,4 +158,3 @@ export interface RapidAPISearchRequest {
   max_price?: number;
   sort_by?: 'RELEVANCE' | 'LOWEST_PRICE' | 'HIGHEST_PRICE' | 'REVIEWS' | 'NEWEST';
 }
-

@@ -1,6 +1,6 @@
 /**
  * Auth Service
- * 
+ *
  * Handles authentication operations
  */
 
@@ -35,4 +35,3 @@ export class AuthService implements IAuthService {
     await signOutImpl();
   }
 }
-

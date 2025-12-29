@@ -15,4 +15,3 @@ CREATE POLICY "Service role can manage migrations"
   FOR ALL
   USING ((SELECT auth.role()) = 'service_role')
   WITH CHECK ((SELECT auth.role()) = 'service_role');
-

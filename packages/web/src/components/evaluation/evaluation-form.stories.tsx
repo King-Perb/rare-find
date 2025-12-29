@@ -110,4 +110,3 @@ export const CustomPlaceholder: Story = {
     submitText: 'Analyze',
   },
 };
-

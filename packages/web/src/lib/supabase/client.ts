@@ -1,6 +1,6 @@
 /**
  * Supabase client for browser/client-side usage
- * 
+ *
  * This client respects Row Level Security (RLS) policies.
  * Use this for client components, hooks, and browser-side operations.
  */
@@ -25,4 +25,3 @@ export const supabase = createClient<Database>(supabaseUrl, supabasePublishableK
     autoRefreshToken: true,
   },
 });
-

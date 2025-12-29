@@ -1,6 +1,6 @@
 /**
  * Evaluation Form Component
- * 
+ *
  * Form for inputting marketplace listing URLs and submitting for evaluation
  */
 
@@ -22,7 +22,7 @@ export interface EvaluationFormProps {
 
 /**
  * Evaluation form component
- * 
+ *
  * Handles URL input, validation, and submission for listing evaluation
  */
 export function EvaluationForm({
@@ -62,7 +62,7 @@ export function EvaluationForm({
   };
 
   let displayError = getErrorMessage(localError) || getErrorMessage(evaluation.error);
-  
+
   // Safety check: Ensure displayError is always a string (never an object)
   if (displayError && typeof displayError !== 'string') {
     console.error('[evaluation-form] ERROR: displayError is not a string! Converting...', displayError);
@@ -105,8 +105,8 @@ export function EvaluationForm({
             {evaluation.isLoading ? 'Evaluating...' : submitText}
           </button>
         </div>
-        <ErrorDisplay 
-          error={displayError} 
+        <ErrorDisplay
+          error={displayError}
           id="url-error"
         />
       </div>
@@ -130,4 +130,3 @@ export function EvaluationForm({
     </form>
   );
 }
-

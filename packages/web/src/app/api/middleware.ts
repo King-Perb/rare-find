@@ -1,6 +1,6 @@
 /**
  * API route middleware
- * 
+ *
  * Shared middleware for API routes including error handling,
  * authentication, and request logging
  */
@@ -117,5 +117,3 @@ export async function parseJsonBody<T = unknown>(req: NextRequest): Promise<T> {
 export function getQueryParams(req: NextRequest): URLSearchParams {
   return req.nextUrl.searchParams;
 }
-
-

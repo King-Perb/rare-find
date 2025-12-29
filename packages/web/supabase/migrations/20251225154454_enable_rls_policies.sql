@@ -130,4 +130,3 @@ CREATE POLICY "Users can update own notifications"
   FOR UPDATE
   USING (auth.uid() = "userId")
   WITH CHECK (auth.uid() = "userId");
-

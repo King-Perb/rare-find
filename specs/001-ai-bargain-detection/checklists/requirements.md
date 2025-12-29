@@ -35,4 +35,3 @@
 - Specification is ready for `/speckit.plan` command
 - Assumptions section documents reasonable defaults for marketplace APIs and AI services
 - Edge cases cover error handling, data quality, and user experience scenarios
-

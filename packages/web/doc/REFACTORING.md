@@ -67,7 +67,7 @@ Defines contracts for all services:
 
 **Location**: `src/app/api/marketplace/evaluate/route.ts`
 
-**Before**: 
+**Before**:
 - Business logic mixed with route handling
 - Direct function calls to marketplace clients
 - Hard to test
@@ -213,4 +213,3 @@ src/lib/
 - Services are registered as singletons by default
 - Legacy `logger` export maintains backward compatibility
 - All services follow the interface contracts for consistency
-

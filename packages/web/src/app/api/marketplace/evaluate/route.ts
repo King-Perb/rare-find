@@ -1,19 +1,19 @@
 /**
  * POST /api/marketplace/evaluate
- * 
+ *
  * Evaluate a marketplace listing using AI (GPT-4o multimodal)
- * 
+ *
  * Supports both workflows:
  * - User-provided listings: Full multimodal evaluation with image analysis
  * - Automated scanning: Text-only evaluation (optimized)
- * 
+ *
  * Request body:
  * {
  *   listingUrl?: string,        // URL to fetch listing from
  *   listing?: MarketplaceListing, // Or provide listing data directly
  *   mode?: 'multimodal' | 'text-only' // Defaults to 'multimodal' for user-provided
  * }
- * 
+ *
  * Response:
  * {
  *   success: true,
@@ -100,4 +100,3 @@ export const POST = withApiHandler<EvaluateListingApiResponse>(
     } satisfies EvaluateListingApiResponse);
   }
 );
-

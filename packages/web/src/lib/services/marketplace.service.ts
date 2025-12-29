@@ -1,12 +1,12 @@
 /**
  * Marketplace Service
- * 
+ *
  * Handles marketplace URL parsing, fetching listings, and marketplace client management
- * 
+ *
  * Supports multiple Amazon API sources:
  * - PA-API 5.0 (official Amazon Product Advertising API)
  * - RapidAPI Real-Time Amazon Data (alternative, easier setup)
- * 
+ *
  * Set AMAZON_API_SOURCE environment variable to choose:
  * - 'pa-api' (default) - Use Amazon PA-API 5.0
  * - 'rapidapi' - Use RapidAPI Real-Time Amazon Data
@@ -40,7 +40,7 @@ function getAmazonAPISource(): AmazonAPISource {
  */
 function createConfiguredAmazonClient(logger: ILogger): MarketplaceClient {
   const source = getAmazonAPISource();
-  
+
   if (source === 'rapidapi') {
     if (!isRapidAPIConfigured()) {
       logger.warn('RapidAPI selected but not configured, falling back to PA-API');
@@ -49,7 +49,7 @@ function createConfiguredAmazonClient(logger: ILogger): MarketplaceClient {
     logger.info('Using RapidAPI Real-Time Amazon Data client');
     return createRapidAPIAmazonClient();
   }
-  
+
   logger.info('Using Amazon PA-API 5.0 client');
   return createAmazonClient();
 }
@@ -71,7 +71,7 @@ export class MarketplaceService implements IMarketplaceService {
       this.ebayClient = ebayClient;
     }
     this.amazonAPISource = getAmazonAPISource();
-    
+
     this.logger.info('MarketplaceService initialized', {
       amazonAPISource: this.amazonAPISource,
     });
@@ -152,7 +152,7 @@ export class MarketplaceService implements IMarketplaceService {
 
     try {
       const listing = await this.getListingById(marketplace, marketplaceId);
-      
+
       if (!listing) {
         throw new AppError(
           `Listing not found: ${marketplaceId}`,
@@ -203,11 +203,11 @@ export class MarketplaceService implements IMarketplaceService {
     // Determine which marketplace to search
     // For now, we'll search both or allow marketplace to be specified in params
     // This is a simplified implementation - you may want to enhance this
-    
+
     if (params.marketplace === 'amazon') {
       return await this.amazonClient.search(params);
     }
-    
+
     if (params.marketplace === 'ebay') {
       return await this.getEbayClient().search(params);
     }
@@ -216,4 +216,3 @@ export class MarketplaceService implements IMarketplaceService {
     return await this.amazonClient.search(params);
   }
 }
-

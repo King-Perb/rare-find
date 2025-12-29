@@ -1,6 +1,6 @@
 /**
  * Evaluation Page
- * 
+ *
  * Page for evaluating marketplace listings by URL
  */
 
@@ -54,4 +54,3 @@ export default function EvaluatePage() {
     </div>
   );
 }
-

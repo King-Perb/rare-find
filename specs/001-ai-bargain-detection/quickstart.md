@@ -1,6 +1,6 @@
 # Quickstart Guide: AI-Powered Bargain Detection System
 
-**Feature**: 001-ai-bargain-detection  
+**Feature**: 001-ai-bargain-detection
 **Date**: 2025-01-09
 
 ## Overview
@@ -258,4 +258,3 @@ The system implements rate limiting and caching to stay within limits.
 - [Amazon Product Advertising API](https://webservices.amazon.com/paapi5/documentation/)
 - [eBay Finding API](https://developer.ebay.com/develop/apis)
 - [OpenAI API Documentation](https://platform.openai.com/docs)
-

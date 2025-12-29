@@ -1,6 +1,6 @@
 /**
  * eBay marketplace search functionality
- * 
+ *
  * Wraps eBay client with preference filtering
  */
 
@@ -16,10 +16,10 @@ export async function searchEBay(
   preferences?: SearchPreference[]
 ): Promise<MarketplaceSearchResult> {
   const client = createEbayClient();
-  
+
   // Apply preference filters if provided
   const filteredParams = applyPreferenceFilters(params, preferences);
-  
+
   return client.search(filteredParams);
 }
 
@@ -36,7 +36,7 @@ function applyPreferenceFilters(
 
   // Find active preferences that match the search
   const activePreferences = preferences.filter((p) => p.isActive);
-  
+
   if (activePreferences.length === 0) {
     return params;
   }
@@ -53,4 +53,3 @@ function applyPreferenceFilters(
     maxPrice: params.maxPrice ?? preference.maxPrice ?? undefined,
   };
 }
-

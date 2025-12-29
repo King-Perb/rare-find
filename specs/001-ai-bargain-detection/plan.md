@@ -11,15 +11,15 @@ Build an AI-powered bargain detection system that searches Amazon and eBay for u
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5+ (strict mode enabled)  
-**Primary Dependencies**: Next.js 16.0.10, React 19.2.0, OpenAI SDK 6.10.0, Tailwind CSS v4, shadcn/ui components  
-**Storage**: Supabase (PostgreSQL) - Serverless PostgreSQL database with built-in authentication, real-time subscriptions, and row-level security. Supports both web and React Native via Supabase client SDKs. **Supabase client is used for all data access operations (respects RLS policies).**  
-**Schema Management**: Prisma 7.0.0 - Schema definition and migrations only. Prisma is NOT used for data access - it's only for managing database schema and generating types.  
-**Validation**: Zod 3.25.67 - Runtime type validation. Zod schemas are auto-generated from Prisma models via zod-prisma-types and used to validate Supabase client responses.  
-**Testing**: Vitest 4.0.16, React Testing Library, Playwright 1.57.0  
-**Target Platform**: Web application (browser-based, responsive design) with React Native mobile app planned for future  
-**Project Type**: Web application (Next.js App Router with API routes)  
-**Performance Goals**: 
+**Language/Version**: TypeScript 5+ (strict mode enabled)
+**Primary Dependencies**: Next.js 16.0.10, React 19.2.0, OpenAI SDK 6.10.0, Tailwind CSS v4, shadcn/ui components
+**Storage**: Supabase (PostgreSQL) - Serverless PostgreSQL database with built-in authentication, real-time subscriptions, and row-level security. Supports both web and React Native via Supabase client SDKs. **Supabase client is used for all data access operations (respects RLS policies).**
+**Schema Management**: Prisma 7.0.0 - Schema definition and migrations only. Prisma is NOT used for data access - it's only for managing database schema and generating types.
+**Validation**: Zod 3.25.67 - Runtime type validation. Zod schemas are auto-generated from Prisma models via zod-prisma-types and used to validate Supabase client responses.
+**Testing**: Vitest 4.0.16, React Testing Library, Playwright 1.57.0
+**Target Platform**: Web application (browser-based, responsive design) with React Native mobile app planned for future
+**Project Type**: Web application (Next.js App Router with API routes)
+**Performance Goals**:
 - AI evaluation response time:
   - User-provided listing (multimodal): < 5s per listing
   - Automated scanning (text-only): < 3s per listing
@@ -28,7 +28,7 @@ Build an AI-powered bargain detection system that searches Amazon and eBay for u
 - Support 100+ concurrent users evaluating listings
 - Process 1000+ listings per day per user (using optimized text-only evaluation)
 
-**Constraints**: 
+**Constraints**:
 - Must respect Amazon Product Advertising API rate limits (1 request per second per IP)
 - Must respect eBay Finding API rate limits (varies by endpoint, typically 5000 calls per day)
 - AI evaluation costs must be optimized:
@@ -39,7 +39,7 @@ Build an AI-powered bargain detection system that searches Amazon and eBay for u
 - User data and preferences must be encrypted at rest
 - Must handle API failures gracefully with retry logic
 
-**Scale/Scope**: 
+**Scale/Scope**:
 - MVP: Single user per account (multi-user/shared accounts out of scope)
 - Support up to 50 active search preferences per user
 - Support up to 1000 recommendations per user
@@ -289,7 +289,7 @@ Caching strategy implemented. AI evaluation optimized with batching.
    - UI components platform-specific but share interfaces
    - State management: RTK Query, React Query, or Zustand (all work on both platforms)
 
-4. **Database Access**: 
+4. **Database Access**:
    - Web: Supabase client for all data access (respects RLS policies) via API routes
    - Mobile: Supabase React Native SDK for data access (respects RLS policies)
    - Prisma is used ONLY for schema definition and migrations (not for data access)
@@ -302,7 +302,7 @@ Caching strategy implemented. AI evaluation optimized with batching.
 ### Recommended Mobile Stack (When Implementing)
 
 - **Framework**: React Native (Expo recommended for easier setup)
-- **UI Library**: 
+- **UI Library**:
   - **Tamagui** (RECOMMENDED): Cross-platform - works on web AND React Native with same components
   - **React Native Paper**: Mobile-only, Material Design components
   - Note: Choose one - they don't work together, but Tamagui allows sharing UI components between web and mobile

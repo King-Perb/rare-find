@@ -1,6 +1,6 @@
 /**
  * Logging infrastructure
- * 
+ *
  * Centralized logging utilities for API interactions and application events
  */
 
@@ -139,4 +139,3 @@ export function logAIEvaluation(
     ...metadata,
   });
 }
-

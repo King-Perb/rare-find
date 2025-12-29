@@ -1,6 +1,6 @@
 /**
  * eBay Finding API client
- * 
+ *
  * Implements eBay Finding API
  * Note: Finding API only requires App ID (SECURITY-APPNAME), not OAuth
  * OAuth 2.0 is required for other APIs like Trading API
@@ -27,44 +27,44 @@ export class eBayClient {
    */
   private buildQueryString(params: MarketplaceSearchParams): string {
     const queryParams = new URLSearchParams();
-    
+
     // Required: OPERATION-NAME
     queryParams.append('OPERATION-NAME', 'findItemsAdvanced');
-    
+
     // Required: SERVICE-VERSION
     queryParams.append('SERVICE-VERSION', '1.0.0');
-    
+
     // Required: SECURITY-APPNAME
     queryParams.append('SECURITY-APPNAME', this.credentials.appId);
-    
+
     // Required: RESPONSE-DATA-FORMAT
     queryParams.append('RESPONSE-DATA-FORMAT', 'JSON');
-    
+
     // Optional: GLOBAL-ID (site ID)
     queryParams.append('GLOBAL-ID', `EBAY-${this.siteId}`);
-    
+
     // Keywords
     if (params.keywords && params.keywords.length > 0) {
       queryParams.append('keywords', params.keywords.join(' '));
     }
-    
+
     // Category
     if (params.category) {
       queryParams.append('categoryId', params.category);
     }
-    
+
     // Price range
     if (params.minPrice !== undefined) {
       queryParams.append('itemFilter(0).name', 'MinPrice');
       queryParams.append('itemFilter(0).value', params.minPrice.toString());
     }
-    
+
     if (params.maxPrice !== undefined) {
       const filterIndex = params.minPrice === undefined ? 0 : 1;
       queryParams.append(`itemFilter(${filterIndex}).name`, 'MaxPrice');
       queryParams.append(`itemFilter(${filterIndex}).value`, params.maxPrice.toString());
     }
-    
+
     // Condition
     if (params.condition) {
       const minPriceFilter = params.minPrice === undefined ? 0 : 1;
@@ -73,12 +73,12 @@ export class eBayClient {
       queryParams.append(`itemFilter(${priceFilterCount}).name`, 'Condition');
       queryParams.append(`itemFilter(${priceFilterCount}).value`, this.mapCondition(params.condition));
     }
-    
+
     // Sort order
     if (params.sortBy) {
       queryParams.append('sortOrder', this.mapSortOrder(params.sortBy));
     }
-    
+
     // Pagination
     if (params.limit) {
       queryParams.append('paginationInput.entriesPerPage', params.limit.toString());
@@ -123,7 +123,7 @@ export class eBayClient {
 
   /**
    * Get item by marketplace ID (eBay item ID)
-   * 
+   *
    * Uses findItemsAdvanced with ItemId filter since Finding API doesn't have GetSingleItem
    */
   async getItemById(marketplaceId: string): Promise<MarketplaceListing | null> {
@@ -136,18 +136,18 @@ export class eBayClient {
 
     try {
       const queryParams = new URLSearchParams();
-      
+
       // Required parameters
       queryParams.append('OPERATION-NAME', 'findItemsAdvanced');
       queryParams.append('SERVICE-VERSION', '1.0.0');
       queryParams.append('SECURITY-APPNAME', this.credentials.appId);
       queryParams.append('RESPONSE-DATA-FORMAT', 'JSON');
       queryParams.append('GLOBAL-ID', `EBAY-${this.siteId}`);
-      
+
       // Filter by specific item ID
       queryParams.append('itemFilter(0).name', 'ItemId');
       queryParams.append('itemFilter(0).value', marketplaceId);
-      
+
       // Request only 1 result
       queryParams.append('paginationInput.entriesPerPage', '1');
       queryParams.append('paginationInput.pageNumber', '1');
@@ -233,14 +233,14 @@ export class eBayClient {
       available: item.sellingStatus?.[0]?.listingStatus?.[0] !== 'Ended',
     }));
 
-    const totalEntries = pagination?.totalEntries?.[0] 
-      ? Number.parseInt(pagination.totalEntries[0], 10) 
+    const totalEntries = pagination?.totalEntries?.[0]
+      ? Number.parseInt(pagination.totalEntries[0], 10)
       : listings.length;
-    const totalPages = pagination?.totalPages?.[0] 
-      ? Number.parseInt(pagination.totalPages[0], 10) 
+    const totalPages = pagination?.totalPages?.[0]
+      ? Number.parseInt(pagination.totalPages[0], 10)
       : 1;
-    const currentPage = pagination?.pageNumber?.[0] 
-      ? Number.parseInt(pagination.pageNumber[0], 10) 
+    const currentPage = pagination?.pageNumber?.[0]
+      ? Number.parseInt(pagination.pageNumber[0], 10)
       : 1;
 
     return {
@@ -323,4 +323,3 @@ export function createEbayClient(): eBayClient {
     siteId: process.env.EBAY_SITE_ID || 'US',
   });
 }
-

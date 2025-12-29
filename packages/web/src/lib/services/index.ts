@@ -1,6 +1,6 @@
 /**
  * Services Index
- * 
+ *
  * Central export point for all services
  */
 
@@ -11,4 +11,3 @@ export * from './listing.service';
 export * from './evaluation.service';
 export * from './auth.service';
 export * from './database.service';
-

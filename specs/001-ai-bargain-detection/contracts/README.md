@@ -23,4 +23,3 @@ An OpenAPI 3.0 JSON specification will be generated from `api-spec.md` for:
 - API documentation (Swagger UI)
 - Contract testing
 - Frontend type generation
-

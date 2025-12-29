@@ -21,7 +21,7 @@ DATABASE_URL="postgresql://postgres.xabpmvuubgfjuroenxuq:[YOUR-PASSWORD]@aws-0-e
 # DATABASE_URL="postgresql://postgres.xabpmvuubgfjuroenxuq:[YOUR-PASSWORD]@db.xabpmvuubgfjuroenxuq.supabase.co:5432/postgres"
 ```
 
-**Important**: 
+**Important**:
 - Get your database password from Supabase Dashboard → Settings → Database
 - Use connection pooling URL (`pooler.supabase.com:6543`) for Prisma migrations
 - The direct connection URL is for one-off operations
@@ -89,4 +89,3 @@ This creates a migration file and applies it.
 - `npm run db:push` - Push schema changes (dev only)
 - `npm run db:pull` - Pull schema from database
 - `npm run db:studio` - Open Prisma Studio (database GUI)
-

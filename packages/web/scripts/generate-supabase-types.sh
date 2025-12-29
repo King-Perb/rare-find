@@ -39,4 +39,3 @@ else
   echo "❌ Failed to generate types"
   exit 1
 fi
-

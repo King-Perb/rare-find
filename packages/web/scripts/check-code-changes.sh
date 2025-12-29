@@ -79,4 +79,3 @@ else
   echo "Only formatting changes detected, skipping tests"
   exit 1
 fi
-

@@ -1,6 +1,6 @@
 /**
  * Mock Evaluation Data
- * 
+ *
  * Sample data for testing the evaluation results UI without calling the API
  * Use this to test different scenarios: good deals, bad deals, replicas, etc.
  */
@@ -204,4 +204,3 @@ export function getMockEvaluationData(scenario: 'overpriced-replica' | 'good-dea
       };
   }
 }
-

@@ -1,6 +1,6 @@
 /**
  * use-evaluation hook
- * 
+ *
  * Custom hook for handling listing evaluation via API
  * Manages loading states, error handling, and evaluation results
  */
@@ -37,11 +37,11 @@ export interface UseEvaluationReturn extends UseEvaluationState {
 
 /**
  * Custom hook for evaluating marketplace listings
- * 
+ *
  * @example
  * ```tsx
  * const { isLoading, error, result, listing, evaluateListing, reset } = useEvaluation();
- * 
+ *
  * const handleSubmit = async (url: string) => {
  *   await evaluateListing(url);
  * };
@@ -164,10 +164,10 @@ export function useEvaluation(): UseEvaluationReturn {
           console.log('[use-evaluation] Error message:', error.message);
         }
       }
-      
+
       // Type assertion for getErrorMessage - it handles unknown types
       const errorMessage = getErrorMessage(error as string | null | Error | Record<string, unknown>) || 'An unexpected error occurred during evaluation';
-      
+
       // Debug: Verify errorMessage is a string
       if (process.env.NODE_ENV === 'development') {
         console.log('[use-evaluation] Extracted error message:', errorMessage);
@@ -212,4 +212,3 @@ export function useEvaluation(): UseEvaluationReturn {
     reset,
   };
 }
-

@@ -98,7 +98,7 @@ import { container, ServiceKeys } from '../../di/container';
 import { createMockMarketplaceService } from './test-utils';
 
 // Register mock
-container.register(ServiceKeys.MarketplaceService, () => 
+container.register(ServiceKeys.MarketplaceService, () =>
   createMockMarketplaceService()
 );
 
@@ -157,4 +157,3 @@ When adding a new service:
 ## Continuous Integration
 
 Tests run automatically in CI/CD pipeline. All tests must pass before merging.
-

@@ -1,9 +1,9 @@
 /**
  * Supabase client for server-side usage (API routes, Server Components)
- * 
+ *
  * This client uses the secret key and bypasses RLS.
  * Use with caution - only for admin operations or when RLS is not applicable.
- * 
+ *
  * For most operations, prefer using the client-side supabase client with
  * proper RLS policies instead.
  */
@@ -28,4 +28,3 @@ export const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseSecretK
     autoRefreshToken: false,
   },
 });
-

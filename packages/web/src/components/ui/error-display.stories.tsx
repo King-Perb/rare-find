@@ -105,4 +105,3 @@ export const APIError: Story = {
     id: 'api-error',
   },
 };
-

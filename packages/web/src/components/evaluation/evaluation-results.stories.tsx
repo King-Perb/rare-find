@@ -166,6 +166,3 @@ export const MinimalListing: Story = {
     },
   },
 };
-
-
-

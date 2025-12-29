@@ -1,6 +1,6 @@
 /**
  * eBay Finding API types
- * 
+ *
  * Types for eBay Finding API integration
  */
 
@@ -112,4 +112,3 @@ export interface eBayCredentials {
   authToken: string;
   siteId?: string; // Default: 'EBAY-US'
 }
-

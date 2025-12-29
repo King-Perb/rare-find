@@ -253,4 +253,3 @@ describe('waitForRateLimit', () => {
     expect(limiter.canMakeRequest('amazon-rapidapi')).toBe(true);
   });
 });
-

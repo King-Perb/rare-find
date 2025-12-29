@@ -1,8 +1,8 @@
 # Feature Specification: AI-Powered Bargain Detection System
 
-**Feature Branch**: `001-ai-bargain-detection`  
-**Created**: 2025-01-09  
-**Status**: Draft  
+**Feature Branch**: `001-ai-bargain-detection`
+**Created**: 2025-01-09
+**Status**: Draft
 **Input**: User description: "AI-powered bargain detection system that searches Amazon and eBay for undervalued antique and collectible items, evaluates listings using AI to determine if they're undervalued, and sends buy recommendations to users"
 
 ## User Scenarios & Testing *(mandatory)*

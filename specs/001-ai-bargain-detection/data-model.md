@@ -1,8 +1,8 @@
 # Data Model: AI-Powered Bargain Detection System
 
-**Feature**: 001-ai-bargain-detection  
-**Date**: 2025-01-09  
-**Database**: PostgreSQL (Vercel Postgres)  
+**Feature**: 001-ai-bargain-detection
+**Date**: 2025-01-09
+**Database**: PostgreSQL (Vercel Postgres)
 **ORM**: Prisma
 
 ## Entity Relationships
@@ -227,4 +227,3 @@ Notification sent to user about new recommendations or system updates.
 3. Add constraints and validations
 4. Set up database backups (daily)
 5. Monitor query performance and optimize as needed
-

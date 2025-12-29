@@ -29,7 +29,7 @@ Write-Host "🔧 Generating Supabase types for project: $projectId..." -Foregrou
 
 try {
   npx supabase gen types typescript --project-id $projectId | Out-File -FilePath $outputFile -Encoding utf8
-  
+
   Write-Host "✅ Types generated successfully: $outputFile" -ForegroundColor Green
   Write-Host ""
   Write-Host "✨ Types are ready to use!" -ForegroundColor Green
@@ -38,4 +38,3 @@ try {
   Write-Host "❌ Failed to generate types: $_" -ForegroundColor Red
   exit 1
 }
-

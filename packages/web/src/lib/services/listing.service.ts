@@ -1,6 +1,6 @@
 /**
  * Listing Service
- * 
+ *
  * Handles listing validation and business logic
  */
 
@@ -47,4 +47,3 @@ export class ListingService implements IListingService {
     };
   }
 }
-

@@ -1,8 +1,8 @@
 # API Specification: AI-Powered Bargain Detection System
 
-**Feature**: 001-ai-bargain-detection  
-**Date**: 2025-01-09  
-**Format**: RESTful API  
+**Feature**: 001-ai-bargain-detection
+**Date**: 2025-01-09
+**Format**: RESTful API
 **Base URL**: `/api`
 
 ## Authentication
@@ -358,4 +358,3 @@ Response includes:
 - `total`: Total number of items
 - `limit`: Requested limit
 - `offset`: Requested offset
-

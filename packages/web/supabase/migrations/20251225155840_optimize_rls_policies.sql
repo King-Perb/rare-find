@@ -126,4 +126,3 @@ CREATE POLICY "Users can update own notifications"
   FOR UPDATE
   USING ((SELECT auth.uid()) = "userId")
   WITH CHECK ((SELECT auth.uid()) = "userId");
-

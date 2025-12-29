@@ -100,4 +100,3 @@ When implementing the mobile app:
 - [React Native Documentation](https://reactnative.dev/)
 - [Expo Router](https://docs.expo.dev/router/introduction/)
 - [Supabase React Native](https://supabase.com/docs/guides/getting-started/tutorials/with-expo-react-native)
-

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 /**
  * Test error display in evaluation form
- * 
+ *
  * This test simulates API errors to verify that error messages
  * are displayed correctly (not as "[object Object]")
  */
@@ -157,4 +157,3 @@ test.describe('Error Display', () => {
     }
   });
 });
-

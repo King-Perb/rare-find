@@ -1,9 +1,9 @@
 /**
  * Database query helpers using Supabase client
- * 
+ *
  * This file contains reusable database query functions using Supabase client.
  * All queries respect Row Level Security (RLS) policies.
- * 
+ *
  * IMPORTANT: Use Supabase client for all data access operations (respects RLS).
  * Prisma is only for schema management and migrations.
  */

@@ -1,7 +1,7 @@
 
 /**
  * Prisma 7 Configuration
- * 
+ *
  * This file manages database connection and Prisma settings.
  * The DATABASE_URL is configured here instead of in schema.prisma.
  */

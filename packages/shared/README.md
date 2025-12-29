@@ -48,4 +48,3 @@ When adding shared code:
 3. Export from `src/index.ts`
 4. Ensure code is platform-agnostic (no DOM APIs, no Node.js-specific code)
 5. Test that it works in both web and mobile contexts
-

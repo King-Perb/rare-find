@@ -1,6 +1,6 @@
 /**
  * Supabase Auth helpers
- * 
+ *
  * Utility functions for authentication operations
  */
 
@@ -47,4 +47,3 @@ export async function getSession() {
 
   return session;
 }
-

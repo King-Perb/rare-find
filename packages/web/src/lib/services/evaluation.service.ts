@@ -1,6 +1,6 @@
 /**
  * Evaluation Service
- * 
+ *
  * Handles AI evaluation of marketplace listings
  */
 
@@ -53,4 +53,3 @@ export class EvaluationService implements IEvaluationService {
     }
   }
 }
-

@@ -1,6 +1,6 @@
 /**
  * Database Service
- * 
+ *
  * Wraps database query functions for dependency injection
  */
 
@@ -98,4 +98,3 @@ export class DatabaseService implements IDatabaseService {
     return dbQueries.deletePreference(preferenceId);
   }
 }
-

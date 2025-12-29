@@ -78,4 +78,3 @@ EBAY_APP_ID="..."
 # AI
 OPENAI_API_KEY="..."
 ```
-

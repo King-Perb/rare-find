@@ -1,6 +1,6 @@
 /**
  * Loading Spinner Component
- * 
+ *
  * Reusable component for displaying loading states
  */
 
@@ -19,7 +19,7 @@ export interface LoadingSpinnerProps {
 
 /**
  * Loading spinner component
- * 
+ *
  * Displays a loading spinner with optional messages
  */
 export function LoadingSpinner({
@@ -89,4 +89,3 @@ export function LoadingSpinner({
     </div>
   );
 }
-

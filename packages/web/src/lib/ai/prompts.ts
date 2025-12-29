@@ -1,17 +1,17 @@
 /**
  * AI Evaluation Prompts
- * 
+ *
  * Version-controlled prompts for AI listing evaluation.
  * These prompts are used with OpenAI Responses API for evaluating antique and collectible listings.
- * 
+ *
  * Web Search Integration:
  * The evaluation uses the OpenAI Responses API with the built-in web_search tool enabled.
  * This allows the model to search for real-time market data, comparable sales, and current prices.
- * 
+ *
  * How to detect web search usage:
  * - Check EvaluationResult.webSearchUsed (boolean)
  * - Check EvaluationResult.webSearchCitations (array of URLs/titles)
- * 
+ *
  * Version: 1.2.0
  * Last Updated: 2025-12-28
  */
@@ -23,20 +23,20 @@ export const PROMPT_VERSION = '1.2.0';
 
 /**
  * Model version identifier
- * 
+ *
  * Configurable via OPENAI_MODEL environment variable.
  * Defaults to 'gpt-4o' if not set.
- * 
+ *
  * Web Search Support:
  * All models listed below support the web_search tool via the Responses API.
  * Web search is automatically enabled in evaluate-user-listing.ts.
- * 
+ *
  * Supported models:
  * - gpt-4o (default) - Best for multimodal tasks with images, supports web search
  * - gpt-4o-mini - Faster and cheaper, good for text-only, supports web search
  * - gpt-4.1 - Advanced model with 1M context window, supports web search
  * - gpt-5 - Latest model with enhanced capabilities
- * 
+ *
  * See OpenAI pricing: https://openai.com/api/pricing/
  * See Responses API docs: https://platform.openai.com/docs/guides/tools-web-search
  */
@@ -44,7 +44,7 @@ export const MODEL_VERSION = process.env.OPENAI_MODEL || 'gpt-4o';
 
 /**
  * Multimodal evaluation prompt for user-provided listings
- * 
+ *
  * This prompt is used when evaluating listings with full image analysis.
  * It instructs the AI to analyze both text descriptions and product images.
  */
@@ -118,7 +118,7 @@ Now evaluate the following listing:`;
 
 /**
  * Text-only evaluation prompt for automated scanning
- * 
+ *
  * This prompt is used for bulk evaluation without image analysis.
  * It focuses on text-based analysis for speed and cost efficiency.
  */
@@ -185,8 +185,7 @@ Now evaluate the following listing:`;
  * Get the appropriate prompt based on evaluation mode
  */
 export function getEvaluationPrompt(mode: 'multimodal' | 'text-only'): string {
-  return mode === 'multimodal' 
-    ? MULTIMODAL_EVALUATION_PROMPT 
+  return mode === 'multimodal'
+    ? MULTIMODAL_EVALUATION_PROMPT
     : TEXT_ONLY_EVALUATION_PROMPT;
 }
-

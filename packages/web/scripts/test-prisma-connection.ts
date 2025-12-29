@@ -1,9 +1,9 @@
 /**
  * Test Prisma Database Connection
- * 
+ *
  * This script tests the Prisma connection to Supabase.
  * Run with: npm run db:test-connection
- * 
+ *
  * Prerequisites:
  * 1. DATABASE_URL must be set in packages/web/.env
  * 2. Prisma client must be generated: npm run db:generate
@@ -58,7 +58,7 @@ async function testConnection() {
     // Test 2: Check Supabase-specific features
     console.log('\n2️⃣ Testing Supabase connection...');
     const supabaseCheck = await client.query(`
-      SELECT 
+      SELECT
         current_database() as database_name,
         current_user as database_user,
         version() as postgres_version
@@ -66,14 +66,14 @@ async function testConnection() {
     console.log('   ✅ Supabase connection verified');
     console.log(`   📊 Database: ${supabaseCheck.rows[0].database_name}`);
     console.log(`   👤 User: ${supabaseCheck.rows[0].database_user}`);
-    
+
     // Release connection before Prisma test
     client.release();
     client = null;
 
     // Test 3: Prisma connection (if tables exist)
     console.log('\n3️⃣ Testing Prisma client connection...');
-    
+
     try {
       const userCount = await prisma.user.count();
       console.log(`   ✅ Prisma connection successful`);
@@ -98,7 +98,7 @@ async function testConnection() {
     console.error('\n❌ Connection test failed:');
     console.error(`   Error: ${dbError.message || String(error)}`);
     console.error(`   Code: ${dbError.code || 'N/A'}`);
-    
+
     if (dbError.message?.includes('password authentication failed')) {
       console.error('\n💡 Tip: Check your DATABASE_URL password');
       console.error('   Get password from: Supabase Dashboard → Settings → Database');
@@ -110,7 +110,7 @@ async function testConnection() {
     } else if (dbError.code === 'ETIMEDOUT' || dbError.code === 'ECONNRESET') {
       console.error('\n💡 Tip: Connection timed out. Check network/firewall settings');
     }
-    
+
     process.exit(1);
   } finally {
     if (client) client.release();

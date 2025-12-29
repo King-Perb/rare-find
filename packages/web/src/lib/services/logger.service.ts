@@ -1,6 +1,6 @@
 /**
  * Logger Service Implementation
- * 
+ *
  * Implements ILogger interface for centralized logging
  */
 
@@ -52,4 +52,3 @@ export class LoggerService implements ILogger {
     this.log('error', message, context);
   }
 }
-

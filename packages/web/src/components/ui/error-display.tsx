@@ -1,6 +1,6 @@
 /**
  * Error Display Component
- * 
+ *
  * Reusable component for displaying error messages with consistent styling
  */
 
@@ -17,11 +17,11 @@ export interface ErrorDisplayProps {
 
 /**
  * Error display component
- * 
+ *
  * Displays error messages with consistent styling and accessibility attributes
  */
-export function ErrorDisplay({ 
-  error, 
+export function ErrorDisplay({
+  error,
   id = 'error-message',
   className = '',
   align = 'left',
@@ -46,4 +46,3 @@ export function ErrorDisplay({
     </p>
   );
 }
-

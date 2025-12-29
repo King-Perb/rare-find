@@ -1,6 +1,6 @@
 /**
  * Test Utilities
- * 
+ *
  * Helper functions and mocks for testing services
  */
 
@@ -141,4 +141,3 @@ export function createSampleEvaluationResult(overrides?: Partial<EvaluationResul
     ...overrides,
   };
 }
-

@@ -148,7 +148,7 @@ public ResponseEntity<TransactionDTO> createTransaction(
 ```java
 // TransactionRepository.java - Changed query
 @Query("SELECT t FROM Transaction t WHERE t.account.id = :accountId AND t.date BETWEEN :startDate AND :endDate")
-List<Transaction> findByAccountAndDateRange(@Param("accountId") Long accountId, 
+List<Transaction> findByAccountAndDateRange(@Param("accountId") Long accountId,
                                              @Param("startDate") LocalDate startDate,
                                              @Param("endDate") LocalDate endDate);
 ```

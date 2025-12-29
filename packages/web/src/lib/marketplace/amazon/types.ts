@@ -1,6 +1,6 @@
 /**
  * Amazon Product Advertising API types
- * 
+ *
  * Types for Amazon PA-API 5.0 integration
  */
 
@@ -149,4 +149,3 @@ export interface AmazonCredentials {
   associateTag: string;
   region?: string; // Default: 'us-east-1'
 }
-

@@ -24,11 +24,11 @@ model User {
   name          String?
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
-  
+
   preferences   SearchPreference[]
   recommendations Recommendation[]
   notifications Notification[]
-  
+
   @@index([email])
   @@map("users")
 }
@@ -45,9 +45,9 @@ model SearchPreference {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@index([userId, isActive])
   @@map("search_preferences")
 }
@@ -70,10 +70,10 @@ model Listing {
   lastChecked   DateTime       @default(now())
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
-  
+
   evaluation    AIEvaluation?
   recommendations Recommendation[]
-  
+
   @@unique([marketplace, marketplaceId])
   @@index([marketplace, marketplaceId])
   @@map("listings")
@@ -90,9 +90,9 @@ model AIEvaluation {
   promptVersion         String
   modelVersion          String   // e.g., "gpt-4-turbo"
   evaluatedAt           DateTime @default(now())
-  
+
   listing               Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  
+
   @@index([listingId])
   @@map("ai_evaluations")
 }
@@ -108,10 +108,10 @@ model Recommendation {
   viewedAt    DateTime?
   dismissedAt DateTime?
   purchasedAt DateTime?
-  
+
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   listing     Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, listingId])
   @@index([userId, status])
   @@index([createdAt])
@@ -127,9 +127,9 @@ model Notification {
   read      Boolean  @default(false)
   readAt    DateTime?
   createdAt DateTime @default(now())
-  
+
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@index([userId, read])
   @@map("notifications")
 }

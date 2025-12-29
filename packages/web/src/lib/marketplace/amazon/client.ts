@@ -1,6 +1,6 @@
 /**
  * Amazon Product Advertising API client
- * 
+ *
  * Implements PA-API 5.0 with signature v4 authentication
  * Rate limit: 1 request per second
  */
@@ -64,10 +64,10 @@ export class AmazonClient {
       `x-amz-date:${timestamp}`,
       `x-amz-target:com.amazon.paapi5.v1.ProductAdvertisingAPIv1.${operation}`,
     ].join('\n') + '\n';
-    
+
     const signedHeaders = 'host;x-amz-date;x-amz-target';
     const payloadHash = this.sha256(payload);
-    
+
     const canonicalRequest = [
       method,
       canonicalUri,
@@ -141,7 +141,7 @@ export class AmazonClient {
     try {
       const payload = JSON.stringify(amazonParams);
       const headers = this.createSignature('POST', this.endpoint, payload, 'SearchItems');
-      
+
       const response = await fetch(this.endpoint, {
         method: 'POST',
         headers,
@@ -195,7 +195,7 @@ export class AmazonClient {
     try {
       const payload = JSON.stringify(getItemsRequest);
       const headers = this.createSignature('POST', this.getItemsEndpoint, payload, 'GetItems');
-      
+
       const response = await fetch(this.getItemsEndpoint, {
         method: 'POST',
         headers,
@@ -363,4 +363,3 @@ export function createAmazonClient(): AmazonClient {
     region: process.env.AMAZON_REGION || 'us-east-1',
   });
 }
-

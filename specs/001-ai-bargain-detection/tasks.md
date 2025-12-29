@@ -289,7 +289,7 @@ With multiple developers:
 - **Phase 6 (User Story 4)**: 8 tasks
 - **Phase 7 (Polish)**: 16 tasks (added T072a, T072b)
 
-**Parallel Opportunities**: 
+**Parallel Opportunities**:
 - Setup tasks: 5 parallel
 - Foundational tasks: 8 parallel
 - User Story 1: 22 parallel (marketplace clients, AI logic for both workflows, types, frontend evaluation UI)
@@ -299,4 +299,3 @@ With multiple developers:
 - Polish tasks: 12 parallel
 
 **Suggested MVP Scope**: User Story 1 only (30 tasks after foundational setup)
-

@@ -1,9 +1,9 @@
 /**
  * Prisma client instance (Prisma 7)
- * 
+ *
  * Use this for schema management and migrations.
  * For data access, prefer Supabase client (respects RLS).
- * 
+ *
  * NOTE: Run `npm run db:generate` first to generate the Prisma client.
  * This file will have type errors until Prisma client is generated.
  */
@@ -48,4 +48,3 @@ export const prisma =
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
-

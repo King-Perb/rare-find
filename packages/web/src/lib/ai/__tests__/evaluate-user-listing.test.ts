@@ -1,6 +1,6 @@
 /**
  * evaluate-user-listing.ts Unit Tests
- * 
+ *
  * Tests for the AI evaluation module that uses OpenAI GPT-4o for
  * multimodal listing evaluation with web search capabilities.
  */

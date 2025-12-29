@@ -118,4 +118,3 @@ export const CardEvaluationLoading: Story = {
     size: 'large',
   },
 };
-

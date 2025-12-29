@@ -1,6 +1,6 @@
 /**
  * Rate limiter for marketplace APIs
- * 
+ *
  * Implements token bucket algorithm to respect API rate limits:
  * - Amazon PA-API: 1 request per second (86400/day)
  * - Amazon RapidAPI: 5 requests per second (depends on plan)
@@ -137,4 +137,3 @@ export async function waitForRateLimit(source: RateLimitSource): Promise<void> {
   const limiter = getRateLimiter();
   await limiter.waitAndConsume(source);
 }
-

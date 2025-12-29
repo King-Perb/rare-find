@@ -1,6 +1,6 @@
 /**
  * AI Evaluation Types
- * 
+ *
  * Types for AI-powered listing evaluation using OpenAI GPT-4o
  * with Responses API and built-in web search support.
  */
@@ -116,4 +116,3 @@ export interface EvaluateListingError {
  * Union type for API response
  */
 export type EvaluateListingApiResponse = EvaluateListingResponse | EvaluateListingError;
-

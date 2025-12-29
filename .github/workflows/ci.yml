@@ -22,6 +22,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        env:
+          # Dummy database URL for Prisma generate - only needed for schema generation, not actual connection
+          DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
 
       - name: Run linter
         run: npm run lint
@@ -41,6 +44,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        env:
+          # Dummy database URL for Prisma generate - only needed for schema generation, not actual connection
+          DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
 
       - name: Run type check
         run: npm run type:check
@@ -60,12 +66,16 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        env:
+          # Dummy database URL for Prisma generate - only needed for schema generation, not actual connection
+          DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
 
       - name: Run tests
         run: npm test
         env:
           # Dummy token for tests - tests should mock API calls, not make real requests
           GITHUB_TOKEN: "test-token-dummy-value"
+          DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
 
   build:
     name: Build
@@ -82,12 +92,19 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        env:
+          # Dummy database URL for Prisma generate - only needed for schema generation, not actual connection
+          DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
 
       - name: Build project
         run: npm run build
         env:
           # Dummy token for build - prevents errors when server components fetch GitHub stats
           GITHUB_TOKEN: "test-token-dummy-value"
+          DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+          # Dummy Supabase URLs for build - Next.js embeds NEXT_PUBLIC_ vars at build time
+          NEXT_PUBLIC_SUPABASE_URL: "https://dummy-project.supabase.co"
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "dummy-publishable-key"
 
   e2e:
     name: E2E Tests
@@ -104,6 +121,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        env:
+          # Dummy database URL for Prisma generate - only needed for schema generation, not actual connection
+          DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
@@ -112,11 +132,22 @@ jobs:
         run: npm run build
         env:
           GITHUB_TOKEN: "test-token-dummy-value"
+          DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+          # Dummy Supabase URLs for build - Next.js embeds NEXT_PUBLIC_ vars at build time
+          NEXT_PUBLIC_SUPABASE_URL: "https://dummy-project.supabase.co"
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "dummy-publishable-key"
+
+      - name: Run Storybook tests
+        run: cd packages/web && npx vitest run --config vitest.config.storybook.ts
+        env:
+          GITHUB_TOKEN: "test-token-dummy-value"
+          DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
 
       - name: Run E2E tests
         run: npm run test:e2e
         env:
           GITHUB_TOKEN: "test-token-dummy-value"
+          DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
           PLAYWRIGHT_TEST_BASE_URL: "http://localhost:3000"
 
       - name: Upload test results
@@ -126,4 +157,3 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-

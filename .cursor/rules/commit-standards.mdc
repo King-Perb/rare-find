@@ -1,0 +1,197 @@
+---
+description: Commiting changes with git
+alwaysApply: false
+---
+# Commit Message Standards
+
+When creating commit messages, ALWAYS follow the Conventional Commits specification as defined below.
+
+## Format
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+## Types
+
+- **feat**: A new feature
+- **fix**: A bug fix
+- **docs**: Documentation only changes
+- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc.)
+- **refactor**: A code change that neither fixes a bug nor adds a feature
+- **perf**: A code change that improves performance
+- **test**: Adding missing tests or correcting existing tests
+- **build**: Changes that affect the build system or external dependencies (example scopes: maven, dependencies)
+- **ci**: Changes to CI configuration files and scripts
+- **chore**: Other changes that don't modify src or test files
+- **revert**: Reverts a previous commit
+
+## Scope (Optional)
+
+The scope should be the area of the codebase affected:
+- `api`: REST API controllers and endpoints
+- `service`: Business logic services
+- `repository`: Data access layer (JPA repositories)
+- `entity`: Domain entities and models
+- `dto`: Data Transfer Objects
+- `security`: Security configuration and authentication
+- `config`: Configuration files
+- `docs**: Documentation
+- `workflows`: GitHub Actions workflows
+- `workflow`: Camunda workflow definitions
+- `frontend`: Frontend components and pages (Vue/React)
+
+## Subject
+
+- Use imperative, present tense: "change" not "changed" nor "changes"
+- Don't capitalize the first letter
+- No period (.) at the end
+- Maximum 72 characters
+
+## Body (Optional)
+
+- Use imperative, present tense
+- Explain the "what" and "why" vs. the "how"
+- Can include multiple paragraphs
+- Wrap at 72 characters
+
+## Footer (Optional)
+
+- Reference issues: `Closes #123`, `Fixes #456`
+- Breaking changes: `BREAKING CHANGE: <description>`
+
+## Examples
+
+### Good Examples
+
+```
+feat(api): add transaction creation endpoint
+
+Implement REST endpoint for creating income and expense transactions.
+Endpoint validates input, updates account balances atomically, and
+logs all financial operations for audit purposes.
+
+- Add TransactionController with POST /api/transactions
+- Implement TransactionService with BigDecimal calculations
+- Add transaction validation and error handling
+- Update account balance on transaction creation
+```
+
+```
+fix(service): correct budget calculation for negative amounts
+
+Fix bug where budget calculations incorrectly handled negative
+transaction amounts. Budgets now properly track spending regardless
+of transaction sign.
+
+- Update BudgetService.calculateSpending() method
+- Add test cases for negative amount scenarios
+- Fix edge case in monthly budget aggregation
+```
+
+```
+ci: add GitHub Actions workflows for CI/CD
+
+Add comprehensive CI/CD pipeline with:
+- Maven build and test execution
+- Code quality checks (Checkstyle, PMD)
+- Security scanning (Gitleaks, OWASP Dependency Check)
+- Branch protection setup workflow
+```
+
+### Bad Examples
+
+```
+❌ Updated files
+❌ Fixed stuff
+❌ WIP
+❌ feat: Added new feature
+❌ fix:bug in service
+```
+
+## Multi-line Commit Messages
+
+For complex changes, use a detailed body:
+
+```
+feat(api): implement investment portfolio tracking endpoints
+
+Add comprehensive REST API for investment portfolio management with
+proper BigDecimal precision for financial calculations.
+
+Endpoints:
+- GET /api/portfolio - Retrieve user portfolio summary
+- POST /api/investments - Add new investment holding
+- POST /api/investments/{id}/transactions - Record buy/sell transaction
+
+Services:
+- InvestmentService: Portfolio calculation and aggregation
+- MarketDataService: Mock market data integration
+- PortfolioAnalyticsService: Performance metrics calculation
+
+This establishes the foundation for Phase 2 real-time market data integration.
+```
+
+## Breaking Changes
+
+Always document breaking changes:
+
+```
+feat(api): refactor transaction response structure
+
+BREAKING CHANGE: Transaction API now returns data in a different format.
+The response structure has changed from flat object to nested structure
+with separate sections for transaction details and account information.
+
+Migration:
+- Update frontend components to use new response format
+- See MIGRATION.md for detailed changes
+- API version incremented to v2
+```
+
+## When Creating Commits
+
+**IMPORTANT**: Before creating a commit message, you MUST:
+
+0. **MANDATORY: Check and create feature branch if needed** (See `git-workflow.mdc`)
+   - Run `git branch --show-current` or check `git status` to see current branch
+   - **If on `main`**: MUST create feature branch first (`git checkout -b <branch-name>`)
+   - **If on feature branch**: Proceed to step 1
+   - **Exception**: Only if user explicitly requests committing to main (very rare)
+1. **Analyze ALL changed files**: Run `git status` or `git status --short` to see all modified, added, and deleted files
+2. **Review staged changes**: Use `git diff --cached` to see what's staged
+3. **Review unstaged changes**: Use `git diff` to see unstaged changes
+4. **Include all changes**: The commit message must accurately represent ALL changes being committed
+5. **Group related changes**: For multi-file changes, group related changes in the body with bullet points
+6. **MANDATORY: Update implementation plan**: ALWAYS update `doc/implementation_plan.md` before committing (if it exists). Document all changes including:
+   - New features, services, controllers, or entities
+   - Bug fixes that affect functionality
+   - Refactoring that changes code structure
+   - Test additions for new features
+   - Configuration changes (application.properties, environment variables)
+   - API changes or new endpoints
+   - See `update-implementation-plan.mdc` for details on what and how to document
+
+**Never create a commit message without first reviewing all changed files, ensuring you're on a feature branch (not main), and updating the implementation plan.** The commit message should comprehensively cover all significant changes, and the implementation plan must be updated to reflect those changes.
+
+- Always use the format above
+- For multi-file changes, group related changes in the body with bullet points
+
+## Commit Workflow
+
+**IMPORTANT**: When the user requests multiple commits:
+
+- **Stop after each commit** - Do NOT proceed to the next commit automatically
+- Wait for user confirmation or explicit request before creating the next commit
+- This allows the user to review each commit before moving to the next one
+
+## References
+
+- **Branch Strategy**: See `git-workflow.mdc` for mandatory feature branch creation before commits
+- [Conventional Commits](https://www.conventionalcommits.org/)
+- [Angular Commit Message Guidelines](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#commit)
+- [Git Commit Best Practices](https://cbea.ms/git-commit/)

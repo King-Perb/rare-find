@@ -1,0 +1,211 @@
+---
+description: Always update tests when editing code files
+alwaysApply: true
+---
+# Test Maintenance Rule
+
+**IMPORTANT**: When editing code files, always update or add corresponding tests to ensure test coverage stays current with code changes.
+
+## Workflow
+
+### Step 1: Make Code Changes
+1. Edit the implementation files as requested
+2. Ensure code compiles and has no syntax errors
+
+### Step 2: Fix Type and Linter Errors
+**CRITICAL**: Before updating tests, you MUST:
+1. **Run compilation**: `mvn compile` (or equivalent)
+2. **Run linting**: `mvn checkstyle:check` or `mvn pmd:check` (if configured)
+3. **Fix all errors**: Resolve any compilation errors and code quality warnings
+4. **Verify build**: Ensure `mvn clean install` succeeds (if applicable)
+
+**Do NOT proceed to test updates until all compilation and linter errors are resolved.**
+
+### Step 3: Update or Add Tests
+After code is error-free, update tests:
+
+1. **Identify test files**: Find corresponding test files for edited code
+   - Service classes: `src/test/java/**/service/*ServiceTest.java`
+   - Controllers: `src/test/java/**/controller/*ControllerTest.java`
+   - Repositories: `src/test/java/**/repository/*RepositoryTest.java`
+   - Entities/DTOs: `src/test/java/**/model/*Test.java` or integration tests
+   - Utilities: `src/test/java/**/util/*Test.java`
+
+2. **Update existing tests**:
+   - Update test cases to match new behavior
+   - Fix broken tests due to API/interface changes
+   - Add test cases for new functionality
+   - Remove or update tests for removed features
+
+3. **Add new tests** (if test file doesn't exist):
+   - Create test file in appropriate package structure mirroring source
+   - Follow existing test patterns and structure
+   - Use same testing framework (JUnit 5, Mockito, Spring Boot Test)
+
+4. **Ensure tests pass**: Run `mvn test` to verify all tests pass
+
+5. **Run integration tests (when applicable)**: For changes affecting database operations, API endpoints, or critical business flows:
+   - Run `mvn verify` to execute integration tests
+   - Integration tests are slower, so only run when necessary (see "When to Run Integration Tests" below)
+
+## When to Update Tests
+
+### Always Update Tests When:
+- ✅ **Adding new methods/classes** - Add tests for new functionality
+- ✅ **Changing method signatures** - Update tests to match new parameters
+- ✅ **Modifying service logic** - Update service tests
+- ✅ **Changing return types** - Update test expectations
+- ✅ **Adding new features** - Add comprehensive tests
+- ✅ **Fixing bugs** - Add regression tests to prevent recurrence
+- ✅ **Refactoring code** - Ensure tests still pass and cover refactored logic
+- ✅ **Financial calculations** - MANDATORY: All BigDecimal calculations must have tests
+
+### May Skip Test Updates When:
+- ⚠️ **Pure configuration changes** (e.g., application.properties, constants)
+- ⚠️ **Documentation-only changes** (comments, README, JavaDoc)
+- ⚠️ **Type-only changes** (adding interfaces without implementation changes)
+- ⚠️ **DTO changes** (if only data structure, no logic)
+
+**When in doubt, add or update tests.** Especially for financial calculations - these MUST be tested.
+
+## When to Run Integration Tests
+
+Integration tests are slower and should be run selectively, not for every code change.
+
+### Always Run Integration Tests When:
+- ✅ **Database schema changes** - Changes to entities, relationships, or JPA mappings
+- ✅ **Repository changes** - New queries, custom repository methods, or query modifications
+- ✅ **Transaction management changes** - Changes to `@Transactional` behavior or transaction boundaries
+- ✅ **API endpoint changes** - New REST endpoints or modifications to existing ones
+- ✅ **Security changes** - Authentication, authorization, or security configuration changes
+- ✅ **Financial transaction flows** - Changes to transaction processing, balance calculations, or audit logging
+- ✅ **Before major releases** - Before merging to main or deploying to production
+
+### Optional (Run if Time Permits):
+- ⚠️ **Service layer changes** - Changes to business logic that interact with repositories
+- ⚠️ **DTO changes** - Changes to data transfer objects that affect API contracts
+- ⚠️ **Configuration changes** - Changes to Spring configuration that affect runtime behavior
+
+### Skip Integration Tests When:
+- ❌ **Pure utility/helper functions** - No database or API impact
+- ❌ **Type definitions only** - No runtime behavior changes
+- ❌ **Test file changes** - Only updating test code
+- ❌ **Documentation changes** - README, comments, JavaDoc
+- ❌ **Build configuration** - Maven pom.xml changes (unless they affect runtime)
+
+**Note**: Integration tests run automatically in CI/CD, so they will catch issues even if not run locally.
+
+## Test File Naming Convention
+
+### Unit Tests:
+- Service tests: `src/test/java/**/service/*ServiceTest.java`
+- Controller tests: `src/test/java/**/controller/*ControllerTest.java`
+- Repository tests: `src/test/java/**/repository/*RepositoryTest.java`
+- Utility tests: `src/test/java/**/util/*Test.java`
+- Model/Entity tests: `src/test/java/**/model/*Test.java`
+
+### Integration Tests:
+- Integration test files: `src/test/java/**/integration/*IntegrationTest.java`
+- Use `@SpringBootTest` for Spring Boot integration tests
+- Use `@DataJpaTest` for repository integration tests
+- Use `@WebMvcTest` for controller integration tests
+
+## Examples
+
+### Example 1: Adding a New Service Method
+
+```java
+// TransactionService.java - Added new method
+public BigDecimal calculateAccountBalance(Long accountId) {
+    // Implementation with BigDecimal precision
+}
+```
+
+**Action**: Update `TransactionServiceTest.java` with tests for `calculateAccountBalance` including:
+- Normal case with transactions
+- Empty account (zero balance)
+- Negative balance scenarios
+- Large number precision tests
+
+### Example 2: Modifying Controller Endpoint
+
+```java
+// TransactionController.java - Modified endpoint
+@PostMapping("/transactions")
+public ResponseEntity<TransactionDTO> createTransaction(
+    @RequestBody @Valid CreateTransactionRequest request) {
+    // Now includes validation and different response structure
+}
+```
+
+**Action**: Update `TransactionControllerTest.java` to:
+- Test new validation rules
+- Test new response structure
+- Update existing test cases if needed
+
+### Example 3: Changing Repository Query
+
+```java
+// TransactionRepository.java - Changed query
+@Query("SELECT t FROM Transaction t WHERE t.account.id = :accountId AND t.date BETWEEN :startDate AND :endDate")
+List<Transaction> findByAccountAndDateRange(@Param("accountId") Long accountId,
+                                             @Param("startDate") LocalDate startDate,
+                                             @Param("endDate") LocalDate endDate);
+```
+
+**Action**: Update `TransactionRepositoryTest.java` to:
+- Test new query parameters
+- Test date range boundaries
+- Test edge cases (null dates, invalid ranges)
+
+## Test Quality Standards
+
+When updating tests, ensure:
+
+1. **Coverage**: Tests cover new/changed functionality
+2. **Edge cases**: Test boundary conditions and error cases (especially for financial calculations)
+3. **Precision**: Test BigDecimal calculations with various precision scenarios
+4. **Integration**: Test how changes interact with existing code
+5. **Regression**: Ensure existing functionality still works
+6. **Clarity**: Test names clearly describe what is being tested
+7. **Financial accuracy**: All monetary calculations must be tested for precision
+
+## Workflow Summary
+
+```
+1. Edit code files
+   ↓
+2. Fix compilation errors (mvn compile)
+   ↓
+3. Fix linter errors (mvn checkstyle:check)
+   ↓
+4. Verify build (mvn clean install)
+   ↓
+5. Update/add unit tests
+   ↓
+6. Run unit tests (mvn test)
+   ↓
+7. Ensure all unit tests pass
+   ↓
+8. Run integration tests (mvn verify) - IF applicable
+   ↓
+9. Ensure all tests pass
+```
+
+**Test Commands:**
+- `mvn test` - Run all unit tests
+- `mvn verify` - Run unit and integration tests
+- `mvn test -Dtest=TransactionServiceTest` - Run specific test class
+- `mvn test -Dtest=TransactionServiceTest#calculateBalance` - Run specific test method
+
+## Integration with Other Rules
+
+- **Commit Standards**: Test updates should be included in the same commit as code changes (see `commit-splitting.mdc`)
+- **Git Workflow**: Test updates are part of the feature implementation
+- **Constitution**: Test coverage must exceed 80% overall, 90% for financial modules (see `.specify/memory/constitution.md`)
+
+## Reference
+
+- JUnit 5 documentation: https://junit.org/junit5/
+- Spring Boot Testing: https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing
+- Mockito documentation: https://site.mockito.org/

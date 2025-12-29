@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/packages/*/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -12,13 +13,19 @@
 
 # testing
 /coverage
+packages/*/coverage
 /test-results
+packages/*/test-results
 /playwright-report
+packages/*/playwright-report
 /playwright/.cache
+packages/*/playwright/.cache
 
 # next.js
 /.next/
 /out/
+packages/*/.next/
+packages/*/out/
 
 # production
 /build
@@ -43,6 +50,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+packages/*/dist/
+packages/*/*.tsbuildinfo
+
+# prisma generated files
+packages/*/src/generated/
 
 # pre-commit
 .pre-commit
@@ -51,9 +63,10 @@ next-env.d.ts
 .pre-push-test-cache
 .pre-push-build-cache
 
-# cursor (keep rules, ignore other files)
+# cursor (keep rules and mcp config, ignore other files)
 .cursor/*
 !.cursor/rules/
+!.cursor/mcp.json
 
 # temporary files
 COMMIT_MESSAGE.txt

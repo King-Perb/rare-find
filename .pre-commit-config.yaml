@@ -49,7 +49,7 @@ repos:
 
       - id: test
         name: Test
-        entry: bash scripts/run-tests-if-needed.sh
+        entry: bash -c "cd packages/web && bash scripts/run-tests-if-needed.sh"
         language: system
         stages: [pre-push]
         pass_filenames: false
@@ -57,9 +57,8 @@ repos:
 
       - id: build
         name: Build
-        entry: bash scripts/run-build-if-needed.sh
+        entry: bash -c "cd packages/web && bash scripts/run-build-if-needed.sh"
         language: system
         stages: [pre-push]
         pass_filenames: false
         always_run: true
-

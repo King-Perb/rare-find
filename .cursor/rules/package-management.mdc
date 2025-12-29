@@ -1,0 +1,131 @@
+---
+description: Package management and version checking standards
+alwaysApply: true
+---
+
+# Package Management Rule
+
+**IMPORTANT**: Always check for the latest stable versions of packages before installing or updating them.
+
+## Mandatory Version Checking
+
+**BEFORE installing or updating ANY package, the AI MUST:**
+
+1. **Search online for the latest stable version** using web search
+   - Search for: `"[package-name]" "latest stable version" npm 2024 2025`
+   - Check official documentation, npm registry, or GitHub releases
+   - Verify the version number and release date
+
+2. **Use the latest stable version** (not beta, alpha, or RC unless explicitly requested)
+   - Prefer versions marked as "stable", "latest", or "LTS"
+   - Avoid pre-release versions (`-beta`, `-alpha`, `-rc`) unless user explicitly requests them
+   - Check for breaking changes in major version updates
+
+3. **Verify compatibility** with the current project stack
+   - Check if the package is compatible with current Node.js version
+   - Verify compatibility with other dependencies (React, Next.js, etc.)
+   - Check for known issues or breaking changes
+
+4. **Document the version** in the installation command
+   - Use explicit version numbers (e.g., `^2.47.0`) rather than `latest`
+   - Include version in commit messages when updating packages
+   - Note any breaking changes in commit messages
+
+## Workflow
+
+### Step 1: Check Latest Version
+```bash
+# Example: Before installing @supabase/supabase-js
+# Search: "@supabase/supabase-js latest stable version npm 2024"
+# Verify: Check npm registry, GitHub releases, or official docs
+```
+
+### Step 2: Verify Compatibility
+- Check package documentation for compatibility requirements
+- Verify it works with current project dependencies
+- Check for breaking changes in changelog
+
+### Step 3: Install with Explicit Version
+```bash
+# Good: Explicit version
+npm install @supabase/supabase-js@^2.47.0
+
+# Avoid: Latest tag (unless explicitly requested)
+npm install @supabase/supabase-js@latest
+```
+
+## Examples
+
+### ✅ Good: Checked Version
+```bash
+# 1. Search: "@supabase/supabase-js latest stable version"
+# 2. Found: Latest stable is 2.47.0 (as of Dec 2024)
+# 3. Install:
+npm install @supabase/supabase-js@^2.47.0
+```
+
+### ✅ Good: Updated Version
+```bash
+# 1. Search: "prisma @prisma/client latest stable version"
+# 2. Found: Latest stable is 6.0.0 (as of Dec 2024)
+# 3. Update package.json with explicit versions
+```
+
+### ❌ Bad: No Version Check
+```bash
+# Don't do this - installing without checking latest version
+npm install @supabase/supabase-js
+```
+
+### ❌ Bad: Using Latest Tag
+```bash
+# Don't do this - using @latest without verification
+npm install @supabase/supabase-js@latest
+```
+
+## Common Packages to Check
+
+When working with these packages, always verify latest versions:
+
+- **Supabase**: `@supabase/supabase-js`
+- **Prisma**: `prisma`, `@prisma/client`
+- **Next.js**: `next`, `react`, `react-dom`
+- **React Native**: `react-native`, `expo`, `expo-router`
+- **UI Libraries**: `react-native-paper`, `@radix-ui/*`, `tailwindcss`
+- **Testing**: `vitest`, `@testing-library/*`, `playwright`
+- **TypeScript**: `typescript`, `@types/*`
+
+## Version Checking Resources
+
+1. **npm Registry**: https://www.npmjs.com/package/[package-name]
+2. **GitHub Releases**: Check package's GitHub repository releases
+3. **Official Documentation**: Check package's official docs for latest version
+4. **Changelog**: Review changelog for breaking changes
+
+## Breaking Changes
+
+When a major version update is available:
+
+1. **Check changelog** for breaking changes
+2. **Inform user** about breaking changes before updating
+3. **Suggest migration path** if significant changes
+4. **Update related code** if breaking changes require it
+
+## Exception
+
+Only skip version checking if:
+- User explicitly requests a specific version
+- User explicitly requests `@latest` tag
+- Package is already at latest version (verified in previous step)
+
+## Integration with Other Rules
+
+- **Commit Standards**: Include package name and version in commit messages
+- **Test Maintenance**: Update tests if package updates require it
+- **Git Workflow**: Package updates should be in feature branches
+
+## Reference
+
+- npm Registry: https://www.npmjs.com/
+- Supabase Releases: https://github.com/supabase/supabase/releases
+- Prisma Releases: https://github.com/prisma/prisma/releases

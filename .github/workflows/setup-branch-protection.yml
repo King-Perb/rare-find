@@ -41,4 +41,3 @@ jobs:
               "require_signed_commits": false,
               "lock_branch": false
             }'
-

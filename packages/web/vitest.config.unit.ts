@@ -23,7 +23,7 @@ export default defineConfig({
       // Type definition files (no testable logic)
       "src/types/**",
       // Config files (no testable logic)
-      "next.config.ts", "postcss.config.mjs", "eslint.config.mjs", "vitest.config.ts", "vitest.config.storybook.ts", "playwright.config.ts", "prisma.config.ts",
+      "next.config.ts", "postcss.config.mjs", "eslint.config.mjs", "vitest.config.ts", "vitest.config.unit.ts", "playwright.config.ts", "prisma.config.ts",
       // Test files themselves
       "**/*.test.{ts,tsx}", "**/__tests__/**", "**/test/**",
       // Setup files

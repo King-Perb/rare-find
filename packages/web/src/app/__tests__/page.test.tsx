@@ -38,6 +38,20 @@ vi.mock('framer-motion', () => ({
   AnimatePresence: vi.fn(({ children }) => children),
 }));
 
+// Mock StaggerContainer component
+vi.mock('@/components/animations/stagger-container', () => ({
+  StaggerContainer: ({ children, className }: { children: React.ReactNode; className?: string }) => {
+    return <div data-testid="stagger-container" className={className}>{children}</div>;
+  },
+}));
+
+// Mock ScrollReveal component
+vi.mock('@/components/animations/scroll-reveal', () => ({
+  ScrollReveal: ({ children, className }: { children: React.ReactNode; className?: string }) => {
+    return <div data-testid="scroll-reveal" className={className}>{children}</div>;
+  },
+}));
+
 describe('Home Page Hero Section Entrance Animations', () => {
   beforeEach(() => {
     vi.clearAllMocks();

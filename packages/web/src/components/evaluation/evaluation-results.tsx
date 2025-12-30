@@ -6,7 +6,11 @@
 
 'use client';
 
+import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { useCountUp } from '@/hooks/use-count-up';
+import { FadeIn } from '@/components/animations/fade-in';
+import { slideInRight } from '@/lib/animations/variants';
 import type { EvaluationResult } from '@/lib/ai/types';
 import type { MarketplaceListing } from '@/lib/marketplace/types';
 
@@ -95,10 +99,44 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
   const priceColorClass = getValueColorClass();
   const estimatedValueColorClass = getValueColorClass();
 
+  // Count-up animations for metrics
+  const estimatedValue = useCountUp({
+    target: evaluation.estimatedMarketValue,
+    duration: 1500,
+    formatter: (val) => formatCurrency(val),
+  });
+
+  const savingsOrOverpayment = useCountUp({
+    target: hasSavings ? savingsAmount : -overpaymentAmount,
+    duration: 1500,
+    formatter: (val) => {
+      const absVal = Math.abs(val);
+      return hasSavings ? `+${formatCurrency(absVal)}` : formatCurrency(absVal);
+    },
+  });
+
+  const undervaluationPercentage = useCountUp({
+    target: Math.abs(evaluation.undervaluationPercentage),
+    duration: 1500,
+    formatter: (val) => {
+      return isGoodDeal ? `+${formatPercentage(val)}` : formatPercentage(val);
+    },
+  });
+
+  const confidenceScore = useCountUp({
+    target: evaluation.confidenceScore,
+    duration: 1500,
+  });
+
   return (
     <div className="w-full max-w-4xl space-y-6 mt-8">
       {/* Listing Details */}
-      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <motion.section
+        initial="hidden"
+        animate="visible"
+        variants={slideInRight}
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+      >
         <h2 className="text-2xl font-bold mb-4 text-foreground">Listing Details</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -109,19 +147,18 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
                 Images
               </h3>
               <div className="grid grid-cols-2 gap-2">
-                {listing.images.slice(0, 4).map((imageUrl) => (
-                  <div
-                    key={imageUrl}
-                    className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700"
-                  >
-                    <Image
-                      src={imageUrl}
-                      alt={`${listing.title} - ${imageUrl}`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 50vw, 25vw"
-                    />
-                  </div>
+                {listing.images.slice(0, 4).map((imageUrl, index) => (
+                  <FadeIn key={imageUrl} delay={index * 0.1}>
+                    <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+                      <Image
+                        src={imageUrl}
+                        alt={`${listing.title} - ${imageUrl}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                      />
+                    </div>
+                  </FadeIn>
                 ))}
               </div>
             </div>
@@ -196,10 +233,16 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
             </a>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* AI Evaluation */}
-      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <motion.section
+        initial="hidden"
+        animate="visible"
+        variants={slideInRight}
+        transition={{ delay: 0.2 }}
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+      >
         <h2 className="text-2xl font-bold mb-4 text-foreground">AI Evaluation</h2>
 
         {/* Replica/Novelty Warning */}
@@ -229,7 +272,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
               {isReplicaOrNovelty ? 'Estimated Value (as Replica/Novelty)' : 'Estimated Market Value'}
             </div>
             <div className={`text-2xl font-bold ${estimatedValueColorClass}`}>
-              {formatCurrency(evaluation.estimatedMarketValue)}
+              {estimatedValue}
             </div>
           </div>
 
@@ -238,9 +281,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
               {hasSavings ? 'Potential Savings' : 'Overpriced By'}
             </div>
             <div className={`text-2xl font-bold ${hasSavings ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-              {hasSavings
-                ? `+${formatCurrency(savingsAmount)}`
-                : formatCurrency(overpaymentAmount)}
+              {savingsOrOverpayment}
             </div>
           </div>
 
@@ -249,9 +290,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
               {isGoodDeal ? 'Undervaluation' : 'Overvaluation'}
             </div>
             <div className={`text-2xl font-bold ${isGoodDeal ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-              {isGoodDeal
-                ? `+${formatPercentage(evaluation.undervaluationPercentage)}`
-                : formatPercentage(Math.abs(evaluation.undervaluationPercentage))}
+              {undervaluationPercentage}
             </div>
           </div>
         </div>
@@ -263,13 +302,15 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
               Confidence Score
             </span>
             <span className={`text-lg font-bold ${getConfidenceColor(evaluation.confidenceScore)}`}>
-              {evaluation.confidenceScore}/100 ({getConfidenceLabel(evaluation.confidenceScore)})
+              {Math.round(confidenceScore as number)}/100 ({getConfidenceLabel(evaluation.confidenceScore)})
             </span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div
+            <motion.div
               className={`h-2 rounded-full ${getConfidenceBarColor(evaluation.confidenceScore)}`}
-              style={{ width: `${evaluation.confidenceScore}%` }}
+              initial={{ width: 0 }}
+              animate={{ width: `${evaluation.confidenceScore}%` }}
+              transition={{ duration: 1.5, ease: 'easeOut' }}
             />
           </div>
         </div>
@@ -293,7 +334,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
             </ul>
           </div>
         )}
-      </section>
+      </motion.section>
     </div>
   );
 }

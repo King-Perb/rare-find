@@ -14,6 +14,8 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { EvaluationForm } from '@/components/evaluation/evaluation-form';
 import { FadeIn } from '@/components/animations/fade-in';
 import { SlideIn } from '@/components/animations/slide-in';
+import { StaggerContainer } from '@/components/animations/stagger-container';
+import { ScrollReveal } from '@/components/animations/scroll-reveal';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { scaleIn } from '@/lib/animations/variants';
 
@@ -167,54 +169,60 @@ export default function Home() {
 
       {/* Features Section */}
       {!hasResults && !evaluation.isLoading && (
-        <section className="w-full max-w-4xl px-6 sm:px-16 pb-24">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {/* Feature 1 */}
-            <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-              <div className="h-12 w-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
-                <svg className="h-6 w-6 text-green-700 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+        <ScrollReveal
+          threshold={0.3}
+          rootMargin="100px"
+          className="w-full max-w-4xl px-6 sm:px-16 pb-24"
+        >
+          <StaggerContainer staggerDelay={0.15}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {/* Feature 1 */}
+              <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                <div className="h-12 w-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
+                  <svg className="h-6 w-6 text-green-700 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">
+                  Instant Analysis
+                </h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Get AI-powered evaluations in seconds, not hours of research
+                </p>
               </div>
-              <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">
-                Instant Analysis
-              </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Get AI-powered evaluations in seconds, not hours of research
-              </p>
-            </div>
 
-            {/* Feature 2 */}
-            <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-              <div className="h-12 w-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
-                <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
+              {/* Feature 2 */}
+              <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                <div className="h-12 w-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
+                  <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">
+                  Market Value Estimates
+                </h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Compare listing prices to estimated true market value
+                </p>
               </div>
-              <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">
-                Market Value Estimates
-              </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Compare listing prices to estimated true market value
-              </p>
-            </div>
 
-            {/* Feature 3 */}
-            <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-              <div className="h-12 w-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
-                <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
+              {/* Feature 3 */}
+              <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                <div className="h-12 w-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
+                  <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">
+                  Smart Insights
+                </h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Understand why a listing might be undervalued
+                </p>
               </div>
-              <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">
-                Smart Insights
-              </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Understand why a listing might be undervalued
-              </p>
             </div>
-          </div>
-        </section>
+          </StaggerContainer>
+        </ScrollReveal>
       )}
     </div>
   );

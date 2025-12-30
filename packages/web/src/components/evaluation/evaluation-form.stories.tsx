@@ -59,6 +59,75 @@ export const Default: Story = {
   },
 };
 
+export const FocusAnimation: Story = {
+  args: {
+    evaluation: createMockEvaluation(),
+    placeholder: 'Paste Amazon or eBay listing URL here...',
+    submitText: 'Evaluate Listing',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText(/listing url/i) || canvas.getByPlaceholderText(/paste amazon/i);
+
+    // Focus input to trigger focus animation (border color + ring)
+    await userEvent.click(input);
+    await userEvent.type(input, 'https://www.amazon.com/dp/B08XYZ123');
+  },
+};
+
+export const ErrorShakeAnimation: Story = {
+  args: {
+    evaluation: createMockEvaluation(),
+    placeholder: 'Paste Amazon or eBay listing URL here...',
+    submitText: 'Evaluate Listing',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: /evaluate listing/i });
+
+    // Submit with empty input to trigger error shake animation
+    await userEvent.click(button);
+  },
+};
+
+export const ButtonHoverAnimation: Story = {
+  args: {
+    evaluation: createMockEvaluation(),
+    placeholder: 'Paste Amazon or eBay listing URL here...',
+    submitText: 'Evaluate Listing',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText(/listing url/i) || canvas.getByPlaceholderText(/paste amazon/i);
+    const button = canvas.getByRole('button', { name: /evaluate listing/i });
+
+    // Type URL to enable button
+    await userEvent.type(input, 'https://www.amazon.com/dp/B08XYZ123');
+
+    // Hover over button to trigger hover animation (scale + shadow)
+    await userEvent.hover(button);
+  },
+};
+
+export const ButtonClickAnimation: Story = {
+  args: {
+    evaluation: createMockEvaluation(),
+    placeholder: 'Paste Amazon or eBay listing URL here...',
+    submitText: 'Evaluate Listing',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText(/listing url/i) || canvas.getByPlaceholderText(/paste amazon/i);
+    const button = canvas.getByRole('button', { name: /evaluate listing/i });
+
+    // Type URL to enable button
+    await userEvent.type(input, 'https://www.amazon.com/dp/B08XYZ123');
+
+    // Click button to trigger click animation (scale down + spring back)
+    await userEvent.click(button);
+  },
+};
+
 export const Loading: Story = {
   args: {
     evaluation: createMockEvaluation({

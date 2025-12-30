@@ -7,9 +7,13 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { UseEvaluationReturn } from '@/hooks/use-evaluation';
 import { getErrorMessage } from '@/lib/errors';
 import { ErrorDisplay } from '@/components/ui/error-display';
+import { AnimatedButton } from '@/components/ui/animated-button';
+import { useReducedMotion } from '@/hooks/use-reduced-motion';
+import { shake } from '@/lib/animations/variants';
 
 export interface EvaluationFormProps {
   /** Evaluation hook instance */
@@ -50,6 +54,8 @@ export function EvaluationForm({
 }: EvaluationFormProps) {
   const [url, setUrl] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
+  const [shouldShake, setShouldShake] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -58,6 +64,11 @@ export function EvaluationForm({
     // Basic URL validation
     if (!url.trim()) {
       setLocalError('Please enter a URL');
+      // Trigger shake animation on error
+      if (!shouldReduceMotion) {
+        setShouldShake(true);
+        setTimeout(() => setShouldShake(false), 500);
+      }
       return;
     }
 
@@ -66,6 +77,11 @@ export function EvaluationForm({
       new URL(url.trim());
     } catch {
       setLocalError('Please enter a valid URL');
+      // Trigger shake animation on error
+      if (!shouldReduceMotion) {
+        setShouldShake(true);
+        setTimeout(() => setShouldShake(false), 500);
+      }
       return;
     }
 
@@ -74,6 +90,11 @@ export function EvaluationForm({
       const customError = onValidate(url.trim());
       if (customError) {
         setLocalError(customError);
+        // Trigger shake animation on error
+        if (!shouldReduceMotion) {
+          setShouldShake(true);
+          setTimeout(() => setShouldShake(false), 500);
+        }
         return;
       }
     }
@@ -102,11 +123,11 @@ export function EvaluationForm({
 
   const isHero = variant === 'hero';
 
-  // Hero variant input classes
-  const heroInputClasses = "w-full h-14 pl-12 pr-4 text-base rounded-2xl border-2 border-zinc-200 bg-white text-zinc-900 placeholder-zinc-400 transition-all focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-75 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white dark:placeholder-zinc-500 dark:focus:border-blue-400 dark:focus:ring-blue-400/20";
+  // Hero variant input classes with enhanced focus animation
+  const heroInputClasses = "w-full h-14 pl-12 pr-4 text-base rounded-2xl border-2 border-zinc-200 bg-white text-zinc-900 placeholder-zinc-400 transition-all duration-150 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-75 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white dark:placeholder-zinc-500 dark:focus:border-blue-400 dark:focus:ring-blue-400/20";
 
-  // Standard variant input classes
-  const standardInputClasses = "flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-75 dark:bg-gray-800 dark:border-gray-600 dark:text-white";
+  // Standard variant input classes with enhanced focus animation
+  const standardInputClasses = "flex-1 px-4 py-2 border border-gray-300 rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-75 dark:bg-gray-800 dark:border-gray-600 dark:text-white";
 
   // Hero variant button classes
   const heroButtonClasses = "h-14 px-8 text-base font-semibold rounded-2xl bg-blue-600 text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 disabled:bg-zinc-300 disabled:text-zinc-500 disabled:cursor-not-allowed dark:disabled:bg-zinc-700 dark:disabled:text-zinc-500 flex items-center justify-center gap-2 min-w-[160px]";
@@ -142,53 +163,63 @@ export function EvaluationForm({
                 </svg>
               </div>
             )}
-            <input
-              id="listing-url"
-              type="url"
-              value={url}
-              onChange={(e) => {
-                setUrl(e.target.value);
-                setLocalError(null);
-              }}
-              placeholder={placeholder}
-              disabled={evaluation.isLoading}
-              className={isHero ? heroInputClasses : standardInputClasses}
-              aria-invalid={displayError ? 'true' : 'false'}
-              aria-describedby={displayError ? 'url-error' : undefined}
-            />
+            {shouldReduceMotion || !shouldShake ? (
+              <input
+                id="listing-url"
+                type="url"
+                value={url}
+                onChange={(e) => {
+                  setUrl(e.target.value);
+                  setLocalError(null);
+                }}
+                placeholder={placeholder}
+                disabled={evaluation.isLoading}
+                className={isHero ? heroInputClasses : standardInputClasses}
+                aria-invalid={displayError ? 'true' : 'false'}
+                aria-describedby={displayError ? 'url-error' : undefined}
+              />
+            ) : (
+              <motion.input
+                id="listing-url"
+                type="url"
+                value={url}
+                onChange={(e) => {
+                  setUrl(e.target.value);
+                  setLocalError(null);
+                }}
+                placeholder={placeholder}
+                disabled={evaluation.isLoading}
+                className={isHero ? heroInputClasses : standardInputClasses}
+                aria-invalid={displayError ? 'true' : 'false'}
+                aria-describedby={displayError ? 'url-error' : undefined}
+                animate={shouldShake ? 'shake' : 'normal'}
+                variants={shake}
+              />
+            )}
           </div>
-          <button
-            type="submit"
-            disabled={evaluation.isLoading || !url.trim()}
-            className={isHero ? heroButtonClasses : standardButtonClasses}
-          >
-            {(() => {
-              if (evaluation.isLoading) {
-                if (isHero) {
-                  return (
-                    <>
-                      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
-                      Analyzing...
-                    </>
-                  );
-                }
-                return 'Evaluating...';
-              }
-              return (
-                <>
-                  {submitText}
-                  {isHero && (
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  )}
-                </>
-              );
-            })()}
-          </button>
+          {isHero ? (
+            <AnimatedButton
+              type="submit"
+              disabled={evaluation.isLoading || !url.trim()}
+              isLoading={evaluation.isLoading}
+              loadingText="Analyzing..."
+              className="h-14 px-8 text-base font-semibold rounded-2xl min-w-[160px]"
+            >
+              {submitText}
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </AnimatedButton>
+          ) : (
+            <AnimatedButton
+              type="submit"
+              disabled={evaluation.isLoading || !url.trim()}
+              isLoading={evaluation.isLoading}
+              loadingText="Evaluating..."
+            >
+              {submitText}
+            </AnimatedButton>
+          )}
         </div>
         <ErrorDisplay
           error={displayError}

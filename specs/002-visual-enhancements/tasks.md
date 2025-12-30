@@ -93,24 +93,24 @@
 
 ### Tests for User Story 2
 
-- [ ] T031 [P] [US2] Write unit test for button hover animations in packages/web/src/components/ui/__tests__/animated-button.test.tsx
-- [ ] T032 [P] [US2] Write unit test for button click animations in packages/web/src/components/ui/__tests__/animated-button.test.tsx
-- [ ] T033 [P] [US2] Write unit test for input focus animations in packages/web/src/components/evaluation/__tests__/evaluation-form.test.tsx
-- [ ] T034 [P] [US2] Write unit test for error shake animation in packages/web/src/components/evaluation/__tests__/evaluation-form.test.tsx
-- [ ] T035 [P] [US2] Write unit test for loading state transitions in packages/web/src/components/evaluation/__tests__/evaluation-form.test.tsx
-- [ ] T036 [P] [US2] Write E2E test for form interactions in packages/web/e2e/animations.spec.ts (hover, click, focus, error)
+- [x] T031 [P] [US2] Write unit test for button hover animations in packages/web/src/components/ui/__tests__/animated-button.test.tsx
+- [x] T032 [P] [US2] Write unit test for button click animations in packages/web/src/components/ui/__tests__/animated-button.test.tsx
+- [x] T033 [P] [US2] Write unit test for input focus animations in packages/web/src/components/evaluation/__tests__/evaluation-form.test.tsx
+- [x] T034 [P] [US2] Write unit test for error shake animation in packages/web/src/components/evaluation/__tests__/evaluation-form.test.tsx
+- [x] T035 [P] [US2] Write unit test for loading state transitions in packages/web/src/components/evaluation/__tests__/evaluation-form.test.tsx
+- [x] T036 [P] [US2] Write E2E test for form interactions in packages/web/e2e/animations.spec.ts (hover, click, focus, error)
 
 ### Implementation for User Story 2
 
-- [ ] T037 [P] [US2] Create AnimatedButton component in packages/web/src/components/ui/animated-button.tsx with hover, click, and loading animations
-- [ ] T038 [US2] Update EvaluationForm component in packages/web/src/components/evaluation/evaluation-form.tsx to add input focus animations (border color + ring)
-- [ ] T039 [US2] Update EvaluationForm component in packages/web/src/components/evaluation/evaluation-form.tsx to add error shake animation using shake variant
-- [ ] T040 [US2] Update EvaluationForm component in packages/web/src/components/evaluation/evaluation-form.tsx to add button loading state transitions
-- [ ] T041 [US2] Replace standard buttons with AnimatedButton in packages/web/src/components/evaluation/evaluation-form.tsx
-- [ ] T042 [US2] Ensure all form animations respect reduced motion in packages/web/src/components/evaluation/evaluation-form.tsx
-- [ ] T043 [P] [US2] Create Storybook story for AnimatedButton component in packages/web/src/components/ui/animated-button.stories.tsx with interaction examples
-- [ ] T044 [P] [US2] Update EvaluationForm Storybook story in packages/web/src/components/evaluation/evaluation-form.stories.tsx with animation interaction examples
-- [ ] T045 [P] [US2] Write tests for AnimatedButton component in packages/web/src/components/ui/__tests__/animated-button.test.tsx
+- [x] T037 [P] [US2] Create AnimatedButton component in packages/web/src/components/ui/animated-button.tsx with hover, click, and loading animations
+- [x] T038 [US2] Update EvaluationForm component in packages/web/src/components/evaluation/evaluation-form.tsx to add input focus animations (border color + ring)
+- [x] T039 [US2] Update EvaluationForm component in packages/web/src/components/evaluation/evaluation-form.tsx to add error shake animation using shake variant
+- [x] T040 [US2] Update EvaluationForm component in packages/web/src/components/evaluation/evaluation-form.tsx to add button loading state transitions
+- [x] T041 [US2] Replace standard buttons with AnimatedButton in packages/web/src/components/evaluation/evaluation-form.tsx
+- [x] T042 [US2] Ensure all form animations respect reduced motion in packages/web/src/components/evaluation/evaluation-form.tsx
+- [x] T043 [P] [US2] Create Storybook story for AnimatedButton component in packages/web/src/components/ui/animated-button.stories.tsx with interaction examples
+- [x] T044 [P] [US2] Update EvaluationForm Storybook story in packages/web/src/components/evaluation/evaluation-form.stories.tsx with animation interaction examples
+- [x] T045 [P] [US2] Write tests for AnimatedButton component in packages/web/src/components/ui/__tests__/animated-button.test.tsx
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently - page loads with animations and forms provide interactive feedback
 

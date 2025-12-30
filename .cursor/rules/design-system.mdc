@@ -1,0 +1,228 @@
+---
+description: Use the design system and brandbook when working on frontend components
+alwaysApply: true
+---
+
+# Design System and Brandbook Usage
+
+**IMPORTANT**: When working on frontend components, styles, or UI elements, always reference and use the design system documented in the brandbook.
+
+## Brandbook Location
+
+The design system is documented at:
+- **Page**: `src/app/design/page.tsx`
+- **URL**: `/design` (when running the app)
+- **Test file**: `src/app/design/__tests__/page.test.tsx`
+
+## When to Reference the Brandbook
+
+**ALWAYS** check the brandbook when:
+- ✅ Creating new components or UI elements
+- ✅ Adding colors, backgrounds, or borders
+- ✅ Setting typography (fonts, sizes, weights)
+- ✅ Applying spacing (margins, padding, gaps)
+- ✅ Using border radius values
+- ✅ Creating buttons, inputs, cards, or other UI components
+- ✅ Adding status indicators or alerts
+- ✅ Working with dark mode styles
+
+## Design System Guidelines
+
+### Colors
+
+**Primary Colors:**
+- Use `blue-600` (`#2563eb`) for primary actions and buttons
+- Use `blue-500` (`#3b82f6`) for links and focus states
+- Use `blue-700` (`#1d4ed8`) for button hover states
+- Use `indigo-600` (`#4f46e5`) for gradient accents
+
+**Neutral Colors:**
+- Use zinc scale for backgrounds, borders, and text
+- `zinc-50` for page backgrounds
+- `zinc-100` for disabled states
+- `zinc-200` for borders and dividers
+- `zinc-400` for placeholder text
+- `zinc-600` for secondary text
+- `zinc-900` for card backgrounds
+- `black` for page background (dark mode)
+- `white` for card backgrounds and text (dark mode)
+
+**Status Colors:**
+- `green-600` for success states, good deals, high confidence
+- `yellow-600` for warnings, medium confidence, replicas
+- `red-600` for errors, overpriced items, low confidence
+- `purple-100` for feature highlights
+
+**DO NOT** use arbitrary colors. Always use colors from the brandbook palette.
+
+### Typography
+
+- **Font Family**: Use Geist Sans (`font-sans`) for all body text and headings
+- **Headings**:
+  - H1: `text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight`
+  - H2: `text-3xl font-semibold tracking-tight`
+  - H3: `text-2xl font-semibold tracking-tight`
+  - H4: `text-xl font-semibold tracking-tight`
+- **Body Text**:
+  - Large: `text-lg leading-8`
+  - Base: `leading-7` (default)
+  - Small: `text-sm`
+- **Line Heights**: Use `leading-7` for body, `leading-8` for large text
+- **Font Weights**: Use `font-semibold` for headings, `font-bold` only for hero text
+
+### Spacing
+
+- Use spacing scale consistently (4px increments)
+- Common values: `gap-4`, `gap-6`, `gap-8` for component spacing
+- Hero sections: `py-24`
+- Standard sections: `py-12`
+- Component padding: `p-6` for cards, `px-4 py-2` for buttons
+
+### Border Radius
+
+- Hero inputs: `rounded-2xl`
+- Cards: `rounded-2xl`
+- Form inputs: `rounded-lg` or `rounded-2xl` (hero)
+- Buttons: `rounded-2xl` (hero), `rounded-xl` (standard)
+- Small elements: `rounded-lg`
+
+### Components
+
+**Buttons:**
+- Primary: `h-14 px-8 text-base font-semibold rounded-2xl bg-blue-600 text-white hover:bg-blue-700`
+- Secondary: `px-6 py-3 text-sm font-medium rounded-xl border-2 border-zinc-300`
+- Outline: `px-4 py-2 text-sm font-medium rounded-xl border-2`
+- Ghost: `px-4 py-2 text-sm font-medium hover:bg-zinc-100 rounded-xl`
+
+**Inputs:**
+- Hero style: `h-14 pl-12 pr-4 text-base rounded-2xl border-2 border-zinc-200`
+- Standard: `px-4 py-2 border border-zinc-300 rounded-lg`
+- Always include focus states: `focus:outline-none focus:ring-4 focus:ring-blue-500/20`
+
+**Cards:**
+- Standard: `p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800`
+- With shadow: Add `shadow-md` for elevation
+
+**Status Indicators:**
+- Success: `bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200`
+- Warning: `bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200`
+- Error: `bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200`
+
+## Dark Mode
+
+**ALWAYS** include dark mode variants:
+- Use `dark:` prefix for dark mode styles
+- Test both light and dark modes
+- Ensure sufficient contrast ratios (WCAG AA minimum)
+
+## Workflow
+
+When creating or modifying frontend components:
+
+1. **Check the brandbook** (`src/app/design/page.tsx`) for:
+   - Available colors and their usage
+   - Typography scale and classes
+   - Spacing conventions
+   - Component patterns
+
+2. **Use design tokens** from the brandbook:
+   - Don't invent new colors or spacing values
+   - Follow existing patterns
+   - Maintain consistency with the design system
+
+3. **Reference examples** in the brandbook:
+   - Look at component examples
+   - Follow the same structure and styling
+   - Use the same class names and patterns
+
+4. **Update the brandbook** if adding new:
+   - Design tokens (colors, spacing, typography)
+   - Component patterns
+   - Usage guidelines
+
+## Examples
+
+### ✅ Good: Using Brandbook Colors
+
+```tsx
+// Uses blue-600 from brandbook for primary button
+<button className="bg-blue-600 text-white hover:bg-blue-700 rounded-2xl">
+  Submit
+</button>
+```
+
+### ❌ Bad: Using Arbitrary Colors
+
+```tsx
+// Don't use arbitrary colors not in the brandbook
+<button className="bg-[#ff5733] text-white">
+  Submit
+</button>
+```
+
+### ✅ Good: Using Brandbook Typography
+
+```tsx
+// Uses H1 typography from brandbook
+<h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+  Title
+</h1>
+```
+
+### ❌ Bad: Using Arbitrary Typography
+
+```tsx
+// Don't use arbitrary font sizes
+<h1 className="text-[32px] font-black">
+  Title
+</h1>
+```
+
+### ✅ Good: Using Brandbook Spacing
+
+```tsx
+// Uses spacing scale from brandbook
+<div className="flex gap-4 p-6">
+  <Card />
+  <Card />
+</div>
+```
+
+### ❌ Bad: Using Arbitrary Spacing
+
+```tsx
+// Don't use arbitrary spacing values
+<div className="flex gap-[13px] p-[23px]">
+  <Card />
+  <Card />
+</div>
+```
+
+## Integration with Other Rules
+
+- **Test Maintenance**: When updating components, ensure tests reflect design system usage
+- **Commit Standards**: Design system changes should be documented in commit messages
+- **TypeScript**: Design system tokens should be properly typed
+
+## Reference
+
+- Brandbook page: `src/app/design/page.tsx`
+- View in browser: Navigate to `/design` when running the app
+- Design tokens are documented with hex values and usage guidelines
+
+## Quick Reference
+
+**Common Color Classes:**
+- Primary: `bg-blue-600`, `text-blue-600`
+- Background: `bg-zinc-50`, `bg-white`, `bg-black` (dark)
+- Text: `text-zinc-900`, `text-zinc-600`, `text-zinc-400`
+- Borders: `border-zinc-200`, `border-zinc-700` (dark)
+- Status: `bg-green-600`, `bg-yellow-600`, `bg-red-600`
+
+**Common Spacing:**
+- Gaps: `gap-4`, `gap-6`, `gap-8`
+- Padding: `p-6`, `px-4 py-2`, `px-8`
+- Margins: `mt-4`, `mb-6`, `py-12`, `py-24`
+
+**Common Radius:**
+- `rounded-lg`, `rounded-xl`, `rounded-2xl`

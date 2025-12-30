@@ -8,8 +8,8 @@
 
 'use client';
 
-import { useScroll, useTransform, motion } from 'framer-motion';
-import { useRef, type ReactNode } from 'react';
+import { useScroll, motion, useMotionValue, useAnimationFrame } from 'framer-motion';
+import { useRef, useEffect, type ReactNode } from 'react';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import {
   GradientBlob,
@@ -51,98 +51,91 @@ export function ParallaxBackground({
 }: ParallaxBackgroundProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
-  // Use window scroll instead of container scroll for full-page parallax
-  // When no target is specified, it tracks the window scroll
-  const { scrollYProgress } = useScroll();
+  // Use window scroll to track scroll position
+  const { scrollY } = useScroll();
+
+  // Store the last scroll position to calculate deltas
+  const lastScrollY = useRef(0);
+
+  // Use motion values to store current transform positions
+  // This preserves state when content changes dynamically
+  const midY = useMotionValue(0);
+  const nearY = useMotionValue(0);
+  const farXLeft = useMotionValue(0);
+  const farXRight = useMotionValue(0);
+  const farXLeftMobile = useMotionValue(0);
+  const farXRightMobile = useMotionValue(0);
+  const midXLeft = useMotionValue(0);
+  const midXRight = useMotionValue(0);
+  const midXLeftMobile = useMotionValue(0);
+  const midXRightMobile = useMotionValue(0);
+  const clusterScale = useMotionValue(1);
 
   // Disable parallax if reduced motion is enabled or component is disabled
   const isParallaxDisabled = disabled || shouldReduceMotion;
 
-  // Different parallax speeds for different layers
-  // Far background (GradientBlob) - no vertical movement, only horizontal
-  // Mid background (0.5x speed) - moves at medium speed
-  // Near background (0.8x speed) - moves fastest
-  // When parallax is disabled, use constant 0 values
-  const midBackgroundY = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, -250] // Negative for upward movement, faster
-  );
-  const nearBackgroundY = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, -600] // Negative for upward movement (to the top)
-  );
+  // Initialize scroll position on mount
+  useEffect(() => {
+    lastScrollY.current = scrollY.get();
+  }, [scrollY]);
 
-  // Horizontal parallax for some elements
-  // Gradient Blob: move outward (off-screen) as user scrolls
-  // Left blob moves left (negative), right blob moves right (positive)
-  // Desktop: larger movement, Mobile: smaller movement
-  const farBackgroundXLeft = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, -200] // Move left (off-screen) - desktop
-  );
-  const farBackgroundXRight = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, 200] // Move right (off-screen) - desktop
-  );
-  // Mobile: smaller movement amounts
-  const farBackgroundXLeftMobile = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, -150] // Move left (off-screen) - mobile
-  );
-  const farBackgroundXRightMobile = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, 150] // Move right (off-screen) - mobile
-  );
-  // Circle Cluster: left moves left, right moves right
-  const midBackgroundXLeft = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, -250] // Left cluster moves left - desktop
-  );
-  const midBackgroundXRight = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, 250] // Right cluster moves right - desktop
-  );
-  // Mobile: smaller movement amounts
-  const midBackgroundXLeftMobile = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, -150] // Left cluster moves left - mobile
-  );
-  const midBackgroundXRightMobile = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, 150] // Right cluster moves right - mobile
-  );
+  // Update parallax positions based on scroll deltas
+  // This preserves position when content is added/removed
+  useAnimationFrame(() => {
+    if (isParallaxDisabled) {
+      // Reset to initial positions when disabled
+      midY.set(0);
+      nearY.set(0);
+      farXLeft.set(0);
+      farXRight.set(0);
+      farXLeftMobile.set(0);
+      farXRightMobile.set(0);
+      midXLeft.set(0);
+      midXRight.set(0);
+      midXLeftMobile.set(0);
+      midXRightMobile.set(0);
+      clusterScale.set(1);
+      return;
+    }
 
-  // Scale transform to make circles spread/zoom out more as user scrolls
-  const circleClusterScale = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxDisabled ? [1, 1] : [1, 1.3] // Scale from 1 to 1.3 (30% larger = more zoom out)
-  );
+    const currentScrollY = scrollY.get();
+    const deltaY = currentScrollY - lastScrollY.current;
+    lastScrollY.current = currentScrollY;
+
+    // Update positions based on scroll delta, not absolute position
+    // This prevents position reset when content changes
+    // Increased speeds for more pronounced parallax effect
+    const midSpeed = 0.2; // Mid background moves at 20% of scroll speed
+    const nearSpeed = 0.5; // Near background moves at 50% of scroll speed (fastest)
+    const farXSpeed = 0.15; // Far background horizontal: 15% of scroll speed
+    const midXSpeed = 0.2; // Mid background horizontal: 20% of scroll speed
+
+    midY.set(midY.get() - deltaY * midSpeed);
+    nearY.set(nearY.get() - deltaY * nearSpeed);
+
+    // Horizontal movements (desktop)
+    farXLeft.set(farXLeft.get() - deltaY * farXSpeed);
+    farXRight.set(farXRight.get() + deltaY * farXSpeed);
+    midXLeft.set(midXLeft.get() - deltaY * midXSpeed);
+    midXRight.set(midXRight.get() + deltaY * midXSpeed);
+
+    // Horizontal movements (mobile) - smaller amounts (75% of desktop)
+    farXLeftMobile.set(farXLeftMobile.get() - deltaY * farXSpeed * 0.75);
+    farXRightMobile.set(farXRightMobile.get() + deltaY * farXSpeed * 0.75);
+    midXLeftMobile.set(midXLeftMobile.get() - deltaY * midXSpeed * 0.75);
+    midXRightMobile.set(midXRightMobile.get() + deltaY * midXSpeed * 0.75);
+
+    // Scale based on scroll - matches original [1, 1.3] at full scroll
+    // Original reached 1.3 at scrollYProgress = 1, so we approximate based on typical page height
+    const typicalPageHeight = 2000; // Approximate typical scrollable height
+    const scaleProgress = Math.min(1, currentScrollY / typicalPageHeight);
+    const newScale = 1 + (scaleProgress * 0.3); // Scale from 1 to 1.3
+    clusterScale.set(newScale);
+  });
 
   // When parallax is disabled, ensure transforms are explicitly set to 0
   // GradientBlobs: no vertical movement, only horizontal
   const farY = 0; // GradientBlobs stay vertically fixed
-  const midY = isParallaxDisabled ? 0 : midBackgroundY;
-  const nearY = isParallaxDisabled ? 0 : nearBackgroundY;
-  const farXLeft = isParallaxDisabled ? 0 : farBackgroundXLeft;
-  const farXRight = isParallaxDisabled ? 0 : farBackgroundXRight;
-  const farXLeftMobile = isParallaxDisabled ? 0 : farBackgroundXLeftMobile;
-  const farXRightMobile = isParallaxDisabled ? 0 : farBackgroundXRightMobile;
-  const midXLeft = isParallaxDisabled ? 0 : midBackgroundXLeft;
-  const midXRight = isParallaxDisabled ? 0 : midBackgroundXRight;
-  const midXLeftMobile = isParallaxDisabled ? 0 : midBackgroundXLeftMobile;
-  const midXRightMobile = isParallaxDisabled ? 0 : midBackgroundXRightMobile;
-  const clusterScale = isParallaxDisabled ? 1 : circleClusterScale;
 
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>

@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2025-12-19
 
 ## Active Technologies
+- TypeScript 5+ (strict mode enabled) + Next.js 16.0.10, React 19.2.3, Framer Motion 12.23.25, Tailwind CSS v4, @lottiefiles/dotlottie-react 0.17.10 (002-visual-enhancements)
+- N/A (presentation-only feature, no data persistence required) (002-visual-enhancements)
 
 - TypeScript 5+ (strict mode enabled) + Next.js 16.0.10, React 19.2.0, OpenAI SDK 6.10.0, Tailwind CSS v4, shadcn/ui components (001-ai-bargain-detection)
 
@@ -23,6 +25,7 @@ npm test; npm run lint
 TypeScript 5+ (strict mode enabled): Follow standard conventions
 
 ## Recent Changes
+- 002-visual-enhancements: Added TypeScript 5+ (strict mode enabled) + Next.js 16.0.10, React 19.2.3, Framer Motion 12.23.25, Tailwind CSS v4, @lottiefiles/dotlottie-react 0.17.10
 
 - 001-ai-bargain-detection: Added TypeScript 5+ (strict mode enabled) + Next.js 16.0.10, React 19.2.0, OpenAI SDK 6.10.0, Tailwind CSS v4, shadcn/ui components
 

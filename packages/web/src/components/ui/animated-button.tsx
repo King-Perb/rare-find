@@ -60,12 +60,12 @@ export function AnimatedButton({
 }: AnimatedButtonProps) {
   const shouldReduceMotion = useReducedMotion();
 
-  // Base classes
-  const baseClasses = 'inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  // Base classes - keep opacity-100 for background, only reduce opacity for disabled state if needed
+  const baseClasses = 'inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed';
 
   // Variant classes
   const variantClasses = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
+    primary: 'bg-blue-600 text-white opacity-100 hover:bg-blue-700 focus:ring-blue-500 relative z-10 disabled:bg-blue-600 disabled:opacity-100',
     secondary: 'bg-zinc-200 text-zinc-900 hover:bg-zinc-300 focus:ring-zinc-500 dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600',
     outline: 'border-2 border-zinc-300 text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 focus:ring-zinc-500 dark:border-zinc-600 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:bg-zinc-800',
     ghost: 'text-zinc-700 hover:bg-zinc-100 focus:ring-zinc-500 dark:text-zinc-300 dark:hover:bg-zinc-800',

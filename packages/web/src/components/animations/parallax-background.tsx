@@ -77,33 +77,56 @@ export function ParallaxBackground({
   // Horizontal parallax for some elements
   // Gradient Blob: move outward (off-screen) as user scrolls
   // Left blob moves left (negative), right blob moves right (positive)
+  // Desktop: larger movement, Mobile: smaller movement
   const farBackgroundXLeft = useTransform(
     scrollYProgress,
     [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, -200] // Move left (off-screen)
+    isParallaxDisabled ? [0, 0] : [0, -200] // Move left (off-screen) - desktop
   );
   const farBackgroundXRight = useTransform(
     scrollYProgress,
     [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, 200] // Move right (off-screen)
+    isParallaxDisabled ? [0, 0] : [0, 200] // Move right (off-screen) - desktop
+  );
+  // Mobile: smaller movement amounts
+  const farBackgroundXLeftMobile = useTransform(
+    scrollYProgress,
+    [0, 1],
+    isParallaxDisabled ? [0, 0] : [0, -150] // Move left (off-screen) - mobile
+  );
+  const farBackgroundXRightMobile = useTransform(
+    scrollYProgress,
+    [0, 1],
+    isParallaxDisabled ? [0, 0] : [0, 150] // Move right (off-screen) - mobile
   );
   // Circle Cluster: left moves left, right moves right
   const midBackgroundXLeft = useTransform(
     scrollYProgress,
     [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, -250] // Left cluster moves left
+    isParallaxDisabled ? [0, 0] : [0, -250] // Left cluster moves left - desktop
   );
   const midBackgroundXRight = useTransform(
     scrollYProgress,
     [0, 1],
-    isParallaxDisabled ? [0, 0] : [0, 250] // Right cluster moves right
+    isParallaxDisabled ? [0, 0] : [0, 250] // Right cluster moves right - desktop
+  );
+  // Mobile: smaller movement amounts
+  const midBackgroundXLeftMobile = useTransform(
+    scrollYProgress,
+    [0, 1],
+    isParallaxDisabled ? [0, 0] : [0, -150] // Left cluster moves left - mobile
+  );
+  const midBackgroundXRightMobile = useTransform(
+    scrollYProgress,
+    [0, 1],
+    isParallaxDisabled ? [0, 0] : [0, 150] // Right cluster moves right - mobile
   );
 
-  // Scale transform to make circles spread slightly as user scrolls
+  // Scale transform to make circles spread/zoom out more as user scrolls
   const circleClusterScale = useTransform(
     scrollYProgress,
     [0, 1],
-    isParallaxDisabled ? [1, 1] : [1, 1.15] // Scale from 1 to 1.15 (15% larger = spreading)
+    isParallaxDisabled ? [1, 1] : [1, 1.3] // Scale from 1 to 1.3 (30% larger = more zoom out)
   );
 
   // When parallax is disabled, ensure transforms are explicitly set to 0
@@ -113,20 +136,24 @@ export function ParallaxBackground({
   const nearY = isParallaxDisabled ? 0 : nearBackgroundY;
   const farXLeft = isParallaxDisabled ? 0 : farBackgroundXLeft;
   const farXRight = isParallaxDisabled ? 0 : farBackgroundXRight;
+  const farXLeftMobile = isParallaxDisabled ? 0 : farBackgroundXLeftMobile;
+  const farXRightMobile = isParallaxDisabled ? 0 : farBackgroundXRightMobile;
   const midXLeft = isParallaxDisabled ? 0 : midBackgroundXLeft;
   const midXRight = isParallaxDisabled ? 0 : midBackgroundXRight;
+  const midXLeftMobile = isParallaxDisabled ? 0 : midBackgroundXLeftMobile;
+  const midXRightMobile = isParallaxDisabled ? 0 : midBackgroundXRightMobile;
   const clusterScale = isParallaxDisabled ? 1 : circleClusterScale;
 
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>
       {/* Far Background Layer - Moves Slowest */}
-      {/* Left blob - moves left (off-screen) as user scrolls */}
+      {/* Desktop: Left blob - moves left (off-screen) as user scrolls */}
       <motion.div
         style={{
           y: farY,
           x: farXLeft,
         }}
-        className="fixed inset-0 pointer-events-none"
+        className="hidden md:block fixed inset-0 pointer-events-none"
         aria-hidden="true"
       >
         <GradientBlob
@@ -134,13 +161,27 @@ export function ParallaxBackground({
           opacity={debug ? 0.5 : 0.3}
         />
       </motion.div>
-      {/* Right blob - moves right (off-screen) as user scrolls */}
+      {/* Mobile: Left blob - moves left (off-screen) as user scrolls */}
+      <motion.div
+        style={{
+          y: farY,
+          x: farXLeftMobile,
+        }}
+        className="md:hidden fixed inset-0 pointer-events-none"
+        aria-hidden="true"
+      >
+        <GradientBlob
+          className="absolute top-1/2 left-0 -translate-y-1/2"
+          opacity={debug ? 0.5 : 0.4}
+        />
+      </motion.div>
+      {/* Desktop: Right blob - moves right (off-screen) as user scrolls */}
       <motion.div
         style={{
           y: farY,
           x: farXRight,
         }}
-        className="fixed inset-0 pointer-events-none"
+        className="hidden md:block fixed inset-0 pointer-events-none"
         aria-hidden="true"
       >
         <GradientBlob
@@ -148,16 +189,30 @@ export function ParallaxBackground({
           opacity={debug ? 0.45 : 0.25}
         />
       </motion.div>
+      {/* Mobile: Right blob - moves right (off-screen) as user scrolls */}
+      <motion.div
+        style={{
+          y: farY,
+          x: farXRightMobile,
+        }}
+        className="md:hidden fixed inset-0 pointer-events-none"
+        aria-hidden="true"
+      >
+        <GradientBlob
+          className="absolute top-1/2 right-0 -translate-y-1/2"
+          opacity={debug ? 0.5 : 0.4}
+        />
+      </motion.div>
 
       {/* Mid Background Layer - Moves at Medium Speed */}
-      {/* Left Circle Cluster - moves left, spreads on scroll */}
+      {/* Desktop: Left Circle Cluster - moves left, spreads on scroll */}
       <motion.div
         style={{
           y: midY,
           x: midXLeft,
           scale: clusterScale,
         }}
-        className="fixed inset-0 pointer-events-none"
+        className="hidden md:block fixed inset-0 pointer-events-none"
         aria-hidden="true"
       >
         <CircleCluster
@@ -165,14 +220,29 @@ export function ParallaxBackground({
           opacity={debug ? 0.5 : 0.3}
         />
       </motion.div>
-      {/* Right Circle Cluster - moves right, spreads on scroll, different configuration */}
+      {/* Mobile: Left Circle Cluster - moves left, spreads on scroll */}
+      <motion.div
+        style={{
+          y: midY,
+          x: midXLeftMobile,
+          scale: clusterScale,
+        }}
+        className="md:hidden fixed inset-0 pointer-events-none"
+        aria-hidden="true"
+      >
+        <CircleCluster
+          className="absolute bottom-32 left-4 scale-75"
+          opacity={debug ? 0.5 : 0.3}
+        />
+      </motion.div>
+      {/* Desktop: Right Circle Cluster - moves right, spreads on scroll, different configuration */}
       <motion.div
         style={{
           y: midY,
           x: midXRight,
           scale: clusterScale,
         }}
-        className="fixed inset-0 pointer-events-none"
+        className="hidden md:block fixed inset-0 pointer-events-none"
         aria-hidden="true"
       >
         <CircleClusterAlt
@@ -180,13 +250,29 @@ export function ParallaxBackground({
           opacity={debug ? 0.55 : 0.35}
         />
       </motion.div>
+      {/* Mobile: Right Circle Cluster - moves right, spreads on scroll, different configuration */}
+      <motion.div
+        style={{
+          y: midY,
+          x: midXRightMobile,
+          scale: clusterScale,
+        }}
+        className="md:hidden fixed inset-0 pointer-events-none"
+        aria-hidden="true"
+      >
+        <CircleClusterAlt
+          className="absolute top-4 right-4 scale-75"
+          opacity={debug ? 0.55 : 0.35}
+        />
+      </motion.div>
 
       {/* Near Background Layer - Moves Fastest */}
+      {/* Desktop: FloatingDots */}
       <motion.div
         style={{
           y: nearY,
         }}
-        className="fixed inset-0 pointer-events-none"
+        className="hidden md:block fixed inset-0 pointer-events-none"
         aria-hidden="true"
       >
         <FloatingDots
@@ -195,6 +281,23 @@ export function ParallaxBackground({
         />
         <FloatingDots
           className="absolute bottom-1/4 right-1/4"
+          opacity={debug ? 0.55 : 0.35}
+        />
+      </motion.div>
+      {/* Mobile: FloatingDots - adjusted positioning */}
+      <motion.div
+        style={{
+          y: nearY,
+        }}
+        className="md:hidden fixed inset-0 pointer-events-none"
+        aria-hidden="true"
+      >
+        <FloatingDots
+          className="absolute top-1/4 left-4 scale-75"
+          opacity={debug ? 0.6 : 0.4}
+        />
+        <FloatingDots
+          className="absolute bottom-1/4 right-4 scale-75"
           opacity={debug ? 0.55 : 0.35}
         />
       </motion.div>

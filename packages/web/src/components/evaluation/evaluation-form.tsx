@@ -130,10 +130,10 @@ export function EvaluationForm({
   const standardInputClasses = "flex-1 px-4 py-2 border border-gray-300 rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-75 dark:bg-gray-800 dark:border-gray-600 dark:text-white";
 
   // Hero variant button classes
-  const heroButtonClasses = "h-14 px-8 text-base font-semibold rounded-2xl bg-blue-600 text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 disabled:bg-zinc-300 disabled:text-zinc-500 disabled:cursor-not-allowed dark:disabled:bg-zinc-700 dark:disabled:text-zinc-500 flex items-center justify-center gap-2 min-w-[160px]";
+  const heroButtonClasses = "h-14 px-8 text-base font-semibold rounded-2xl bg-blue-600 text-white opacity-100 transition-all hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 disabled:bg-zinc-300 disabled:text-zinc-500 disabled:cursor-not-allowed dark:disabled:bg-zinc-700 dark:disabled:text-zinc-500 flex items-center justify-center gap-2 min-w-[160px] relative z-10";
 
   // Standard variant button classes
-  const standardButtonClasses = "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors";
+  const standardButtonClasses = "px-6 py-2 bg-blue-600 text-white rounded-lg opacity-100 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors relative z-10";
 
   return (
     <form onSubmit={handleSubmit} className={isHero ? "w-full max-w-2xl mt-4" : "w-full max-w-2xl space-y-4"}>
@@ -197,7 +197,7 @@ export function EvaluationForm({
               disabled={evaluation.isLoading || !url.trim()}
               isLoading={evaluation.isLoading}
               loadingText="Analyzing..."
-              className="h-14 px-8 text-base font-semibold rounded-2xl min-w-[160px]"
+              className="h-14 px-8 text-base font-semibold rounded-2xl min-w-[160px] opacity-100"
             >
               {submitText}
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

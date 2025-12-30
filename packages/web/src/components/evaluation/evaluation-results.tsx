@@ -38,9 +38,9 @@ function formatPercentage(value: number): string {
  * Get confidence color based on score
  */
 function getConfidenceColor(score: number): string {
-  if (score >= 80) return 'text-green-600 dark:text-green-400';
-  if (score >= 60) return 'text-yellow-600 dark:text-yellow-400';
-  return 'text-red-600 dark:text-red-400';
+  if (score >= 80) return 'text-green-700 dark:text-green-400';
+  if (score >= 60) return 'text-yellow-700 dark:text-yellow-400';
+  return 'text-red-700 dark:text-red-400';
 }
 
 /**
@@ -85,10 +85,10 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
   // Determine color class - replica takes priority (yellow), then good deals (green)
   const getValueColorClass = (): string => {
     if (isReplicaOrNovelty) {
-      return 'text-yellow-600 dark:text-yellow-400';
+      return 'text-yellow-700 dark:text-yellow-400';
     }
     if (hasSavings) {
-      return 'text-green-600 dark:text-green-400';
+      return 'text-green-700 dark:text-green-400';
     }
     return 'text-foreground';
   };
@@ -180,7 +180,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
 
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">Availability:</span>
-                <span className={listing.available ? 'text-green-600' : 'text-red-600'}>
+                <span className={listing.available ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}>
                   {listing.available ? 'Available' : 'Unavailable'}
                 </span>
               </div>
@@ -237,7 +237,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
             <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
               {hasSavings ? 'Potential Savings' : 'Overpriced By'}
             </div>
-            <div className={`text-2xl font-bold ${hasSavings ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+            <div className={`text-2xl font-bold ${hasSavings ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
               {hasSavings
                 ? `+${formatCurrency(savingsAmount)}`
                 : formatCurrency(overpaymentAmount)}
@@ -248,7 +248,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
             <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
               {isGoodDeal ? 'Undervaluation' : 'Overvaluation'}
             </div>
-            <div className={`text-2xl font-bold ${isGoodDeal ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+            <div className={`text-2xl font-bold ${isGoodDeal ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
               {isGoodDeal
                 ? `+${formatPercentage(evaluation.undervaluationPercentage)}`
                 : formatPercentage(Math.abs(evaluation.undervaluationPercentage))}

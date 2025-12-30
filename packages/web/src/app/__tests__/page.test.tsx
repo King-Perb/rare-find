@@ -28,10 +28,14 @@ vi.mock('@/hooks/use-reduced-motion', () => ({
 // Mock framer-motion to track animation props
 vi.mock('framer-motion', () => ({
   motion: {
-    div: vi.fn(({ children, initial, animate, variants, transition, ...props }) => {
+    div: vi.fn(({ children, initial, animate, variants, ...props }) => {
       return <div data-testid="motion-div" data-initial={JSON.stringify(initial)} data-animate={JSON.stringify(animate)} data-variants={variants ? 'present' : 'absent'} {...props}>{children}</div>;
     }),
+    button: vi.fn(({ children, whileHover, whileTap, ...props }) => {
+      return <button data-testid="motion-button" data-while-hover={whileHover ? 'present' : 'absent'} data-while-tap={whileTap ? 'present' : 'absent'} {...props}>{children}</button>;
+    }),
   },
+  AnimatePresence: vi.fn(({ children }) => children),
 }));
 
 describe('Home Page Hero Section Entrance Animations', () => {

@@ -6,14 +6,20 @@
 
 'use client';
 
+import { motion } from 'framer-motion';
 import { useEvaluation } from '@/hooks/use-evaluation';
 import { EvaluationResults } from '@/components/evaluation/evaluation-results';
 import { getMockEvaluationData } from '@/components/evaluation/mock-evaluation-data';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { EvaluationForm } from '@/components/evaluation/evaluation-form';
+import { FadeIn } from '@/components/animations/fade-in';
+import { SlideIn } from '@/components/animations/slide-in';
+import { useReducedMotion } from '@/hooks/use-reduced-motion';
+import { scaleIn } from '@/lib/animations/variants';
 
 export default function Home() {
   const evaluation = useEvaluation();
+  const shouldReduceMotion = useReducedMotion();
 
   const handleValidate = (url: string): string | null => {
     // Check marketplace support
@@ -43,50 +49,85 @@ export default function Home() {
       {/* Hero Section */}
       <main className="flex w-full max-w-4xl flex-col items-center justify-center py-24 px-6 sm:px-16">
         <div className="flex flex-col items-center gap-6 text-center w-full">
-          {/* Logo/Brand */}
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-              <svg
-                className="h-6 w-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+          {/* Logo/Brand - Fade + Scale Animation */}
+          {shouldReduceMotion ? (
+            <div className="flex items-center gap-2 mb-2">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                <svg
+                  className="h-6 w-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              <span className="text-2xl font-bold text-black dark:text-white tracking-tight">
+                Rare Find
+              </span>
             </div>
-            <span className="text-2xl font-bold text-black dark:text-white tracking-tight">
-              Rare Find
-            </span>
-          </div>
+          ) : (
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={scaleIn}
+              className="flex items-center gap-2 mb-2"
+            >
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                <svg
+                  className="h-6 w-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              <span className="text-2xl font-bold text-black dark:text-white tracking-tight">
+                Rare Find
+              </span>
+            </motion.div>
+          )}
 
-          {/* Headline */}
-          <h1 className="text-4xl font-bold leading-tight tracking-tight text-black dark:text-zinc-50 sm:text-5xl lg:text-6xl">
-            AI-Powered Bargain Detection
-          </h1>
+          {/* Headline - Fade + Slide Up Animation */}
+          <SlideIn direction="up" delay={0.1}>
+            <h1 className="text-4xl font-bold leading-tight tracking-tight text-black dark:text-zinc-50 sm:text-5xl lg:text-6xl">
+              AI-Powered Bargain Detection
+            </h1>
+          </SlideIn>
 
-          <p className="max-w-2xl text-lg leading-8 text-zinc-600 dark:text-zinc-400 sm:text-xl">
-            Find undervalued items on Amazon and eBay. Paste a listing URL and get instant AI analysis.
-          </p>
+          {/* Description - Fade In with Delay */}
+          <FadeIn delay={0.2}>
+            <p className="max-w-2xl text-lg leading-8 text-zinc-600 dark:text-zinc-400 sm:text-xl">
+              Find undervalued items on Amazon and eBay. Paste a listing URL and get instant AI analysis.
+            </p>
+          </FadeIn>
 
-          {/* URL Input Form - Hero Style */}
+          {/* URL Input Form - Hero Style - Fade In with Delay */}
           {!hasResults && (
-            <EvaluationForm
-              evaluation={evaluation}
-              placeholder="Paste Amazon or eBay URL..."
-              submitText="Evaluate"
-              variant="hero"
-              showIcon={true}
-              showHelperText={true}
-              onValidate={handleValidate}
-              onShowMock={handleShowMock}
-              showMockButton={true}
-            />
+            <FadeIn delay={0.3}>
+              <EvaluationForm
+                evaluation={evaluation}
+                placeholder="Paste Amazon or eBay URL..."
+                submitText="Evaluate"
+                variant="hero"
+                showIcon={true}
+                showHelperText={true}
+                onValidate={handleValidate}
+                onShowMock={handleShowMock}
+                showMockButton={true}
+              />
+            </FadeIn>
           )}
 
           {/* Loading State */}

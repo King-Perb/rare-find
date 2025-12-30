@@ -138,12 +138,6 @@ export function EvaluationForm({
   return (
     <form onSubmit={handleSubmit} className={isHero ? "w-full max-w-2xl mt-4" : "w-full max-w-2xl space-y-4"}>
       <div className="space-y-2">
-        <label
-          htmlFor="listing-url"
-          className="block text-sm font-medium text-foreground"
-        >
-          Listing URL
-        </label>
         <div className={isHero ? "flex flex-col sm:flex-row gap-3" : "flex gap-2"}>
           <div className={isHero ? "relative flex-1" : ""}>
             {showIcon && isHero && (

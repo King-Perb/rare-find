@@ -16,6 +16,7 @@ import { FadeIn } from '@/components/animations/fade-in';
 import { SlideIn } from '@/components/animations/slide-in';
 import { StaggerContainer } from '@/components/animations/stagger-container';
 import { ScrollReveal } from '@/components/animations/scroll-reveal';
+import { ParallaxBackground } from '@/components/animations/parallax-background';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { scaleIn } from '@/lib/animations/variants';
 
@@ -48,9 +49,10 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-zinc-50 font-sans dark:bg-black">
-      {/* Hero Section */}
-      <main className="flex w-full max-w-4xl flex-col items-center justify-center py-24 px-6 sm:px-16">
-        <div className="flex flex-col items-center gap-6 text-center w-full">
+      {/* Hero Section with Parallax Background */}
+      <ParallaxBackground className="w-full min-h-screen">
+        <main className="relative z-10 flex w-full max-w-4xl flex-col items-center justify-center py-24 px-6 sm:px-16 mx-auto">
+          <div className="flex flex-col items-center gap-6 text-center w-full">
           {/* Logo/Brand - Fade + Scale Animation */}
           {shouldReduceMotion ? (
             <div className="flex items-center gap-2 mb-2">
@@ -164,8 +166,9 @@ export default function Home() {
               />
             </div>
           )}
-        </div>
-      </main>
+          </div>
+        </main>
+      </ParallaxBackground>
 
       {/* Features Section */}
       {!hasResults && !evaluation.isLoading && (

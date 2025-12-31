@@ -73,9 +73,14 @@ jobs:
       - name: Run tests
         run: npm test
         env:
-          # Dummy token for tests - tests should mock API calls, not make real requests
+          # Dummy tokens for tests - tests should mock API calls, not make real requests
           GITHUB_TOKEN: "test-token-dummy-value"
           DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+          NEXT_PUBLIC_SUPABASE_URL: "https://dummy-project.supabase.co"
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "dummy-publishable-key"
+          OPENAI_API_KEY: "sk-dummy-key-for-tests"
+          RAPIDAPI_KEY: "dummy-rapidapi-key"
+          EBAY_APP_ID: "dummy-ebay-app-id"
 
   build:
     name: Build

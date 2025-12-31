@@ -189,6 +189,70 @@ Migration:
 - Wait for user confirmation or explicit request before creating the next commit
 - This allows the user to review each commit before moving to the next one
 
+## Handling Pre-Commit Hook Failures
+
+**CRITICAL**: Pre-commit hooks may automatically fix formatting issues and reject the commit. You MUST handle this intelligently:
+
+### Workflow for Pre-Commit Hook Failures
+
+1. **Attempt the commit** - Run `git commit` with the commit message
+2. **If pre-commit hooks fail and fix files**:
+   - Pre-commit hooks may auto-fix issues like:
+     - Trailing whitespace (`trailing-whitespace` hook)
+     - Missing end-of-file newlines (`end-of-file-fixer` hook)
+     - Other formatting issues
+   - The commit will be **rejected** (exit code 1)
+   - The hooks will **modify the files** automatically
+3. **Re-add the fixed files** - Run `git add` again on the files that were fixed
+4. **Re-commit** - Run `git commit` again with the same commit message
+5. **Verify success** - The commit should succeed on the second attempt
+
+### Example Workflow
+
+```bash
+# Step 1: Stage files
+git add packages/web/src/components/my-component.tsx
+
+# Step 2: Attempt commit (may fail if hooks fix files)
+git commit -m "feat(components): add new component"
+# Output: [FAILED] - hooks fixed trailing whitespace
+
+# Step 3: Re-add the fixed files
+git add packages/web/src/components/my-component.tsx
+
+# Step 4: Commit again (should succeed)
+git commit -m "feat(components): add new component"
+# Output: [SUCCESS] - commit created
+```
+
+### Common Pre-Commit Hook Fixes
+
+- **`trailing-whitespace`**: Removes trailing whitespace from lines
+- **`end-of-file-fixer`**: Ensures files end with a newline
+- **`fix-byte-order-marker`**: Removes UTF-8 BOM markers
+- **`check-yaml`**: Validates YAML syntax
+- **`gitleaks-staged`**: Scans for secrets (doesn't fix, just checks)
+
+### Important Notes
+
+- **Never skip hooks** - Do NOT use `--no-verify` to bypass hooks
+- **Always re-add fixed files** - Files modified by hooks must be re-staged
+- **Use the same commit message** - Keep the original message when re-committing
+- **This is expected behavior** - Pre-commit hooks fixing files is normal and should be handled automatically
+- **Multiple iterations may be needed** - If multiple hooks fix different files, you may need to re-add and commit multiple times
+
+### AI Assistant Behavior
+
+When committing changes, the AI assistant MUST:
+
+1. Attempt the commit
+2. If hooks fail and fix files:
+   - Automatically re-add the fixed files
+   - Automatically re-commit with the same message
+   - Continue until the commit succeeds
+3. Only report success when the commit actually succeeds
+4. Never ask the user to manually fix formatting issues that hooks can fix automatically
+
 ## References
 
 - **Branch Strategy**: See `git-workflow.mdc` for mandatory feature branch creation before commits

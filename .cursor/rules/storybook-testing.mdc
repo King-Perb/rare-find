@@ -1,0 +1,378 @@
+---
+description: Storybook testing, coverage, and accessibility checks for component development
+alwaysApply: true
+---
+# Storybook Testing, Coverage, and Accessibility Rule
+
+**IMPORTANT**: When working on Storybook components, always verify test coverage and accessibility compliance. This rule defines when and how to check Storybook tests, coverage, and accessibility issues.
+
+## Overview
+
+Storybook uses `@storybook/addon-vitest` to run component tests directly within Storybook. Tests run in a browser environment using Playwright, providing realistic component testing with coverage and accessibility checks.
+
+## Configuration
+
+- **Storybook Config**: `packages/web/.storybook/main.ts`
+- **Vitest Config**: `packages/web/vitest.config.ts` (Storybook tests)
+- **Unit Tests Config**: `packages/web/vitest.config.unit.ts` (separate unit tests)
+- **Storybook URL**: `http://localhost:6006` (when running)
+
+## When to Run Storybook Tests
+
+### Always Run Storybook Tests When:
+- ✅ **Adding new components** - Create stories and verify they render correctly
+- ✅ **Modifying component props** - Update stories to reflect new props
+- ✅ **Changing component behavior** - Update stories and add interaction tests
+- ✅ **Fixing component bugs** - Add regression tests in stories
+- ✅ **Refactoring components** - Ensure stories still work after refactoring
+- ✅ **Before committing component changes** - Verify all stories pass
+
+### Optional (Run Periodically):
+- ⚠️ **Styling-only changes** - Visual changes may not require test runs
+- ⚠️ **Documentation updates** - Story documentation changes
+
+### Skip Storybook Tests When:
+- ❌ **Non-component changes** - Changes to app routes, API routes, or utilities
+- ❌ **Build configuration** - Changes to build tools or config files
+- ❌ **Dependencies** - Package.json updates (unless they affect components)
+
+## Running Storybook Tests
+
+### 1. Start Storybook
+
+```bash
+cd packages/web
+npm run storybook
+```
+
+This starts Storybook on `http://localhost:6006` with the test runner enabled.
+
+### 2. View Test Results in Storybook UI
+
+1. Open Storybook in browser: `http://localhost:6006`
+2. Navigate to any component story
+3. Check the **"Test"** panel (bottom panel) for:
+   - **Interactions**: Component interaction tests (play functions)
+   - **Coverage**: Code coverage metrics
+   - **Accessibility**: Accessibility violations and passes
+
+### 3. Run Tests from Terminal
+
+```bash
+cd packages/web
+npx vitest run --config vitest.config.ts --coverage
+```
+
+This runs all Storybook tests with coverage reporting.
+
+## Checking Coverage
+
+### Coverage Location
+
+Coverage reports are available in two places:
+
+1. **Storybook UI**:
+   - Open any story in Storybook
+   - Click "Test" panel → "Coverage" section
+   - Click "Open coverage report" link
+   - Opens HTML coverage report at `/coverage/index.html`
+
+2. **Terminal Output**:
+   ```bash
+   npx vitest run --config vitest.config.ts --coverage
+   ```
+   Shows coverage summary in terminal
+
+### Coverage Configuration
+
+Coverage is configured in `vitest.config.ts` (Storybook config):
+
+- **Includes**: Only `src/components/**/*.{ts,tsx}` (component files)
+- **Excludes**:
+  - Test files (`**/*.test.{ts,tsx}`, `**/__tests__/**`)
+  - Story files (`**/*.stories.{ts,tsx}`)
+  - Mock data files (`**/mock-*.ts`, `**/*mock*.ts`)
+  - Library code (`src/lib/**`)
+  - App routes (`src/app/**`)
+  - Hooks (`src/hooks/**`)
+
+### Coverage Goals
+
+- **Minimum**: 80% overall component coverage
+- **Target**: 90%+ for critical components
+- **Focus**: Statement, branch, function, and line coverage
+
+### Improving Coverage
+
+1. **Add more stories** - Cover different component states and variants
+2. **Add interaction tests** - Use `play` functions in stories to test user interactions
+3. **Test edge cases** - Create stories for error states, loading states, empty states
+4. **Test all variants** - Ensure all component variants have stories
+
+### Example: Adding Coverage
+
+```typescript
+// evaluation-form.stories.tsx
+export const FormSubmission: Story = {
+  args: {
+    evaluation: createMockEvaluation(),
+    placeholder: 'Paste URL here...',
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByPlaceholderText(args.placeholder as string);
+    const submitButton = canvas.getByRole('button', { name: 'Evaluate Listing' });
+
+    // Simulate user interaction
+    await userEvent.type(input, 'https://www.amazon.com/dp/B08XYZ123');
+    await userEvent.click(submitButton);
+
+    // Verify behavior
+    await expect(args.evaluation.evaluateListing).toHaveBeenCalled();
+  },
+};
+```
+
+## Checking Accessibility
+
+### Accessibility Location
+
+Accessibility checks are available in Storybook UI:
+
+1. Open any story in Storybook
+2. Click "Test" panel → "Accessibility" section
+3. View violations, passes, and inconclusive results
+
+### Accessibility Standards
+
+- **WCAG Level**: AA (minimum)
+- **Tool**: `@storybook/addon-a11y` (uses axe-core)
+- **Severity Levels**:
+  - **Serious**: Must fix (e.g., color contrast, missing labels)
+  - **Moderate**: Should fix
+  - **Minor**: Nice to fix
+
+### Common Accessibility Issues
+
+1. **Color Contrast**:
+   - Use `text-green-700` instead of `text-green-600` for better contrast
+   - Use `text-yellow-700` instead of `text-yellow-600`
+   - Use `text-red-700` instead of `text-red-600`
+   - Minimum contrast ratio: 4.5:1 for normal text, 3:1 for large text
+
+2. **Form Labels**:
+   - All form inputs must have visible labels
+   - Use `<label htmlFor="input-id">` or `aria-label`
+   - Placeholders are not sufficient for accessibility
+
+3. **ARIA Attributes**:
+   - Use `aria-invalid` for error states
+   - Use `aria-describedby` to link errors to inputs
+   - Use `aria-label` for icon-only buttons
+
+4. **Keyboard Navigation**:
+   - All interactive elements must be keyboard accessible
+   - Focus indicators must be visible
+   - Tab order should be logical
+
+### Fixing Accessibility Issues
+
+1. **Check violations in Storybook**:
+   - Open the story with violations
+   - Click "Accessibility" tab in Test panel
+   - Expand violation details to see specific issues
+
+2. **Fix the issue**:
+   - Update component code
+   - Re-run Storybook tests
+   - Verify violation is resolved
+
+3. **Example Fixes**:
+
+```typescript
+// ❌ BAD: Insufficient contrast
+<span className="text-yellow-600">Warning</span>
+
+// ✅ GOOD: Better contrast
+<span className="text-yellow-700">Warning</span>
+
+// ❌ BAD: Missing label
+<input type="url" placeholder="Enter URL" />
+
+// ✅ GOOD: Visible label
+<label htmlFor="url-input">Listing URL</label>
+<input id="url-input" type="url" placeholder="Enter URL" />
+```
+
+## Verifying Components Are Included in Tests
+
+### Check if Component Has Stories
+
+1. **File Location**: Stories should be in the same directory as the component:
+   - Component: `src/components/evaluation/evaluation-form.tsx`
+   - Story: `src/components/evaluation/evaluation-form.stories.tsx`
+
+2. **Story Pattern**: Stories must match pattern `*.stories.{ts,tsx}`
+
+3. **Storybook Configuration**: Check `.storybook/main.ts`:
+   ```typescript
+   stories: ["../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"]
+   ```
+
+### Verify Component Appears in Storybook
+
+1. **Start Storybook**: `npm run storybook`
+2. **Check Sidebar**: Component should appear in the component tree
+3. **Check Stories**: Each story variant should be listed
+4. **Check Test Status**: Stories should show test status (success/warning)
+
+### Verify Component Is Tested
+
+1. **Check Coverage Report**:
+   - Open coverage report in Storybook
+   - Search for component file name
+   - Verify it shows coverage metrics
+
+2. **Check Test Results**:
+   - Open component story in Storybook
+   - Check "Test" panel for:
+     - Interactions: Should show test results
+     - Coverage: Should show coverage percentage
+     - Accessibility: Should show accessibility results
+
+3. **Run Tests from Terminal**:
+   ```bash
+   npx vitest run --config vitest.config.ts --coverage
+   ```
+   Component should appear in coverage output
+
+## Workflow for Component Development
+
+### Complete Workflow
+
+```
+1. Create/Modify Component
+   ↓
+2. Create/Update Story File
+   - Add stories for all variants
+   - Add interaction tests (play functions)
+   ↓
+3. Start Storybook
+   npm run storybook
+   ↓
+4. Verify Component Renders
+   - Check all stories render correctly
+   - Verify all variants work
+   ↓
+5. Check Test Results
+   - Interactions: All pass
+   - Coverage: Meets minimum (80%+)
+   - Accessibility: No violations
+   ↓
+6. Fix Any Issues
+   - Fix broken tests
+   - Improve coverage if needed
+   - Fix accessibility violations
+   ↓
+7. Re-run Tests
+   - Verify all tests pass
+   - Verify coverage is acceptable
+   - Verify no accessibility violations
+   ↓
+8. Commit Changes
+   - Include component changes
+   - Include story updates
+   - Include test improvements
+```
+
+## Commands Reference
+
+### Storybook Commands
+
+```bash
+# Start Storybook (with test runner)
+cd packages/web
+npm run storybook
+
+# Build Storybook (for production)
+npm run build-storybook
+
+# Run Storybook tests with coverage (terminal)
+npx vitest run --config vitest.config.ts --coverage
+
+# Run Storybook tests in watch mode
+npx vitest --config vitest.config.ts
+```
+
+### Coverage Commands
+
+```bash
+# Run tests with coverage report
+npx vitest run --config vitest.config.ts --coverage
+
+# View coverage in browser (after running tests)
+# Open: http://localhost:6006/coverage/index.html
+```
+
+### Accessibility Commands
+
+```bash
+# Accessibility is checked automatically in Storybook UI
+# No separate command needed
+# View results in Storybook → Test panel → Accessibility tab
+```
+
+## Troubleshooting
+
+### Tests Not Running
+
+1. **Check Storybook is running**: `http://localhost:6006` should be accessible
+2. **Check Vitest config**: Verify `vitest.config.ts` has Storybook project configured
+3. **Check Playwright**: Ensure Playwright browsers are installed:
+   ```bash
+   npx playwright install chromium
+   ```
+
+### Coverage Not Showing
+
+1. **Check coverage config**: Verify `coverage.include` in `vitest.config.ts`
+2. **Check file patterns**: Ensure component files match include patterns
+3. **Check exclusions**: Verify files aren't excluded in `coverage.exclude`
+
+### Accessibility Not Checking
+
+1. **Check addon is installed**: Verify `@storybook/addon-a11y` in `.storybook/main.ts`
+2. **Check story renders**: Accessibility checks require story to render
+3. **Check browser console**: Look for errors in browser console
+
+### Component Not Appearing in Tests
+
+1. **Check story file exists**: Component needs `*.stories.tsx` file
+2. **Check story pattern**: Story file must match pattern in `main.ts`
+3. **Check story exports**: Story must export default meta and named stories
+4. **Restart Storybook**: Sometimes requires restart to pick up new stories
+
+## Integration with Other Rules
+
+- **Test Maintenance**: Storybook tests complement unit tests (see `test-maintenance.mdc`)
+- **Commit Standards**: Story updates should be in same commit as component changes (see `commit-splitting.mdc`)
+- **Design System**: Components should follow design system (see `design-system.mdc`)
+- **TypeScript**: No `any` types in components (see `typescript-no-any.mdc`)
+
+## Best Practices
+
+1. **Create stories for all variants** - Cover all component states and props
+2. **Add interaction tests** - Use `play` functions to test user interactions
+3. **Test accessibility early** - Fix accessibility issues during development
+4. **Maintain coverage** - Keep component coverage above 80%
+5. **Document with stories** - Use stories as component documentation
+6. **Test edge cases** - Create stories for error states, loading states, empty states
+7. **Keep stories updated** - Update stories when component changes
+
+## Reference
+
+- Storybook Testing: https://storybook.js.org/docs/writing-tests/introduction
+- Vitest Addon: https://storybook.js.org/docs/writing-tests/integrations/vitest-addon
+- Accessibility Addon: https://storybook.js.org/docs/writing-tests/accessibility-testing
+- Coverage: https://vitest.dev/guide/coverage.html
+- WCAG Guidelines: https://www.w3.org/WAI/WCAG21/quickref/

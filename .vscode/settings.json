@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "king-perb",
+        "projectKey": "King-Perb_rare-find"
+    }
+}

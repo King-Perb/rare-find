@@ -4,6 +4,8 @@
  * Centralized error handling and logging infrastructure
  */
 
+import * as Sentry from '@sentry/nextjs';
+
 export class AppError extends Error {
   constructor(
     message: string,
@@ -48,6 +50,7 @@ export class RateLimitError extends AppError {
 
 /**
  * Log error with context
+ * Sends errors to Sentry in production
  */
 export function logError(error: unknown, context?: Record<string, unknown>) {
   const errorInfo = {
@@ -57,12 +60,45 @@ export function logError(error: unknown, context?: Record<string, unknown>) {
     ...context,
   };
 
-  // In production, send to error tracking service (e.g., Sentry)
+  // Non-production: log to console (development, test, etc.)
+  if (process.env.NODE_ENV !== 'production') {
+    console.error('Error:', errorInfo);
+  }
+
+  // Production: send to Sentry
   if (process.env.NODE_ENV === 'production') {
-    // TODO: Integrate with error tracking service
-    console.error('Error:', errorInfo);
-  } else {
-    console.error('Error:', errorInfo);
+    try {
+      // Capture the error with context
+      if (error instanceof Error) {
+        Sentry.captureException(error, {
+          level: 'error',
+          extra: {
+            ...context,
+            errorName: error.name,
+          },
+          tags: {
+            logger: 'logError',
+          },
+        });
+      } else {
+        // For non-Error types, create an Error object
+        const errorMessage = typeof error === 'string' ? error : String(error);
+        Sentry.captureException(new Error(errorMessage), {
+          level: 'error',
+          extra: {
+            ...context,
+            originalError: error,
+            errorName: 'UnknownError',
+          },
+          tags: {
+            logger: 'logError',
+          },
+        });
+      }
+    } catch {
+      // Sentry not available (e.g., in test environment) - fallback to console
+      console.error('Error:', errorInfo);
+    }
   }
 }
 

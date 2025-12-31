@@ -142,12 +142,22 @@ jobs:
         env:
           GITHUB_TOKEN: "test-token-dummy-value"
           DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+          NEXT_PUBLIC_SUPABASE_URL: "https://dummy-project.supabase.co"
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "dummy-publishable-key"
+          OPENAI_API_KEY: "sk-dummy-key-for-tests"
+          RAPIDAPI_KEY: "dummy-rapidapi-key"
+          EBAY_APP_ID: "dummy-ebay-app-id"
 
       - name: Run E2E tests
         run: npm run test:e2e
         env:
           GITHUB_TOKEN: "test-token-dummy-value"
           DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+          NEXT_PUBLIC_SUPABASE_URL: "https://dummy-project.supabase.co"
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "dummy-publishable-key"
+          OPENAI_API_KEY: "sk-dummy-key-for-tests"
+          RAPIDAPI_KEY: "dummy-rapidapi-key"
+          EBAY_APP_ID: "dummy-ebay-app-id"
           PLAYWRIGHT_TEST_BASE_URL: "http://localhost:3000"
 
       - name: Upload test results

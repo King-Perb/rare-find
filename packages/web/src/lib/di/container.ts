@@ -7,7 +7,7 @@
 type ServiceFactory<T> = () => T;
 type ServiceKey = string | symbol;
 
-class DIContainer {
+export class DIContainer {
   private readonly services = new Map<ServiceKey, ServiceFactory<unknown>>();
   private readonly singletons = new Map<ServiceKey, unknown>();
 

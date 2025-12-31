@@ -13,7 +13,9 @@ export default defineConfig({
     css: true,
     exclude: ["**/node_modules/**", "**/dist/**", "**/.next/**", "**/e2e/**",
     // Exclude Playwright E2E tests
-    "**/*.e2e.{ts,tsx}", "**/*.spec.ts" // Exclude Playwright spec files
+    "**/*.e2e.{ts,tsx}", "**/*.spec.ts", // Exclude Playwright spec files
+    // Exclude Storybook story files (tested separately in vitest.config.ts)
+    "**/*.stories.{ts,tsx}"
     ],
     coverage: {
       provider: "v8",
@@ -26,6 +28,8 @@ export default defineConfig({
       "next.config.ts", "postcss.config.mjs", "eslint.config.mjs", "vitest.config.ts", "vitest.config.unit.ts", "playwright.config.ts", "prisma.config.ts",
       // Test files themselves
       "**/*.test.{ts,tsx}", "**/__tests__/**", "**/test/**",
+      // Storybook story files (tested separately in vitest.config.ts)
+      "**/*.stories.{ts,tsx}",
       // Setup files
       "src/test/**",
       // Build outputs
@@ -54,7 +58,7 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['src/**/*.test.{ts,tsx}', 'src/**/__tests__/**/*.test.{ts,tsx}'],
-          exclude: ['**/node_modules/**', '**/dist/**', '**/.next/**', '**/e2e/**', '**/*.e2e.{ts,tsx}', '**/*.spec.ts'],
+          exclude: ['**/node_modules/**', '**/dist/**', '**/.next/**', '**/e2e/**', '**/*.e2e.{ts,tsx}', '**/*.spec.ts', '**/*.stories.{ts,tsx}'],
         }
       }
     ]

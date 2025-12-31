@@ -83,14 +83,18 @@ describe('StaggerContainer', () => {
   });
 
   it('should apply custom className', () => {
+    vi.mocked(useReducedMotion).mockReturnValue(false);
+
     render(
       <StaggerContainer className="custom-class">
         <div>Child 1</div>
       </StaggerContainer>
     );
 
-    const container = screen.getByText('Child 1').parentElement;
-    expect(container).toHaveClass('custom-class');
+    // The className should be on the motion.div container (the outer one)
+    const motionDivs = screen.getAllByTestId('motion-div');
+    const containerDiv = motionDivs[0]; // First one is the container
+    expect(containerDiv).toHaveClass('custom-class');
   });
 
   it('should wrap array children in motion.div', () => {

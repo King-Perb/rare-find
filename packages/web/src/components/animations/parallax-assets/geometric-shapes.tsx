@@ -127,9 +127,10 @@ export const WavePattern: React.FC<ParallaxShapeProps> = ({
   opacity = 0.25
 }) => (
   <svg
-    width="800"
+    width="100%"
     height="200"
     viewBox="0 0 800 200"
+    preserveAspectRatio="none"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className}

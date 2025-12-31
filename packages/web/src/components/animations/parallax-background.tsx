@@ -29,6 +29,23 @@ export interface ParallaxBackgroundProps {
   readonly debug?: boolean;
 }
 
+// Parallax speed constants
+const PARALLAX_SPEEDS = {
+  midY: 0.2, // Mid background vertical: 20% of scroll speed
+  nearY: 0.5, // Near background vertical: 50% of scroll speed (fastest)
+  farX: 0.15, // Far background horizontal: 15% of scroll speed
+  midX: 0.2, // Mid background horizontal: 20% of scroll speed
+  mobileMultiplier: 0.75, // Mobile uses 75% of desktop speeds
+} as const;
+
+// Scale configuration
+const SCALE_CONFIG = {
+  min: 1,
+  max: 1.3,
+  typicalPageHeight: 2000, // Approximate typical scrollable height
+} as const;
+
+
 /**
  * ParallaxBackground component
  *
@@ -51,14 +68,11 @@ export function ParallaxBackground({
 }: ParallaxBackgroundProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
-  // Use window scroll to track scroll position
   const { scrollY } = useScroll();
-
-  // Store the last scroll position to calculate deltas
   const lastScrollY = useRef(0);
 
-  // Use motion values to store current transform positions
-  // This preserves state when content changes dynamically
+  // Create motion values for all parallax layers
+  // Left elements move left (negative), right elements move right (positive)
   const midY = useMotionValue(0);
   const nearY = useMotionValue(0);
   const farXLeft = useMotionValue(0);
@@ -71,7 +85,21 @@ export function ParallaxBackground({
   const midXRightMobile = useMotionValue(0);
   const clusterScale = useMotionValue(1);
 
-  // Disable parallax if reduced motion is enabled or component is disabled
+  // Group motion values for easier reset
+  const allMotionValues = [
+    { value: midY, initial: 0 },
+    { value: nearY, initial: 0 },
+    { value: farXLeft, initial: 0 },
+    { value: farXRight, initial: 0 },
+    { value: farXLeftMobile, initial: 0 },
+    { value: farXRightMobile, initial: 0 },
+    { value: midXLeft, initial: 0 },
+    { value: midXRight, initial: 0 },
+    { value: midXLeftMobile, initial: 0 },
+    { value: midXRightMobile, initial: 0 },
+    { value: clusterScale, initial: 1 },
+  ];
+
   const isParallaxDisabled = disabled || shouldReduceMotion;
 
   // Initialize scroll position on mount
@@ -79,22 +107,16 @@ export function ParallaxBackground({
     lastScrollY.current = scrollY.get();
   }, [scrollY]);
 
+  // Reset all motion values to initial state
+  const resetAllLayers = () => {
+    allMotionValues.forEach(({ value, initial }) => value.set(initial));
+  };
+
   // Update parallax positions based on scroll deltas
   // This preserves position when content is added/removed
   useAnimationFrame(() => {
     if (isParallaxDisabled) {
-      // Reset to initial positions when disabled
-      midY.set(0);
-      nearY.set(0);
-      farXLeft.set(0);
-      farXRight.set(0);
-      farXLeftMobile.set(0);
-      farXRightMobile.set(0);
-      midXLeft.set(0);
-      midXRight.set(0);
-      midXLeftMobile.set(0);
-      midXRightMobile.set(0);
-      clusterScale.set(1);
+      resetAllLayers();
       return;
     }
 
@@ -102,198 +124,162 @@ export function ParallaxBackground({
     const deltaY = currentScrollY - lastScrollY.current;
     lastScrollY.current = currentScrollY;
 
-    // Update positions based on scroll delta, not absolute position
-    // This prevents position reset when content changes
-    // Increased speeds for more pronounced parallax effect
-    const midSpeed = 0.2; // Mid background moves at 20% of scroll speed
-    const nearSpeed = 0.5; // Near background moves at 50% of scroll speed (fastest)
-    const farXSpeed = 0.15; // Far background horizontal: 15% of scroll speed
-    const midXSpeed = 0.2; // Mid background horizontal: 20% of scroll speed
+    // Update vertical positions
+    midY.set(midY.get() - deltaY * PARALLAX_SPEEDS.midY);
+    nearY.set(nearY.get() - deltaY * PARALLAX_SPEEDS.nearY);
 
-    midY.set(midY.get() - deltaY * midSpeed);
-    nearY.set(nearY.get() - deltaY * nearSpeed);
+    // Update horizontal positions (desktop)
+    // Left elements move left (negative), right elements move right (positive)
+    farXLeft.set(farXLeft.get() - deltaY * PARALLAX_SPEEDS.farX);
+    farXRight.set(farXRight.get() + deltaY * PARALLAX_SPEEDS.farX);
+    midXLeft.set(midXLeft.get() - deltaY * PARALLAX_SPEEDS.midX);
+    midXRight.set(midXRight.get() + deltaY * PARALLAX_SPEEDS.midX);
 
-    // Horizontal movements (desktop)
-    farXLeft.set(farXLeft.get() - deltaY * farXSpeed);
-    farXRight.set(farXRight.get() + deltaY * farXSpeed);
-    midXLeft.set(midXLeft.get() - deltaY * midXSpeed);
-    midXRight.set(midXRight.get() + deltaY * midXSpeed);
+    // Update horizontal positions (mobile) - 75% of desktop speed
+    farXLeftMobile.set(farXLeftMobile.get() - deltaY * PARALLAX_SPEEDS.farX * PARALLAX_SPEEDS.mobileMultiplier);
+    farXRightMobile.set(farXRightMobile.get() + deltaY * PARALLAX_SPEEDS.farX * PARALLAX_SPEEDS.mobileMultiplier);
+    midXLeftMobile.set(midXLeftMobile.get() - deltaY * PARALLAX_SPEEDS.midX * PARALLAX_SPEEDS.mobileMultiplier);
+    midXRightMobile.set(midXRightMobile.get() + deltaY * PARALLAX_SPEEDS.midX * PARALLAX_SPEEDS.mobileMultiplier);
 
-    // Horizontal movements (mobile) - smaller amounts (75% of desktop)
-    farXLeftMobile.set(farXLeftMobile.get() - deltaY * farXSpeed * 0.75);
-    farXRightMobile.set(farXRightMobile.get() + deltaY * farXSpeed * 0.75);
-    midXLeftMobile.set(midXLeftMobile.get() - deltaY * midXSpeed * 0.75);
-    midXRightMobile.set(midXRightMobile.get() + deltaY * midXSpeed * 0.75);
-
-    // Scale based on scroll - matches original [1, 1.3] at full scroll
-    // Original reached 1.3 at scrollYProgress = 1, so we approximate based on typical page height
-    const typicalPageHeight = 2000; // Approximate typical scrollable height
-    const scaleProgress = Math.min(1, currentScrollY / typicalPageHeight);
-    const newScale = 1 + (scaleProgress * 0.3); // Scale from 1 to 1.3
+    // Update scale based on scroll
+    const scaleProgress = Math.min(1, currentScrollY / SCALE_CONFIG.typicalPageHeight);
+    const newScale = SCALE_CONFIG.min + (scaleProgress * (SCALE_CONFIG.max - SCALE_CONFIG.min));
     clusterScale.set(newScale);
   });
 
-  // When parallax is disabled, ensure transforms are explicitly set to 0
-  // GradientBlobs: no vertical movement, only horizontal
+  // Helper to create parallax element with responsive variants
+  const createParallaxElement = (
+    Component: typeof GradientBlob | typeof CircleCluster | typeof CircleClusterAlt | typeof FloatingDots,
+    config: {
+      desktop: { className: string; opacity: number; x?: ReturnType<typeof useMotionValue<number>> | number; y?: ReturnType<typeof useMotionValue<number>> | number; scale?: ReturnType<typeof useMotionValue<number>> };
+      mobile: { className: string; opacity: number; x?: ReturnType<typeof useMotionValue<number>> | number; y?: ReturnType<typeof useMotionValue<number>> | number; scale?: ReturnType<typeof useMotionValue<number>> };
+    }
+  ) => (
+    <>
+      <motion.div
+        style={{
+          y: config.desktop.y ?? 0,
+          x: config.desktop.x ?? 0,
+          scale: config.desktop.scale,
+        }}
+        className="hidden md:block fixed inset-0 pointer-events-none"
+        aria-hidden="true"
+      >
+        <Component
+          className={config.desktop.className}
+          opacity={debug ? config.desktop.opacity * 1.5 : config.desktop.opacity}
+        />
+      </motion.div>
+      <motion.div
+        style={{
+          y: config.mobile.y ?? 0,
+          x: config.mobile.x ?? 0,
+          scale: config.mobile.scale,
+        }}
+        className="md:hidden fixed inset-0 pointer-events-none"
+        aria-hidden="true"
+      >
+        <Component
+          className={config.mobile.className}
+          opacity={debug ? config.mobile.opacity * 1.5 : config.mobile.opacity}
+        />
+      </motion.div>
+    </>
+  );
+
   const farY = 0; // GradientBlobs stay vertically fixed
 
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>
       {/* Far Background Layer - Moves Slowest */}
-      {/* Desktop: Left blob - moves left (off-screen) as user scrolls */}
-      <motion.div
-        style={{
+      {createParallaxElement(GradientBlob, {
+        desktop: {
+          className: 'absolute top-1/2 -left-1/2 -translate-y-1/2',
+          opacity: 0.3,
           y: farY,
           x: farXLeft,
-        }}
-        className="hidden md:block fixed inset-0 pointer-events-none"
-        aria-hidden="true"
-      >
-        <GradientBlob
-          className="absolute top-1/2 -left-1/2 -translate-y-1/2"
-          opacity={debug ? 0.5 : 0.3}
-        />
-      </motion.div>
-      {/* Mobile: Left blob - moves left (off-screen) as user scrolls */}
-      <motion.div
-        style={{
+        },
+        mobile: {
+          className: 'absolute top-1/2 left-0 -translate-y-1/2',
+          opacity: 0.4,
           y: farY,
           x: farXLeftMobile,
-        }}
-        className="md:hidden fixed inset-0 pointer-events-none"
-        aria-hidden="true"
-      >
-        <GradientBlob
-          className="absolute top-1/2 left-0 -translate-y-1/2"
-          opacity={debug ? 0.5 : 0.4}
-        />
-      </motion.div>
-      {/* Desktop: Right blob - moves right (off-screen) as user scrolls */}
-      <motion.div
-        style={{
+        },
+      })}
+      {createParallaxElement(GradientBlob, {
+        desktop: {
+          className: 'absolute top-1/2 -right-1/3 -translate-y-1/2',
+          opacity: 0.25,
           y: farY,
           x: farXRight,
-        }}
-        className="hidden md:block fixed inset-0 pointer-events-none"
-        aria-hidden="true"
-      >
-        <GradientBlob
-          className="absolute top-1/2 -right-1/3 -translate-y-1/2"
-          opacity={debug ? 0.45 : 0.25}
-        />
-      </motion.div>
-      {/* Mobile: Right blob - moves right (off-screen) as user scrolls */}
-      <motion.div
-        style={{
+        },
+        mobile: {
+          className: 'absolute top-1/2 right-0 -translate-y-1/2',
+          opacity: 0.4,
           y: farY,
           x: farXRightMobile,
-        }}
-        className="md:hidden fixed inset-0 pointer-events-none"
-        aria-hidden="true"
-      >
-        <GradientBlob
-          className="absolute top-1/2 right-0 -translate-y-1/2"
-          opacity={debug ? 0.5 : 0.4}
-        />
-      </motion.div>
+        },
+      })}
 
       {/* Mid Background Layer - Moves at Medium Speed */}
-      {/* Desktop: Left Circle Cluster - moves left, spreads on scroll */}
-      <motion.div
-        style={{
+      {createParallaxElement(CircleCluster, {
+        desktop: {
+          className: 'absolute bottom-40 left-40',
+          opacity: 0.3,
           y: midY,
           x: midXLeft,
           scale: clusterScale,
-        }}
-        className="hidden md:block fixed inset-0 pointer-events-none"
-        aria-hidden="true"
-      >
-        <CircleCluster
-          className="absolute bottom-40 left-40"
-          opacity={debug ? 0.5 : 0.3}
-        />
-      </motion.div>
-      {/* Mobile: Left Circle Cluster - moves left, spreads on scroll */}
-      <motion.div
-        style={{
+        },
+        mobile: {
+          className: 'absolute bottom-32 left-4 scale-75',
+          opacity: 0.3,
           y: midY,
           x: midXLeftMobile,
           scale: clusterScale,
-        }}
-        className="md:hidden fixed inset-0 pointer-events-none"
-        aria-hidden="true"
-      >
-        <CircleCluster
-          className="absolute bottom-32 left-4 scale-75"
-          opacity={debug ? 0.5 : 0.3}
-        />
-      </motion.div>
-      {/* Desktop: Right Circle Cluster - moves right, spreads on scroll, different configuration */}
-      <motion.div
-        style={{
+        },
+      })}
+      {createParallaxElement(CircleClusterAlt, {
+        desktop: {
+          className: 'absolute top-20 right-20',
+          opacity: 0.35,
           y: midY,
           x: midXRight,
           scale: clusterScale,
-        }}
-        className="hidden md:block fixed inset-0 pointer-events-none"
-        aria-hidden="true"
-      >
-        <CircleClusterAlt
-          className="absolute top-20 right-20"
-          opacity={debug ? 0.55 : 0.35}
-        />
-      </motion.div>
-      {/* Mobile: Right Circle Cluster - moves right, spreads on scroll, different configuration */}
-      <motion.div
-        style={{
+        },
+        mobile: {
+          className: 'absolute top-4 right-4 scale-75',
+          opacity: 0.35,
           y: midY,
           x: midXRightMobile,
           scale: clusterScale,
-        }}
-        className="md:hidden fixed inset-0 pointer-events-none"
-        aria-hidden="true"
-      >
-        <CircleClusterAlt
-          className="absolute top-4 right-4 scale-75"
-          opacity={debug ? 0.55 : 0.35}
-        />
-      </motion.div>
+        },
+      })}
 
       {/* Near Background Layer - Moves Fastest */}
-      {/* Desktop: FloatingDots */}
-      <motion.div
-        style={{
+      {createParallaxElement(FloatingDots, {
+        desktop: {
+          className: 'absolute top-1/4 left-1/4',
+          opacity: 0.4,
           y: nearY,
-        }}
-        className="hidden md:block fixed inset-0 pointer-events-none"
-        aria-hidden="true"
-      >
-        <FloatingDots
-          className="absolute top-1/4 left-1/4"
-          opacity={debug ? 0.6 : 0.4}
-        />
-        <FloatingDots
-          className="absolute bottom-1/4 right-1/4"
-          opacity={debug ? 0.55 : 0.35}
-        />
-      </motion.div>
-      {/* Mobile: FloatingDots - adjusted positioning */}
-      <motion.div
-        style={{
+        },
+        mobile: {
+          className: 'absolute top-1/4 left-4 scale-75',
+          opacity: 0.4,
           y: nearY,
-        }}
-        className="md:hidden fixed inset-0 pointer-events-none"
-        aria-hidden="true"
-      >
-        <FloatingDots
-          className="absolute top-1/4 left-4 scale-75"
-          opacity={debug ? 0.6 : 0.4}
-        />
-        <FloatingDots
-          className="absolute bottom-1/4 right-4 scale-75"
-          opacity={debug ? 0.55 : 0.35}
-        />
-      </motion.div>
+        },
+      })}
+      {createParallaxElement(FloatingDots, {
+        desktop: {
+          className: 'absolute bottom-1/4 right-1/4',
+          opacity: 0.35,
+          y: nearY,
+        },
+        mobile: {
+          className: 'absolute bottom-1/4 right-4 scale-75',
+          opacity: 0.35,
+          y: nearY,
+        },
+      })}
 
       {/* Content Layer - Renders on top of parallax background */}
       {children && (

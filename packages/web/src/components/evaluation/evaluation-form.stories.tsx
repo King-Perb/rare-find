@@ -52,7 +52,7 @@ export const Default: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const input = canvas.getByLabelText(/listing url/i) || canvas.getByPlaceholderText(/paste amazon/i);
+    const input = canvas.getByPlaceholderText(/paste amazon/i);
 
     // Test typing in input (covers onChange handler lines 152-153)
     await userEvent.type(input, 'https://www.amazon.com/dp/B08XYZ123');
@@ -67,7 +67,7 @@ export const FocusAnimation: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const input = canvas.getByLabelText(/listing url/i) || canvas.getByPlaceholderText(/paste amazon/i);
+    const input = canvas.getByPlaceholderText(/paste amazon/i);
 
     // Focus input to trigger focus animation (border color + ring)
     await userEvent.click(input);
@@ -98,7 +98,7 @@ export const ButtonHoverAnimation: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const input = canvas.getByLabelText(/listing url/i) || canvas.getByPlaceholderText(/paste amazon/i);
+    const input = canvas.getByPlaceholderText(/paste amazon/i);
     const button = canvas.getByRole('button', { name: /evaluate listing/i });
 
     // Type URL to enable button
@@ -117,7 +117,7 @@ export const ButtonClickAnimation: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const input = canvas.getByLabelText(/listing url/i) || canvas.getByPlaceholderText(/paste amazon/i);
+    const input = canvas.getByPlaceholderText(/paste amazon/i);
     const button = canvas.getByRole('button', { name: /evaluate listing/i });
 
     // Type URL to enable button
@@ -267,7 +267,7 @@ export const WithCustomValidation: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const input = canvas.getByLabelText(/listing url/i) || canvas.getByPlaceholderText(/paste amazon/i);
+    const input = canvas.getByPlaceholderText(/paste amazon/i);
     const submitButton = canvas.getByRole('button', { name: /evaluate listing/i });
 
     // Test typing and clearing error (covers onChange handler)
@@ -327,7 +327,7 @@ export const FormSubmission: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const input = canvas.getByLabelText(/listing url/i) || canvas.getByPlaceholderText(/paste amazon/i);
+    const input = canvas.getByPlaceholderText(/paste amazon/i);
     const submitButton = canvas.getByRole('button', { name: /evaluate listing/i });
 
     // Test empty submission (covers validation in handleSubmit)

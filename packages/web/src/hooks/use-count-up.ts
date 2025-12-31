@@ -67,9 +67,12 @@ export function useCountUp({
 
   useEffect(() => {
     // Update target if it changes
+    // Only update startValueRef when target changes, not on every value update
+    // This prevents the animation from being affected by constant value updates
     targetRef.current = target;
     startValueRef.current = value; // Use current value as new start when target changes
-  }, [target, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target]); // Removed 'value' from dependencies to prevent constant updates during animation
 
   useEffect(() => {
     // If reduced motion is enabled, jump to target immediately
@@ -79,14 +82,15 @@ export function useCountUp({
     }
 
     // Reset animation state
-    startValueRef.current = start;
-    setValue(start);
+    // Use the current value as the start point when target changes (handled by first effect)
+    // Otherwise use the provided start value
+    const animationStart = startValueRef.current === start ? start : startValueRef.current;
+    startValueRef.current = animationStart;
+    setValue(animationStart);
     startTimeRef.current = undefined;
 
     const animate = (currentTime: number) => {
-      if (startTimeRef.current === undefined) {
-        startTimeRef.current = currentTime;
-      }
+      startTimeRef.current ??= currentTime;
 
       const elapsed = currentTime - startTimeRef.current;
       const progress = Math.min(elapsed / duration, 1);
@@ -116,7 +120,7 @@ export function useCountUp({
         cancelAnimationFrame(animationFrameRef.current as unknown as number);
       }
     };
-  }, [start, duration, easing, shouldReduceMotion]);
+  }, [start, duration, easing, shouldReduceMotion, target]); // Added 'target' to dependencies so animation restarts when target changes
 
   // Apply formatter if provided
   if (formatter) {

@@ -19,6 +19,8 @@ export interface UseCountUpOptions {
   formatter?: (value: number) => string | number;
   /** Easing function (default: easeOutCubic) */
   easing?: (t: number) => number;
+  /** Whether the animation is enabled (default: true). When false, shows target value immediately */
+  enabled?: boolean;
 }
 
 /**
@@ -57,6 +59,7 @@ export function useCountUp({
   duration = 1000,
   formatter,
   easing = easeOutCubic,
+  enabled = true,
 }: UseCountUpOptions): number | string {
   const shouldReduceMotion = useReducedMotion();
   const [value, setValue] = useState(start);
@@ -75,6 +78,12 @@ export function useCountUp({
   }, [target]); // Removed 'value' from dependencies to prevent constant updates during animation
 
   useEffect(() => {
+    // If animation is disabled, jump to target immediately
+    if (!enabled) {
+      setValue(targetRef.current);
+      return;
+    }
+
     // If reduced motion is enabled, jump to target immediately
     if (shouldReduceMotion) {
       setValue(targetRef.current);
@@ -120,7 +129,7 @@ export function useCountUp({
         cancelAnimationFrame(animationFrameRef.current as unknown as number);
       }
     };
-  }, [start, duration, easing, shouldReduceMotion, target]); // Added 'target' to dependencies so animation restarts when target changes
+  }, [start, duration, easing, shouldReduceMotion, target, enabled]); // Added 'enabled' to dependencies
 
   // Apply formatter if provided
   if (formatter) {

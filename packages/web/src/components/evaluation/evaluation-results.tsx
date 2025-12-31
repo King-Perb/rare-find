@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useCountUp } from '@/hooks/use-count-up';
+import { useInViewport } from '@/hooks/use-in-viewport';
 import { FadeIn } from '@/components/animations/fade-in';
 import { slideInDown } from '@/lib/animations/variants';
 import type { EvaluationResult } from '@/lib/ai/types';
@@ -83,6 +84,13 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
     new Set(listing.images?.slice(0, 4) || [])
   );
 
+  // Viewport detection for AI Evaluation section - only animate when in viewport
+  const [metricsRef, isMetricsInViewport] = useInViewport({
+    threshold: 0.1,
+    rootMargin: '0px',
+    once: true, // Only trigger once when first entering viewport
+  });
+
   // Determine savings/overpayment display
   const hasSavings = priceDifference > 0;
   const overpaymentAmount = Math.max(0, -priceDifference);
@@ -101,11 +109,12 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
   const priceColorClass = getValueColorClass();
   const estimatedValueColorClass = getValueColorClass();
 
-  // Count-up animations for metrics
+  // Count-up animations for metrics - only animate when in viewport
   const estimatedValue = useCountUp({
     target: evaluation.estimatedMarketValue,
     duration: 1500,
     formatter: (val) => formatCurrency(val),
+    enabled: isMetricsInViewport,
   });
 
   const savingsOrOverpayment = useCountUp({
@@ -115,6 +124,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
       const absVal = Math.abs(val);
       return hasSavings ? `+${formatCurrency(absVal)}` : formatCurrency(absVal);
     },
+    enabled: isMetricsInViewport,
   });
 
   const undervaluationPercentage = useCountUp({
@@ -124,11 +134,13 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
       // Show positive sign for undervaluation, no sign for overvaluation
       return isGoodDeal ? `+${formatPercentage(val)}` : formatPercentage(val);
     },
+    enabled: isMetricsInViewport,
   });
 
   const confidenceScore = useCountUp({
     target: evaluation.confidenceScore,
     duration: 1500,
+    enabled: isMetricsInViewport,
   });
 
   return (
@@ -266,6 +278,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
 
       {/* AI Evaluation */}
       <motion.section
+        ref={metricsRef}
         initial="hidden"
         animate="visible"
         variants={slideInDown}

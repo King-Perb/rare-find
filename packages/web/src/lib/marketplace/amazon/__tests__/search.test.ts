@@ -80,7 +80,7 @@ describe('searchAmazon', () => {
 
     mockClient.search.mockResolvedValueOnce(expectedResult);
 
-    await searchAmazon(params, undefined);
+    await searchAmazon(params);
 
     expect(mockClient.search).toHaveBeenCalledWith(params);
   });
@@ -94,13 +94,15 @@ describe('searchAmazon', () => {
       {
         id: '1',
         userId: 'user1',
+        name: 'Test Preference',
         keywords: ['antique', 'collectible'],
         categories: ['Antiques'],
+        marketplaces: null,
         minPrice: 50,
         maxPrice: 1000,
         isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
     ];
 
@@ -131,10 +133,15 @@ describe('searchAmazon', () => {
       {
         id: '1',
         userId: 'user1',
+        name: 'Test Preference',
         keywords: ['antique'],
+        categories: null,
+        marketplaces: null,
+        minPrice: null,
+        maxPrice: null,
         isActive: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
     ];
 
@@ -158,18 +165,28 @@ describe('searchAmazon', () => {
       {
         id: '1',
         userId: 'user1',
+        name: 'First Preference',
         keywords: ['first'],
+        categories: null,
+        marketplaces: null,
+        minPrice: null,
+        maxPrice: null,
         isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
       {
         id: '2',
         userId: 'user1',
+        name: 'Second Preference',
         keywords: ['second'],
+        categories: null,
+        marketplaces: null,
+        minPrice: null,
+        maxPrice: null,
         isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
     ];
 
@@ -199,13 +216,15 @@ describe('searchAmazon', () => {
       {
         id: '1',
         userId: 'user1',
+        name: 'Test Preference',
         keywords: ['antique'],
         categories: ['Antiques'],
+        marketplaces: null,
         minPrice: 50,
         maxPrice: 1000,
         isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
     ];
 

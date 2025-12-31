@@ -3,6 +3,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { AuthError } from '@supabase/supabase-js';
 import { getCurrentUser, signOut, getSession } from '../auth';
 import { supabase } from '../client';
 
@@ -31,7 +32,11 @@ describe('supabase auth', () => {
       const mockUser = {
         id: 'user-123',
         email: 'test@example.com',
-      };
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      } as const;
 
       mockGetUser.mockResolvedValueOnce({
         data: { user: mockUser },
@@ -45,24 +50,37 @@ describe('supabase auth', () => {
     });
 
     it('should throw error when getUser fails', async () => {
-      const mockError = new Error('Auth error');
+      const mockError = {
+        message: 'Auth error',
+        name: 'AuthError',
+        status: 400,
+        code: 'auth_error',
+        __isAuthError: true,
+      } as unknown as AuthError;
+
       mockGetUser.mockResolvedValueOnce({
         data: { user: null },
         error: mockError,
       });
 
-      await expect(getCurrentUser()).rejects.toThrow('Auth error');
+      await expect(getCurrentUser()).rejects.toEqual(mockError);
     });
 
     it('should throw error when user is null', async () => {
+      const mockError = {
+        message: 'User not found',
+        name: 'AuthError',
+        status: 404,
+        code: 'user_not_found',
+        __isAuthError: true,
+      } as unknown as AuthError;
+
       mockGetUser.mockResolvedValueOnce({
         data: { user: null },
-        error: { message: 'User not found' },
+        error: mockError,
       });
 
-      await expect(getCurrentUser()).rejects.toEqual(
-        expect.objectContaining({ message: 'User not found' })
-      );
+      await expect(getCurrentUser()).rejects.toEqual(mockError);
     });
   });
 
@@ -78,12 +96,19 @@ describe('supabase auth', () => {
     });
 
     it('should throw error when signOut fails', async () => {
-      const mockError = new Error('Sign out error');
+      const mockError = {
+        message: 'Sign out error',
+        name: 'AuthError',
+        status: 400,
+        code: 'sign_out_error',
+        __isAuthError: true,
+      } as unknown as AuthError;
+
       mockSignOut.mockResolvedValueOnce({
         error: mockError,
       });
 
-      await expect(signOut()).rejects.toThrow('Sign out error');
+      await expect(signOut()).rejects.toEqual(mockError);
     });
   });
 
@@ -91,11 +116,18 @@ describe('supabase auth', () => {
     it('should return session when available', async () => {
       const mockSession = {
         access_token: 'token',
+        refresh_token: 'refresh_token',
+        expires_in: 3600,
+        token_type: 'bearer',
         user: {
           id: 'user-123',
           email: 'test@example.com',
+          app_metadata: {},
+          user_metadata: {},
+          aud: 'authenticated',
+          created_at: new Date().toISOString(),
         },
-      };
+      } as const;
 
       mockGetSession.mockResolvedValueOnce({
         data: { session: mockSession },
@@ -109,13 +141,20 @@ describe('supabase auth', () => {
     });
 
     it('should throw error when getSession fails', async () => {
-      const mockError = new Error('Session error');
+      const mockError = {
+        message: 'Session error',
+        name: 'AuthError',
+        status: 400,
+        code: 'session_error',
+        __isAuthError: true,
+      } as unknown as AuthError;
+
       mockGetSession.mockResolvedValueOnce({
         data: { session: null },
         error: mockError,
       });
 
-      await expect(getSession()).rejects.toThrow('Session error');
+      await expect(getSession()).rejects.toEqual(mockError);
     });
   });
 });

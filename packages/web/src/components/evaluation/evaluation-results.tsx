@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useCountUp } from '@/hooks/use-count-up';
 import { FadeIn } from '@/components/animations/fade-in';
-import { slideInRight } from '@/lib/animations/variants';
+import { slideInDown } from '@/lib/animations/variants';
 import type { EvaluationResult } from '@/lib/ai/types';
 import type { MarketplaceListing } from '@/lib/marketplace/types';
 
@@ -83,11 +83,6 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
     new Set(listing.images?.slice(0, 4) || [])
   );
 
-  // Debug: Log replica status (remove in production)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('isReplicaOrNovelty:', isReplicaOrNovelty, 'evaluation.isReplicaOrNovelty:', evaluation.isReplicaOrNovelty);
-  }
-
   // Determine savings/overpayment display
   const hasSavings = priceDifference > 0;
   const overpaymentAmount = Math.max(0, -priceDifference);
@@ -126,8 +121,8 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
     target: Math.abs(evaluation.undervaluationPercentage),
     duration: 1500,
     formatter: (val) => {
-      // Show positive sign for undervaluation, negative sign for overvaluation
-      return isGoodDeal ? `+${formatPercentage(val)}` : `-${formatPercentage(val)}`;
+      // Show positive sign for undervaluation, no sign for overvaluation
+      return isGoodDeal ? `+${formatPercentage(val)}` : formatPercentage(val);
     },
   });
 
@@ -142,7 +137,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
       <motion.section
         initial="hidden"
         animate="visible"
-        variants={slideInRight}
+        variants={slideInDown}
         className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6"
       >
         <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">Listing Details</h2>
@@ -273,7 +268,7 @@ export function EvaluationResults({ result, listing }: EvaluationResultsProps) {
       <motion.section
         initial="hidden"
         animate="visible"
-        variants={slideInRight}
+        variants={slideInDown}
         transition={{ delay: 0.2 }}
         className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6"
       >

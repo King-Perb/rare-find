@@ -121,7 +121,7 @@ describe('EvaluationResults Animations', () => {
       expect(motionSections.length).toBeGreaterThan(0);
     });
 
-    it('should slide in listing details section from right', () => {
+    it('should slide in listing details section from bottom', () => {
       mockUseReducedMotion.mockReturnValue(false);
 
       render(<EvaluationResults result={mockEvaluationResult} listing={mockListing} />);
@@ -130,7 +130,7 @@ describe('EvaluationResults Animations', () => {
       expect(listingSection).toBeInTheDocument();
     });
 
-    it('should slide in AI evaluation section from right', () => {
+    it('should slide in AI evaluation section from bottom', () => {
       mockUseReducedMotion.mockReturnValue(false);
 
       render(<EvaluationResults result={mockEvaluationResult} listing={mockListing} />);

@@ -19,6 +19,7 @@ import { ScrollReveal } from '@/components/animations/scroll-reveal';
 import { ParallaxBackground } from '@/components/animations/parallax-background';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { scaleIn } from '@/lib/animations/variants';
+import { WavePattern } from '@/components/animations/parallax-assets/geometric-shapes';
 
 export default function Home() {
   const evaluation = useEvaluation();
@@ -48,7 +49,7 @@ export default function Home() {
   const hasResults = evaluation.result && evaluation.listing;
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-zinc-50 font-sans dark:bg-black">
+    <div className="relative flex min-h-screen flex-col items-center bg-zinc-50 font-sans dark:bg-black">
       {/* Hero Section with Parallax Background */}
       <ParallaxBackground className="w-full min-h-screen">
         <main className="relative z-10 flex w-full max-w-4xl flex-col items-center justify-center py-24 px-6 sm:px-16 mx-auto">
@@ -148,7 +149,7 @@ export default function Home() {
 
           {/* Results */}
           {evaluation.result && evaluation.listing && (
-            <div className="w-full mt-8">
+            <div className="w-full mt-8 relative z-10">
               <div className="flex justify-center mb-6">
                 <button
                   onClick={handleReset}
@@ -227,6 +228,14 @@ export default function Home() {
           </StaggerContainer>
         </ScrollReveal>
       )}
+
+      {/* Wave Pattern at Bottom */}
+      <div className="w-full absolute bottom-0 left-0 right-0 z-0 pointer-events-none">
+        <WavePattern
+          className="w-full h-auto"
+          opacity={0.3}
+        />
+      </div>
     </div>
   );
 }

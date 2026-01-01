@@ -71,3 +71,6 @@ packages/*/src/generated/
 # temporary files
 COMMIT_MESSAGE.txt
 *.tmp
+
+# Turborepo
+.turbo

@@ -1,0 +1,46 @@
+# Turborepo Workflow Rules
+
+**IMPORTANT**: Use `turbo` for build, test, lint, and type-check tasks to leverage caching and parallelism.
+
+## Core Workflow
+
+1.  **Run Tasks via Turbo**:
+    Instead of running scripts in individual packages, use `npx turbo run <task>` from the root.
+    ```bash
+    # Good
+    npx turbo run build
+    npx turbo run test
+    ```
+
+2.  **Filter by Workspace**:
+    Use the `--filter` flag to target specific apps or packages.
+    ```bash
+    # Run dev only for the web app
+    npx turbo run dev --filter=@rare-find/web
+
+    # Run type-check for all packages except mobile
+    npx turbo run type:check --filter=!@rare-find/mobile
+    ```
+
+3.  **Respect Dependencies**:
+    `turbo` automatically respects the topological dependency graph defined in `turbo.json` and `package.json`. Do not try to manually order package builds unless debugging a specific issue.
+
+## Task Configuration (`turbo.json`)
+
+-   **Caching**: Tasks like `dev` and `watch` mode tests usually have `"cache": false`. Do not expect cache hits for these.
+-   **Outputs**: If a task produces artifacts (e.g., `dist/**`, `.next/**`), ensure they are defined in `turbo.json` pipelines so `turbo` can cache them.
+
+## Common Commands
+
+| Intent | Command |
+| :--- | :--- |
+| **Start Web Dev Server** | `npx turbo run dev --filter=@rare-find/web` |
+| **Build System** | `npx turbo run build` |
+| **Lint All** | `npx turbo run lint` |
+| **Type Check All** | `npx turbo run type:check` |
+| **Run E2E Tests** | `npx turbo run test:e2e` |
+
+## When NOT to use Turbo
+
+-   **Installing Packages**: Continue to use `npm install`.
+-   **Single Package Scripts**: If a script is unique to a `package.json` and not part of the `turbo` pipeline (e.g., a specific deployment script), run it via `npm run <script> --workspace=<workspace>`.

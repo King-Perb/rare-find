@@ -29,8 +29,8 @@ export type Database = {
                     title: string
                     updatedAt: string
                 }
-                Insert: { /* ... */ }
-                Update: { /* ... */ }
+                Insert: Record<string, unknown>
+                Update: Record<string, unknown>
             }
             recommendations: {
                 Row: {
@@ -45,8 +45,8 @@ export type Database = {
                     userId: string
                     viewedAt: string | null
                 }
-                Insert: { /* ... */ }
-                Update: { /* ... */ }
+                Insert: Record<string, unknown>
+                Update: Record<string, unknown>
             }
             user_preferences: {
                 Row: {
@@ -62,8 +62,8 @@ export type Database = {
                     updatedAt: string
                     userId: string
                 }
-                Insert: { /* ... */ }
-                Update: { /* ... */ }
+                Insert: Record<string, unknown>
+                Update: Record<string, unknown>
             }
         }
     }

@@ -1,6 +1,6 @@
 /**
  * Supabase client for React Native/Expo usage
- * 
+ *
  * Uses AsyncStorage for session persistence on mobile.
  */
 

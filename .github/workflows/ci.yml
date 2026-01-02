@@ -193,7 +193,7 @@ jobs:
           DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
 
       - name: Run Mobile Type Check
-        run: npm run type:check --workspace=@rare-find/mobile
+        run: npx turbo run type:check --filter=@rare-find/mobile
 
       - name: Run Mobile Lint
-        run: npm run lint --workspace=@rare-find/mobile
+        run: npx turbo run lint --filter=@rare-find/mobile

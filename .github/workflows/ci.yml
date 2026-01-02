@@ -172,3 +172,28 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+  mobile-validate:
+    name: Mobile Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          # Dummy database URL for Prisma generate - only needed for schema generation, not actual connection
+          DATABASE_DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+
+      - name: Run Mobile Type Check
+        run: npx turbo run type:check --filter=@rare-find/mobile
+
+      - name: Run Mobile Lint
+        run: npx turbo run lint --filter=@rare-find/mobile

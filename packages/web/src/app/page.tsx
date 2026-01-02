@@ -6,6 +6,9 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
+
 import { motion } from 'framer-motion';
 import { useEvaluation } from '@/hooks/use-evaluation';
 import { EvaluationResults } from '@/components/evaluation/evaluation-results';
@@ -22,8 +25,38 @@ import { scaleIn } from '@/lib/animations/variants';
 import { WavePattern } from '@/components/animations/parallax-assets/geometric-shapes';
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Minimum time to show the loading screen (to prevent flickering)
+    const MIN_LOAD_TIME = 1000;
+    const startTime = Date.now();
+
+    const handleLoad = () => {
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, MIN_LOAD_TIME - elapsedTime);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, remainingTime);
+    };
+
+    if (document.readyState === 'complete') {
+      handleLoad();
+    } else {
+      window.addEventListener('load', handleLoad);
+    }
+
+    return () => window.removeEventListener('load', handleLoad);
+  }, []);
+
   const evaluation = useEvaluation();
   const shouldReduceMotion = useReducedMotion();
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
 
   const handleValidate = (url: string): string | null => {
     // Check marketplace support
@@ -54,119 +87,119 @@ export default function Home() {
       <ParallaxBackground className="w-full min-h-screen">
         <main className="relative z-10 flex w-full max-w-4xl flex-col items-center justify-center py-24 px-6 sm:px-16 mx-auto">
           <div className="flex flex-col items-center gap-6 text-center w-full">
-          {/* Logo/Brand - Fade + Scale Animation */}
-          {shouldReduceMotion ? (
-            <div className="flex items-center gap-2 mb-2">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                <svg
-                  className="h-6 w-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-              <span className="text-2xl font-bold text-black dark:text-white tracking-tight">
-                Rare Find
-              </span>
-            </div>
-          ) : (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={scaleIn}
-              className="flex items-center gap-2 mb-2"
-            >
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                <svg
-                  className="h-6 w-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-              <span className="text-2xl font-bold text-black dark:text-white tracking-tight">
-                Rare Find
-              </span>
-            </motion.div>
-          )}
-
-          {/* Headline - Fade + Slide Up Animation */}
-          <SlideIn direction="up" delay={0.1}>
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-black dark:text-zinc-50 sm:text-5xl lg:text-6xl">
-              AI-Powered Bargain Detection
-            </h1>
-          </SlideIn>
-
-          {/* Description - Fade In with Delay */}
-          <FadeIn delay={0.2}>
-            <p className="max-w-2xl text-lg leading-8 text-zinc-600 dark:text-zinc-400 sm:text-xl">
-              Find undervalued items on Amazon and eBay. Paste a listing URL and get instant AI analysis.
-            </p>
-          </FadeIn>
-
-          {/* URL Input Form - Hero Style - Fade In with Delay */}
-          {!hasResults && (
-            <FadeIn delay={0.3}>
-              <EvaluationForm
-                evaluation={evaluation}
-                placeholder="Paste Amazon or eBay URL..."
-                submitText="Evaluate"
-                variant="hero"
-                showIcon={true}
-                showHelperText={true}
-                onValidate={handleValidate}
-                onShowMock={handleShowMock}
-                showMockButton={true}
-              />
-            </FadeIn>
-          )}
-
-          {/* Loading State */}
-          {evaluation.isLoading && (
-            <div className="w-full max-w-2xl mt-8">
-              <LoadingSpinner
-                message="Analyzing listing..."
-                subtitle="Extracting data and evaluating market value"
-                variant="card"
-                size="large"
-              />
-            </div>
-          )}
-
-          {/* Results */}
-          {evaluation.result && evaluation.listing && (
-            <div className="w-full mt-8 relative z-10">
-              <div className="flex justify-center mb-6">
-                <button
-                  onClick={handleReset}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl border-2 border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 transition-all hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            {/* Logo/Brand - Fade + Scale Animation */}
+            {shouldReduceMotion ? (
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                  <svg
+                    className="h-6 w-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
                   </svg>
-                  Evaluate another listing
-                </button>
+                </div>
+                <span className="text-2xl font-bold text-black dark:text-white tracking-tight">
+                  Rare Find
+                </span>
               </div>
-              <EvaluationResults
-                result={evaluation.result}
-                listing={evaluation.listing}
-              />
-            </div>
-          )}
+            ) : (
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={scaleIn}
+                className="flex items-center gap-2 mb-2"
+              >
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                  <svg
+                    className="h-6 w-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+                <span className="text-2xl font-bold text-black dark:text-white tracking-tight">
+                  Rare Find
+                </span>
+              </motion.div>
+            )}
+
+            {/* Headline - Fade + Slide Up Animation */}
+            <SlideIn direction="up" delay={0.1}>
+              <h1 className="text-4xl font-bold leading-tight tracking-tight text-black dark:text-zinc-50 sm:text-5xl lg:text-6xl">
+                AI-Powered Bargain Detection
+              </h1>
+            </SlideIn>
+
+            {/* Description - Fade In with Delay */}
+            <FadeIn delay={0.2}>
+              <p className="max-w-2xl text-lg leading-8 text-zinc-600 dark:text-zinc-400 sm:text-xl">
+                Find undervalued items on Amazon and eBay. Paste a listing URL and get instant AI analysis.
+              </p>
+            </FadeIn>
+
+            {/* URL Input Form - Hero Style - Fade In with Delay */}
+            {!hasResults && (
+              <FadeIn delay={0.3}>
+                <EvaluationForm
+                  evaluation={evaluation}
+                  placeholder="Paste Amazon or eBay URL..."
+                  submitText="Evaluate"
+                  variant="hero"
+                  showIcon={true}
+                  showHelperText={true}
+                  onValidate={handleValidate}
+                  onShowMock={handleShowMock}
+                  showMockButton={true}
+                />
+              </FadeIn>
+            )}
+
+            {/* Loading State */}
+            {evaluation.isLoading && (
+              <div className="w-full max-w-2xl mt-8">
+                <LoadingSpinner
+                  message="Analyzing listing..."
+                  subtitle="Extracting data and evaluating market value"
+                  variant="card"
+                  size="large"
+                />
+              </div>
+            )}
+
+            {/* Results */}
+            {evaluation.result && evaluation.listing && (
+              <div className="w-full mt-8 relative z-10">
+                <div className="flex justify-center mb-6">
+                  <button
+                    onClick={handleReset}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl border-2 border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 transition-all hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Evaluate another listing
+                  </button>
+                </div>
+                <EvaluationResults
+                  result={evaluation.result}
+                  listing={evaluation.listing}
+                />
+              </div>
+            )}
           </div>
         </main>
       </ParallaxBackground>

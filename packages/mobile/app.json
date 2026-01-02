@@ -29,8 +29,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router",
-      "react-native-paper"
+      "expo-router"
     ],
     "scheme": "rarefind"
   }

@@ -138,6 +138,33 @@ The `main` branch is protected with:
 - **Commit Standards**: See `commit-standards.mdc` for commit message format
 - **Commit Splitting**: See `commit-splitting.mdc` for when to split vs combine commits
 
+## Skipping Hooks
+
+While generally discouraged, there are legitimate reasons to skip hooks (e.g., emergencies, false positives).
+
+### Granular Skipping (Recommended)
+Use the `SKIP` environment variable to bypass specific hooks by their ID.
+
+```bash
+# Skip specific commit hooks
+SKIP=gitleaks,trailing-whitespace git commit -m "wip: urgent save"
+
+# Skip specific push hooks
+SKIP=lint,test git push
+```
+
+**Common Hook IDs:**
+- Commit: `trailing-whitespace`, `end-of-file-fixer`, `check-yaml`, `gitleaks`
+- Push: `lint`, `type-check`, `test`, `build`
+
+### Full Skipping (Use Caution)
+Use the standard git `--no-verify` (or `-n`) flag to bypass ALL hooks.
+
+```bash
+git commit -m "wip" --no-verify
+git push --no-verify
+```
+
 ## Reference
 
 For detailed human-readable documentation, see `doc/GIT_WORKFLOW.md` (if it exists).

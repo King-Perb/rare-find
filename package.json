@@ -7,12 +7,12 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=@rare-find/web",
-    "build": "npm run build --workspace=@rare-find/web",
-    "start": "npm run start --workspace=@rare-find/web",
-    "lint": "npm run lint --workspace=@rare-find/web",
-    "type:check": "npm run type:check --workspaces",
-    "test": "npm run test --workspace=@rare-find/web",
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "start": "turbo start",
+    "lint": "turbo lint",
+    "type:check": "turbo type:check",
+    "test": "turbo test",
     "test:watch": "npm run test:watch --workspace=@rare-find/web",
     "test:e2e": "npm run test:e2e --workspace=@rare-find/web",
     "mobile:start": "npm run start --workspace=@rare-find/mobile",
@@ -23,6 +23,10 @@
   "devDependencies": {
     "turbo": "^2.7.2",
     "typescript": "^5"
+  },
+  "overrides": {
+    "ajv": "^8.0.0",
+    "ajv-keywords": "^5.0.0"
   },
   "engines": {
     "node": ">=18.0.0",

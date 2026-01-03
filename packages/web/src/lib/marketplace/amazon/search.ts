@@ -4,7 +4,7 @@
  * Wraps Amazon client with preference filtering
  */
 
-import { createAmazonClient } from './client';
+import { createAmazonClient } from '../clients';
 import type { MarketplaceSearchParams, MarketplaceSearchResult } from '../types';
 import type { SearchPreference } from '../../db/types';
 

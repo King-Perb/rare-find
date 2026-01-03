@@ -20,27 +20,6 @@ vi.mock('../../services/logger.service', () => {
   };
 });
 
-vi.mock('../../services/marketplace.service', () => ({
-  MarketplaceService: class {
-    fetchListingFromUrl = vi.fn();
-    constructor(_logger: unknown) {}
-  },
-}));
-
-vi.mock('../../services/listing.service', () => ({
-  ListingService: class {
-    normalizeListing = vi.fn();
-    constructor(_logger: unknown) {}
-  },
-}));
-
-vi.mock('../../services/evaluation.service', () => ({
-  EvaluationService: class {
-    evaluateListing = vi.fn();
-    constructor(_logger: unknown) {}
-  },
-}));
-
 vi.mock('../../services/auth.service', () => ({
   AuthService: class {
     getCurrentUser = vi.fn();
@@ -53,16 +32,49 @@ vi.mock('../../services/database.service', () => ({
   },
 }));
 
+// Mock marketplace client factories to avoid needing real credentials
+vi.mock('../../marketplace/clients', () => {
+  const mockClient = {
+    getItemById: vi.fn(),
+    search: vi.fn(),
+  };
+  return {
+    createConfiguredAmazonClient: vi.fn(() => mockClient),
+    createEbayClient: vi.fn(() => mockClient),
+  };
+});
+
+// Mock OpenAI to avoid needing real API key
+vi.mock('openai', () => {
+  return {
+    default: class MockOpenAI {
+      chat = {
+        completions: {
+          create: vi.fn(),
+        },
+      };
+    },
+  };
+});
+
 import { LoggerService } from '../../services/logger.service';
-import { MarketplaceService } from '../../services/marketplace.service';
-import { ListingService } from '../../services/listing.service';
-import { EvaluationService } from '../../services/evaluation.service';
+import { MarketplaceService } from '@rare-find/shared/lib/marketplace/services/marketplace.service';
+import { ListingService } from '@rare-find/shared/lib/listing/services/listing.service';
+import { EvaluationService } from '@rare-find/shared/lib/evaluation/services/evaluation.service';
 import { AuthService } from '../../services/auth.service';
 import { DatabaseService } from '../../services/database.service';
 
 describe('DI Setup', () => {
   beforeEach(() => {
     container.clear();
+    // Mock environment variables required for service initialization
+    process.env.AMAZON_ACCESS_KEY = 'test-access-key';
+    process.env.AMAZON_SECRET_KEY = 'test-secret-key';
+    process.env.AMAZON_ASSOCIATE_TAG = 'test-tag';
+    process.env.OPENAI_API_KEY = 'test-openai-key';
+    process.env.EBAY_APP_ID = 'test-ebay-app-id';
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'http://localhost:54321';
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon-key';
   });
 
   describe('setupDI', () => {

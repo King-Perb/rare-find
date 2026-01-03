@@ -2,12 +2,23 @@
  * Services Index
  *
  * Central export point for all services
+ * Re-exports shared services for backward compatibility
  */
 
-export * from './interfaces';
+// Re-export interfaces from shared package
+export type {
+  ILogger,
+  IMarketplaceService,
+  IListingService,
+  IEvaluationService,
+} from '@rare-find/shared/lib/interfaces';
+
+// Re-export shared services
+export { MarketplaceService } from '@rare-find/shared/lib/marketplace/services/marketplace.service';
+export { ListingService } from '@rare-find/shared/lib/listing/services/listing.service';
+export { EvaluationService } from '@rare-find/shared/lib/evaluation/services/evaluation.service';
+
+// Export web-specific services
 export * from './logger.service';
-export * from './marketplace.service';
-export * from './listing.service';
-export * from './evaluation.service';
 export * from './auth.service';
 export * from './database.service';

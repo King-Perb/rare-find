@@ -4,7 +4,7 @@
  * Wraps eBay client with preference filtering
  */
 
-import { createEbayClient } from './client';
+import { createEbayClient } from '../clients';
 import type { MarketplaceSearchParams, MarketplaceSearchResult } from '../types';
 import type { SearchPreference } from '../../db/types';
 

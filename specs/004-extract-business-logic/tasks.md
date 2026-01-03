@@ -238,20 +238,20 @@
 
 **Purpose**: Update web package to use shared package instead of local implementations
 
-- [ ] T093 Create NodeCryptoProvider implementation in packages/web/src/lib/crypto/node-crypto-provider.ts
-- [ ] T094 [P] Create WebHttpClient implementation (wrapper around fetch) in packages/web/src/lib/http/web-http-client.ts
-- [ ] T095 [P] Update web package DI container to use shared services in packages/web/src/lib/di/setup.ts
-- [ ] T096 [P] Update MarketplaceService imports in web package to use shared package in packages/web/src/lib/services/marketplace.service.ts
-- [ ] T097 [P] Update ListingService imports in web package to use shared package in packages/web/src/lib/services/listing.service.ts
-- [ ] T098 [P] Update EvaluationService imports in web package to use shared package in packages/web/src/lib/services/evaluation.service.ts
-- [ ] T099 [P] Update marketplace client imports in web package to use shared package in packages/web/src/lib/marketplace/amazon/client.ts
-- [ ] T100 [P] Update marketplace client imports in web package to use shared package in packages/web/src/lib/marketplace/ebay/client.ts
-- [ ] T101 [P] Update rate limiter imports in web package to use shared package in packages/web/src/lib/marketplace/rate-limiter.ts
-- [ ] T102 [P] Update AI prompts imports in web package to use shared package in packages/web/src/lib/ai/prompts.ts
-- [ ] T103 [P] Update error class imports in web package to use shared package in packages/web/src/lib/errors.ts
-- [ ] T104 Migrate web package tests to use shared package mocks in packages/web/src/lib/services/__tests__/
-- [ ] T105 Verify all web package tests pass after migration
-- [ ] T106 Remove extracted files from web package (marketplace services, clients, rate limiter, prompts, evaluation service, listing service)
+- [x] T093 Create NodeCryptoProvider implementation in packages/web/src/lib/crypto/node-crypto-provider.ts
+- [x] T094 [P] Create WebHttpClient implementation (wrapper around fetch) in packages/web/src/lib/http/web-http-client.ts
+- [x] T095 [P] Update web package DI container to use shared services in packages/web/src/lib/di/setup.ts
+- [x] T096 [P] Update MarketplaceService imports in web package to use shared package in packages/web/src/lib/services/marketplace.service.ts
+- [x] T097 [P] Update ListingService imports in web package to use shared package in packages/web/src/lib/services/listing.service.ts
+- [x] T098 [P] Update EvaluationService imports in web package to use shared package in packages/web/src/lib/services/evaluation.service.ts
+- [x] T099 [P] Update marketplace client imports in web package to use shared package in packages/web/src/lib/marketplace/amazon/client.ts
+- [x] T100 [P] Update marketplace client imports in web package to use shared package in packages/web/src/lib/marketplace/ebay/client.ts
+- [x] T101 [P] Update rate limiter imports in web package to use shared package in packages/web/src/lib/marketplace/rate-limiter.ts
+- [x] T102 [P] Update AI prompts imports in web package to use shared package in packages/web/src/lib/ai/prompts.ts
+- [x] T103 [P] Update error class imports in web package to use shared package in packages/web/src/lib/errors.ts
+- [x] T104 Migrate web package tests to use shared package mocks in packages/web/src/lib/services/__tests__/
+- [x] T105 Verify all web package tests pass after migration
+- [x] T106 Remove extracted files from web package (marketplace services, clients, rate limiter, prompts, evaluation service, listing service)
 
 ---
 

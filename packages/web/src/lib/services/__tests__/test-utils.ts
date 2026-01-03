@@ -10,11 +10,10 @@ import type {
   IMarketplaceService,
   IListingService,
   IEvaluationService,
-  IDatabaseService,
-  IAuthService,
-} from '../interfaces';
-import type { MarketplaceListing, MarketplaceSearchParams, MarketplaceSearchResult } from '../../marketplace/types';
-import type { EvaluationInput, EvaluationResult } from '../../ai/types';
+} from '@rare-find/shared/lib/interfaces';
+import type { IDatabaseService, IAuthService } from '../interfaces';
+import type { MarketplaceListing, MarketplaceSearchParams, MarketplaceSearchResult } from '@rare-find/shared';
+import type { EvaluationInput, EvaluationResult } from '@rare-find/shared';
 
 /**
  * Create a mock logger

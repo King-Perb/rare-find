@@ -53,13 +53,20 @@ import type { Recommendation } from '@rare-find/shared/types';
 Create `.env.local` in this directory:
 
 ```env
-# Supabase
+# Supabase (for client-side auth)
 EXPO_PUBLIC_SUPABASE_URL="..."
-EXPO_PUBLIC_SUPABASE_ANON_KEY="..."
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY="..."
 
-# API
+# Backend API (if using backend proxy)
 EXPO_PUBLIC_API_URL="http://localhost:3000/api"
+
+# Supabase (for type generation - server-side only)
+# These are NOT prefixed with EXPO_PUBLIC_ and are only used for generating types
+SUPABASE_ACCESS_TOKEN="sbp_..."  # Get from https://app.supabase.com/account/tokens
+SUPABASE_PROJECT_ID="xabpmvuubgfjuroenxuq"  # Optional, defaults to this value
 ```
+
+**Note:** `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_ID` are only needed for generating Database types with `npm run db:generate-types`. They are not used in the app bundle.
 
 ## Development
 
@@ -77,6 +84,7 @@ EXPO_PUBLIC_API_URL="http://localhost:3000/api"
 - `npm run web` - Run in web browser
 - `npm run type:check` - Type check
 - `npm test` - Run tests
+- `npm run db:generate-types` - Generate Supabase Database types (see [scripts/README.md](./scripts/README.md))
 
 ## Implementation Plan
 

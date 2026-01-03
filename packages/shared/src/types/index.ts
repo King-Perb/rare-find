@@ -5,6 +5,17 @@
  * This provides a single import location for common types
  */
 
+// Export Supabase Database types (generated from Supabase schema)
+export type { Database } from './database';
+export type {
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+  Enums,
+  CompositeTypes,
+} from './database';
+export { Constants } from './database';
+
 // Export marketplace types
 export type {
   Marketplace,

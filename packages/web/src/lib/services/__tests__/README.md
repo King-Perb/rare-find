@@ -1,53 +1,71 @@
 # Service Tests
 
-Comprehensive test suite for all service implementations using dependency injection and mocking.
+Test suite for web-specific services and integration tests for shared services.
+
+## Test Strategy
+
+### Shared Package Tests
+The shared package (`@rare-find/shared`) contains comprehensive unit tests for all business logic:
+- **MarketplaceService**: 21 tests covering URL parsing, listing fetching, search
+- **ListingService**: 17 tests covering validation and normalization
+- **EvaluationService**: 6 tests covering AI evaluation logic
+- **Marketplace Clients**: Tests for Amazon, eBay, and RapidAPI clients
+- **Rate Limiter**: Tests for rate limiting logic
+
+**We do NOT duplicate these tests in the web package.**
+
+### Web Package Tests
+
+#### Integration Tests (`src/lib/__tests__/integration/`)
+Tests that verify shared services work correctly with web-specific providers:
+
+1. **Service Integration Tests**:
+   - **MarketplaceService Integration**: Tests with `NodeCryptoProvider` and `WebHttpClient`
+   - **ListingService Integration**: Tests with web logger
+   - **EvaluationService Integration**: Tests with web OpenAI client and logger
+
+2. **Full Stack Integration Tests**:
+   - **API Route Integration**: Tests the complete flow from API route → DI container → shared services → platform providers
+
+These tests verify:
+- ✅ **Shared services work with real platform providers** (NodeCryptoProvider, WebHttpClient)
+- ✅ **Dependency injection works correctly** (services resolve from DI container with proper providers)
+- ✅ **Full flow from API route → shared service → platform providers** (end-to-end integration)
+
+#### Web-Specific Service Tests (`src/lib/services/__tests__/`)
+Unit tests for services that are web-specific:
+- **LoggerService** (8 tests): Sentry integration, logging levels
+- **AuthService** (9 tests): User authentication, session management
+- **DatabaseService** (14 tests): Database operations
 
 ## Test Coverage
 
-### ✅ LoggerService (8 tests)
-- Info, warn, error logging
-- Debug logging (development vs production)
-- Context inclusion in logs
+### ✅ Integration Tests
+- **Service Integration** (16 tests):
+  - MarketplaceService with NodeCryptoProvider + WebHttpClient
+  - ListingService with web logger
+  - EvaluationService with web OpenAI client
+- **Full Stack Integration** (5 tests):
+  - API route → DI container → shared services → platform providers
+  - Error handling through full stack
+  - DI container resolution verification
 
-### ✅ ListingService (17 tests)
-- Listing validation (title, price, marketplace, etc.)
-- Listing normalization (trim, uppercase, defaults)
-- Edge cases and error handling
-
-### ✅ MarketplaceService (22 tests)
-- URL parsing for Amazon and eBay
-- Listing fetching from URLs
-- Marketplace client integration
-- Error handling and logging
-
-### ✅ EvaluationService (6 tests)
-- AI evaluation execution
-- Multimodal vs text-only modes
-- Error handling and logging
-- Result transformation
-
-### ✅ AuthService (9 tests)
-- User authentication
-- Session management
-- Sign out functionality
-- Error handling
-
-### ✅ DatabaseService (14 tests)
-- User operations
-- Listing operations
-- Evaluation operations
-- Recommendation operations
-- Notification operations
-- Preference operations
+### ✅ Web-Specific Services
+- LoggerService (8 tests)
+- AuthService (9 tests)
+- DatabaseService (14 tests)
 
 ## Running Tests
 
 ```bash
-# Run all service tests
+# Run all service tests (web-specific only)
 npm test -- src/lib/services/__tests__
 
+# Run integration tests
+npm test -- src/lib/__tests__/integration
+
 # Run specific test file
-npm test -- src/lib/services/__tests__/listing.service.test.ts
+npm test -- src/lib/services/__tests__/logger.service.test.ts
 
 # Watch mode
 npm run test:watch -- src/lib/services/__tests__
@@ -73,86 +91,46 @@ const listing = createSampleListing({
 });
 ```
 
-## Mocking Dependencies
-
-Services are designed to accept dependencies via constructor injection, making them easy to test:
+## Integration Test Example
 
 ```typescript
-import { ListingService } from '../listing.service';
-import { createMockLogger } from './test-utils';
+import { MarketplaceService } from '@rare-find/shared/lib/marketplace/services/marketplace.service';
+import { NodeCryptoProvider } from '../../crypto/node-crypto-provider';
+import { WebHttpClient } from '../../http/web-http-client';
 
-const mockLogger = createMockLogger();
-const service = new ListingService(mockLogger);
+describe('MarketplaceService Integration', () => {
+  it('should work with web providers', () => {
+    const cryptoProvider = new NodeCryptoProvider();
+    const httpClient = new WebHttpClient();
+    const amazonClient = new AmazonClient(credentials, cryptoProvider, httpClient);
+    const service = new MarketplaceService(logger, amazonClient, ebayClient);
 
-// Test the service
-service.validateListing(listing);
-expect(mockLogger.info).toHaveBeenCalled();
-```
-
-## Testing with DI Container
-
-For integration tests, you can register mocks in the DI container:
-
-```typescript
-import { container, ServiceKeys } from '../../di/container';
-import { createMockMarketplaceService } from './test-utils';
-
-// Register mock
-container.register(ServiceKeys.MarketplaceService, () =>
-  createMockMarketplaceService()
-);
-
-// Resolve and use
-const service = container.resolve<IMarketplaceService>(
-  ServiceKeys.MarketplaceService
-);
-```
-
-## Test Structure
-
-Each test file follows this structure:
-
-1. **Setup**: Create service instance with mocked dependencies
-2. **Tests**: Grouped by method/feature
-3. **Assertions**: Verify behavior and side effects
-
-Example:
-
-```typescript
-describe('ListingService', () => {
-  let service: ListingService;
-  let mockLogger: ILogger;
-
-  beforeEach(() => {
-    mockLogger = createMockLogger();
-    service = new ListingService(mockLogger);
-  });
-
-  describe('validateListing', () => {
-    it('should validate a valid listing', () => {
-      // Test implementation
-    });
+    // Test that service works with web providers
   });
 });
 ```
 
 ## Best Practices
 
-1. **Isolate tests**: Each test should be independent
-2. **Mock external dependencies**: Don't make real API calls
-3. **Test edge cases**: Include error scenarios
-4. **Verify side effects**: Check logging, error handling
-5. **Use descriptive test names**: Clear what is being tested
+1. **Don't duplicate shared tests**: Business logic is tested in shared package
+2. **Focus on integration**: Test that shared services work with web providers
+3. **Test web-specific code**: LoggerService, AuthService, DatabaseService
+4. **Mock external dependencies**: Don't make real API calls in tests
+5. **Verify side effects**: Check logging, error handling
 
 ## Adding New Tests
 
-When adding a new service:
+### For Shared Services
+If you need to test shared services, add integration tests in `src/lib/__tests__/integration/` that verify:
+- Services work with web-specific providers
+- Dependency injection functions correctly
+- Platform-specific implementations integrate properly
 
-1. Create test file: `__tests__/new-service.test.ts`
-2. Import test utilities: `from './test-utils'`
-3. Mock dependencies: Use `createMock*` functions
-4. Write comprehensive tests: Cover all methods and edge cases
-5. Update this README: Add to test coverage list
+### For Web-Specific Services
+Add unit tests in `src/lib/services/__tests__/` for:
+- New web-specific services
+- Web-specific utilities
+- Platform-specific implementations
 
 ## Continuous Integration
 

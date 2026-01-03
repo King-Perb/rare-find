@@ -2,51 +2,22 @@
  * Error handling utilities
  *
  * Centralized error handling and logging infrastructure
+ * Re-exports shared error classes and adds web-specific utilities (Sentry integration)
  */
 
 import * as Sentry from '@sentry/nextjs';
 
-export class AppError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number = 500,
-    public code?: string,
-    public details?: unknown
-  ) {
-    super(message);
-    this.name = 'AppError';
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
+// Re-export error classes from shared package
+export {
+  AppError,
+  ValidationError,
+  NotFoundError,
+  UnauthorizedError,
+  RateLimitError,
+} from '@rare-find/shared/lib/errors';
 
-export class ValidationError extends AppError {
-  constructor(message: string, details?: unknown) {
-    super(message, 400, 'VALIDATION_ERROR', details);
-    this.name = 'ValidationError';
-  }
-}
-
-export class NotFoundError extends AppError {
-  constructor(resource: string, id?: string) {
-    const message = id ? `${resource} with id ${id} not found` : `${resource} not found`;
-    super(message, 404, 'NOT_FOUND');
-    this.name = 'NotFoundError';
-  }
-}
-
-export class UnauthorizedError extends AppError {
-  constructor(message: string = 'Unauthorized') {
-    super(message, 401, 'UNAUTHORIZED');
-    this.name = 'UnauthorizedError';
-  }
-}
-
-export class RateLimitError extends AppError {
-  constructor(message: string = 'Rate limit exceeded', retryAfter?: number) {
-    super(message, 429, 'RATE_LIMIT_EXCEEDED', { retryAfter });
-    this.name = 'RateLimitError';
-  }
-}
+// Import AppError for use in this file
+import { AppError } from '@rare-find/shared/lib/errors';
 
 /**
  * Log error with context

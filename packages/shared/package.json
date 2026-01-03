@@ -12,7 +12,11 @@
   },
   "scripts": {
     "type:check": "tsc --build",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "db:generate-types": "tsx scripts/generate-supabase-types.js"
   },
   "dependencies": {
     "openai": "^6.10.0"
@@ -20,7 +24,11 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
+    "@vitest/coverage-v8": "^4.0.16",
+    "dotenv": "^16.6.1",
     "eslint": "^9",
-    "typescript": "^5"
+    "tsx": "^4.21.0",
+    "typescript": "^5",
+    "vitest": "^4.0.16"
   }
 }

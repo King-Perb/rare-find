@@ -17,16 +17,16 @@
 
 **Purpose**: Initialize shared package structure and testing infrastructure
 
-- [ ] T001 Create directory structure for shared package lib in packages/shared/src/lib/marketplace/services/
-- [ ] T002 Create directory structure for shared package lib in packages/shared/src/lib/marketplace/clients/amazon/
-- [ ] T003 [P] Create directory structure for shared package lib in packages/shared/src/lib/marketplace/clients/ebay/
-- [ ] T004 [P] Create directory structure for shared package lib in packages/shared/src/lib/evaluation/services/
-- [ ] T005 [P] Create directory structure for shared package lib in packages/shared/src/lib/listing/services/
-- [ ] T006 [P] Add Vitest to shared package devDependencies in packages/shared/package.json
-- [ ] T007 [P] Create Vitest configuration file in packages/shared/vitest.config.ts
-- [ ] T008 [P] Create test directory structure in packages/shared/__tests__/marketplace/
-- [ ] T009 [P] Create test directory structure in packages/shared/__tests__/evaluation/
-- [ ] T010 [P] Create test directory structure in packages/shared/__tests__/listing/
+- [x] T001 Create directory structure for shared package lib in packages/shared/src/lib/marketplace/services/
+- [x] T002 Create directory structure for shared package lib in packages/shared/src/lib/marketplace/clients/amazon/
+- [x] T003 [P] Create directory structure for shared package lib in packages/shared/src/lib/marketplace/clients/ebay/
+- [x] T004 [P] Create directory structure for shared package lib in packages/shared/src/lib/evaluation/services/
+- [x] T005 [P] Create directory structure for shared package lib in packages/shared/src/lib/listing/services/
+- [x] T006 [P] Add Vitest to shared package devDependencies in packages/shared/package.json
+- [x] T007 [P] Create Vitest configuration file in packages/shared/vitest.config.ts
+- [x] T008 [P] Create test directory structure in packages/shared/__tests__/marketplace/
+- [x] T009 [P] Create test directory structure in packages/shared/__tests__/evaluation/
+- [x] T010 [P] Create test directory structure in packages/shared/__tests__/listing/
 
 ---
 
@@ -36,21 +36,21 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T011 Extract ILogger interface to packages/shared/src/lib/interfaces.ts from packages/web/src/lib/services/interfaces.ts
-- [ ] T012 [P] Create ICryptoProvider interface in packages/shared/src/lib/interfaces.ts
-- [ ] T013 [P] Create IHttpClient interface in packages/shared/src/lib/interfaces.ts
-- [ ] T014 [P] Extract IMarketplaceService interface to packages/shared/src/lib/interfaces.ts from packages/web/src/lib/services/interfaces.ts
-- [ ] T015 [P] Extract IEvaluationService interface to packages/shared/src/lib/interfaces.ts from packages/web/src/lib/services/interfaces.ts
-- [ ] T016 [P] Extract IListingService interface to packages/shared/src/lib/interfaces.ts from packages/web/src/lib/services/interfaces.ts
-- [ ] T017 Extract AppError base class to packages/shared/src/lib/errors.ts from packages/web/src/lib/errors.ts (remove Sentry dependency)
-- [ ] T018 [P] Extract ValidationError class to packages/shared/src/lib/errors.ts from packages/web/src/lib/errors.ts
-- [ ] T019 [P] Extract NotFoundError class to packages/shared/src/lib/errors.ts from packages/web/src/lib/errors.ts
-- [ ] T020 [P] Extract UnauthorizedError class to packages/shared/src/lib/errors.ts from packages/web/src/lib/errors.ts
-- [ ] T021 [P] Extract RateLimitError class to packages/shared/src/lib/errors.ts from packages/web/src/lib/errors.ts
-- [ ] T022 Extract marketplace types (MarketplaceListing, MarketplaceSearchParams, MarketplaceSearchResult, Marketplace, MarketplaceClient) to packages/shared/src/lib/marketplace/types.ts from packages/web/src/lib/marketplace/types.ts
-- [ ] T023 [P] Export all interfaces from packages/shared/src/lib/interfaces.ts
-- [ ] T024 [P] Export all error classes from packages/shared/src/lib/errors.ts
-- [ ] T025 [P] Update packages/shared/src/lib/index.ts to export interfaces and errors
+- [x] T011 Extract ILogger interface to packages/shared/src/lib/interfaces.ts from packages/web/src/lib/services/interfaces.ts
+- [x] T012 [P] Create ICryptoProvider interface in packages/shared/src/lib/interfaces.ts
+- [x] T013 [P] Create IHttpClient interface in packages/shared/src/lib/interfaces.ts
+- [x] T014 [P] Extract IMarketplaceService interface to packages/shared/src/lib/interfaces.ts from packages/web/src/lib/services/interfaces.ts
+- [x] T015 [P] Extract IEvaluationService interface to packages/shared/src/lib/interfaces.ts from packages/web/src/lib/services/interfaces.ts
+- [x] T016 [P] Extract IListingService interface to packages/shared/src/lib/interfaces.ts from packages/web/src/lib/services/interfaces.ts
+- [x] T017 Extract AppError base class to packages/shared/src/lib/errors.ts from packages/web/src/lib/errors.ts (remove Sentry dependency)
+- [x] T018 [P] Extract ValidationError class to packages/shared/src/lib/errors.ts from packages/web/src/lib/errors.ts
+- [x] T019 [P] Extract NotFoundError class to packages/shared/src/lib/errors.ts from packages/web/src/lib/errors.ts
+- [x] T020 [P] Extract UnauthorizedError class to packages/shared/src/lib/errors.ts from packages/web/src/lib/errors.ts
+- [x] T021 [P] Extract RateLimitError class to packages/shared/src/lib/errors.ts from packages/web/src/lib/errors.ts
+- [x] T022 Extract marketplace types (MarketplaceListing, MarketplaceSearchParams, MarketplaceSearchResult, Marketplace, MarketplaceClient) to packages/shared/src/lib/marketplace/types.ts from packages/web/src/lib/marketplace/types.ts
+- [x] T023 [P] Export all interfaces from packages/shared/src/lib/interfaces.ts
+- [x] T024 [P] Export all error classes from packages/shared/src/lib/errors.ts
+- [x] T025 [P] Update packages/shared/src/lib/index.ts to export interfaces and errors
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -66,19 +66,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T026 [P] [US1] Create test for MarketplaceService.parseMarketplaceUrl in packages/shared/__tests__/marketplace/marketplace-service.test.ts
-- [ ] T027 [P] [US1] Create test for MarketplaceService.fetchListingFromUrl in packages/shared/__tests__/marketplace/marketplace-service.test.ts
-- [ ] T028 [P] [US1] Create test for MarketplaceService.getListingById in packages/shared/__tests__/marketplace/marketplace-service.test.ts
-- [ ] T029 [P] [US1] Create test for MarketplaceService.search in packages/shared/__tests__/marketplace/marketplace-service.test.ts
+- [x] T026 [P] [US1] Create test for MarketplaceService.parseMarketplaceUrl in packages/shared/__tests__/marketplace/marketplace-service.test.ts
+- [x] T027 [P] [US1] Create test for MarketplaceService.fetchListingFromUrl in packages/shared/__tests__/marketplace/marketplace-service.test.ts
+- [x] T028 [P] [US1] Create test for MarketplaceService.getListingById in packages/shared/__tests__/marketplace/marketplace-service.test.ts
+- [x] T029 [P] [US1] Create test for MarketplaceService.search in packages/shared/__tests__/marketplace/marketplace-service.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T030 [US1] Extract MarketplaceService class to packages/shared/src/lib/marketplace/services/marketplace.service.ts from packages/web/src/lib/services/marketplace.service.ts
-- [ ] T031 [US1] Update MarketplaceService constructor to accept ILogger, ICryptoProvider, IHttpClient via dependency injection in packages/shared/src/lib/marketplace/services/marketplace.service.ts
-- [ ] T032 [US1] Remove platform-specific dependencies (node:crypto, direct fetch) from MarketplaceService in packages/shared/src/lib/marketplace/services/marketplace.service.ts
-- [ ] T033 [US1] Update MarketplaceService to use injected crypto and HTTP providers in packages/shared/src/lib/marketplace/services/marketplace.service.ts
-- [ ] T034 [US1] Export MarketplaceService from packages/shared/src/lib/marketplace/services/index.ts
-- [ ] T035 [US1] Update packages/shared/src/lib/index.ts to export marketplace services
+- [x] T030 [US1] Extract MarketplaceService class to packages/shared/src/lib/marketplace/services/marketplace.service.ts from packages/web/src/lib/services/marketplace.service.ts
+- [x] T031 [US1] Update MarketplaceService constructor to accept ILogger, ICryptoProvider, IHttpClient via dependency injection in packages/shared/src/lib/marketplace/services/marketplace.service.ts
+- [x] T032 [US1] Remove platform-specific dependencies (node:crypto, direct fetch) from MarketplaceService in packages/shared/src/lib/marketplace/services/marketplace.service.ts
+- [x] T033 [US1] Update MarketplaceService to use injected crypto and HTTP providers in packages/shared/src/lib/marketplace/services/marketplace.service.ts
+- [x] T034 [US1] Export MarketplaceService from packages/shared/src/lib/marketplace/services/index.ts
+- [x] T035 [US1] Update packages/shared/src/lib/index.ts to export marketplace services
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -92,15 +92,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T036 [P] [US2] Create test for ListingService.validateListing in packages/shared/__tests__/listing/listing-service.test.ts
-- [ ] T037 [P] [US2] Create test for ListingService.normalizeListing in packages/shared/__tests__/listing/listing-service.test.ts
+- [x] T036 [P] [US2] Create test for ListingService.validateListing in packages/shared/__tests__/listing/listing-service.test.ts
+- [x] T037 [P] [US2] Create test for ListingService.normalizeListing in packages/shared/__tests__/listing/listing-service.test.ts
 
 ### Implementation for User Story 2
 
-- [ ] T038 [US2] Extract ListingService class to packages/shared/src/lib/listing/services/listing.service.ts from packages/web/src/lib/services/listing.service.ts
-- [ ] T039 [US2] Update ListingService constructor to accept ILogger via dependency injection in packages/shared/src/lib/listing/services/listing.service.ts
-- [ ] T040 [US2] Export ListingService from packages/shared/src/lib/listing/services/index.ts
-- [ ] T041 [US2] Update packages/shared/src/lib/index.ts to export listing services
+- [x] T038 [US2] Extract ListingService class to packages/shared/src/lib/listing/services/listing.service.ts from packages/web/src/lib/services/listing.service.ts
+- [x] T039 [US2] Update ListingService constructor to accept ILogger via dependency injection in packages/shared/src/lib/listing/services/listing.service.ts
+- [x] T040 [US2] Export ListingService from packages/shared/src/lib/listing/services/index.ts
+- [x] T041 [US2] Update packages/shared/src/lib/index.ts to export listing services
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -114,18 +114,18 @@
 
 ### Tests for User Story 3
 
-- [ ] T042 [P] [US3] Create test for EvaluationService.evaluateListing in packages/shared/__tests__/evaluation/evaluation-service.test.ts
-- [ ] T043 [P] [US3] Create test for evaluateUserListing function in packages/shared/__tests__/evaluation/evaluate-user-listing.test.ts
+- [x] T042 [P] [US3] Create test for EvaluationService.evaluateListing in packages/shared/__tests__/evaluation/evaluation-service.test.ts
+- [x] T043 [P] [US3] Create test for evaluateUserListing function in packages/shared/__tests__/evaluation/evaluate-user-listing.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T044 [US3] Extract EvaluationService class to packages/shared/src/lib/evaluation/services/evaluation.service.ts from packages/web/src/lib/services/evaluation.service.ts
-- [ ] T045 [US3] Update EvaluationService constructor to accept ILogger via dependency injection in packages/shared/src/lib/evaluation/services/evaluation.service.ts
-- [ ] T046 [US3] Extract evaluateUserListing function to packages/shared/src/lib/evaluation/evaluate-user-listing.ts from packages/web/src/lib/ai/evaluate-user-listing.ts
-- [ ] T047 [US3] Update evaluateUserListing to accept OpenAI client via dependency injection (not from env) in packages/shared/src/lib/evaluation/evaluate-user-listing.ts
-- [ ] T048 [US3] Extract evaluation types (EvaluationInput, EvaluationResult, AIEvaluationResponse, etc.) to packages/shared/src/lib/evaluation/types.ts from packages/web/src/lib/ai/types.ts
-- [ ] T049 [US3] Export EvaluationService from packages/shared/src/lib/evaluation/services/index.ts
-- [ ] T050 [US3] Update packages/shared/src/lib/index.ts to export evaluation services and types
+- [x] T044 [US3] Extract EvaluationService class to packages/shared/src/lib/evaluation/services/evaluation.service.ts from packages/web/src/lib/services/evaluation.service.ts
+- [x] T045 [US3] Update EvaluationService constructor to accept ILogger via dependency injection in packages/shared/src/lib/evaluation/services/evaluation.service.ts
+- [x] T046 [US3] Extract evaluateUserListing function to packages/shared/src/lib/evaluation/evaluate-user-listing.ts from packages/web/src/lib/ai/evaluate-user-listing.ts
+- [x] T047 [US3] Update evaluateUserListing to accept OpenAI client via dependency injection (not from env) in packages/shared/src/lib/evaluation/evaluate-user-listing.ts
+- [x] T048 [US3] Extract evaluation types (EvaluationInput, EvaluationResult, AIEvaluationResponse, etc.) to packages/shared/src/lib/evaluation/types.ts from packages/web/src/lib/ai/types.ts
+- [x] T049 [US3] Export EvaluationService from packages/shared/src/lib/evaluation/services/index.ts
+- [x] T050 [US3] Update packages/shared/src/lib/index.ts to export evaluation services and types
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently
 
@@ -139,18 +139,18 @@
 
 ### Tests for User Story 4
 
-- [ ] T051 [P] [US4] Create test for MarketplaceRateLimiter.canMakeRequest in packages/shared/__tests__/marketplace/rate-limiter.test.ts
-- [ ] T052 [P] [US4] Create test for MarketplaceRateLimiter.waitAndConsume in packages/shared/__tests__/marketplace/rate-limiter.test.ts
-- [ ] T053 [P] [US4] Create test for MarketplaceRateLimiter.getWaitTime in packages/shared/__tests__/marketplace/rate-limiter.test.ts
+- [x] T051 [P] [US4] Create test for MarketplaceRateLimiter.canMakeRequest in packages/shared/__tests__/marketplace/rate-limiter.test.ts
+- [x] T052 [P] [US4] Create test for MarketplaceRateLimiter.waitAndConsume in packages/shared/__tests__/marketplace/rate-limiter.test.ts
+- [x] T053 [P] [US4] Create test for MarketplaceRateLimiter.getWaitTime in packages/shared/__tests__/marketplace/rate-limiter.test.ts
 
 ### Implementation for User Story 4
 
-- [ ] T054 [US4] Extract MarketplaceRateLimiter class to packages/shared/src/lib/marketplace/rate-limiter.ts from packages/web/src/lib/marketplace/rate-limiter.ts
-- [ ] T055 [US4] Extract getRateLimiter function to packages/shared/src/lib/marketplace/rate-limiter.ts from packages/web/src/lib/marketplace/rate-limiter.ts
-- [ ] T056 [US4] Extract waitForRateLimit function to packages/shared/src/lib/marketplace/rate-limiter.ts from packages/web/src/lib/marketplace/rate-limiter.ts
-- [ ] T057 [US4] Extract RateLimitSource type to packages/shared/src/lib/marketplace/rate-limiter.ts from packages/web/src/lib/marketplace/rate-limiter.ts
-- [ ] T058 [US4] Export rate limiter functions and types from packages/shared/src/lib/marketplace/rate-limiter.ts
-- [ ] T059 [US4] Update packages/shared/src/lib/index.ts to export rate limiter
+- [x] T054 [US4] Extract MarketplaceRateLimiter class to packages/shared/src/lib/marketplace/rate-limiter.ts from packages/web/src/lib/marketplace/rate-limiter.ts
+- [x] T055 [US4] Extract getRateLimiter function to packages/shared/src/lib/marketplace/rate-limiter.ts from packages/web/src/lib/marketplace/rate-limiter.ts
+- [x] T056 [US4] Extract waitForRateLimit function to packages/shared/src/lib/marketplace/rate-limiter.ts from packages/web/src/lib/marketplace/rate-limiter.ts
+- [x] T057 [US4] Extract RateLimitSource type to packages/shared/src/lib/marketplace/rate-limiter.ts from packages/web/src/lib/marketplace/rate-limiter.ts
+- [x] T058 [US4] Export rate limiter functions and types from packages/shared/src/lib/marketplace/rate-limiter.ts
+- [x] T059 [US4] Update packages/shared/src/lib/index.ts to export rate limiter
 
 **Checkpoint**: At this point, User Stories 1, 2, 3, AND 4 should all work independently
 
@@ -164,17 +164,17 @@
 
 ### Tests for User Story 5
 
-- [ ] T060 [P] [US5] Create test for prompt version constants in packages/shared/__tests__/evaluation/prompts.test.ts
-- [ ] T061 [P] [US5] Create test for getEvaluationPrompt function in packages/shared/__tests__/evaluation/prompts.test.ts
+- [x] T060 [P] [US5] Create test for prompt version constants in packages/shared/__tests__/evaluation/prompts.test.ts
+- [x] T061 [P] [US5] Create test for getEvaluationPrompt function in packages/shared/__tests__/evaluation/prompts.test.ts
 
 ### Implementation for User Story 5
 
-- [ ] T062 [US5] Extract PROMPT_VERSION constant to packages/shared/src/lib/evaluation/prompts.ts from packages/web/src/lib/ai/prompts.ts
-- [ ] T063 [US5] Extract MODEL_VERSION constant to packages/shared/src/lib/evaluation/prompts.ts from packages/web/src/lib/ai/prompts.ts
-- [ ] T064 [US5] Extract getEvaluationPrompt function to packages/shared/src/lib/evaluation/prompts.ts from packages/web/src/lib/ai/prompts.ts
-- [ ] T065 [US5] Update MODEL_VERSION to accept model from parameter (not env) in packages/shared/src/lib/evaluation/prompts.ts
-- [ ] T066 [US5] Export prompts and constants from packages/shared/src/lib/evaluation/prompts.ts
-- [ ] T067 [US5] Update packages/shared/src/lib/index.ts to export prompts
+- [x] T062 [US5] Extract PROMPT_VERSION constant to packages/shared/src/lib/evaluation/prompts.ts from packages/web/src/lib/ai/prompts.ts
+- [x] T063 [US5] Extract MODEL_VERSION constant to packages/shared/src/lib/evaluation/prompts.ts from packages/web/src/lib/ai/prompts.ts
+- [x] T064 [US5] Extract getEvaluationPrompt function to packages/shared/src/lib/evaluation/prompts.ts from packages/web/src/lib/ai/prompts.ts
+- [x] T065 [US5] Update MODEL_VERSION to accept model from parameter (not env) in packages/shared/src/lib/evaluation/prompts.ts
+- [x] T066 [US5] Export prompts and constants from packages/shared/src/lib/evaluation/prompts.ts
+- [x] T067 [US5] Update packages/shared/src/lib/index.ts to export prompts
 
 **Checkpoint**: At this point, User Stories 1, 2, 3, 4, AND 5 should all work independently
 
@@ -188,27 +188,27 @@
 
 ### Tests for User Story 6
 
-- [ ] T068 [P] [US6] Create test for AmazonClient.search with mocked crypto and HTTP providers in packages/shared/__tests__/marketplace/clients/amazon-client.test.ts
-- [ ] T069 [P] [US6] Create test for AmazonClient.getItemById with mocked crypto and HTTP providers in packages/shared/__tests__/marketplace/clients/amazon-client.test.ts
-- [ ] T070 [P] [US6] Create test for eBayClient.search with mocked HTTP provider in packages/shared/__tests__/marketplace/clients/ebay-client.test.ts
-- [ ] T071 [P] [US6] Create test for eBayClient.getItemById with mocked HTTP provider in packages/shared/__tests__/marketplace/clients/ebay-client.test.ts
+- [x] T068 [P] [US6] Create test for AmazonClient.search with mocked crypto and HTTP providers in packages/shared/__tests__/marketplace/clients/amazon-client.test.ts
+- [x] T069 [P] [US6] Create test for AmazonClient.getItemById with mocked crypto and HTTP providers in packages/shared/__tests__/marketplace/clients/amazon-client.test.ts
+- [x] T070 [P] [US6] Create test for eBayClient.search with mocked HTTP provider in packages/shared/__tests__/marketplace/clients/ebay-client.test.ts
+- [x] T071 [P] [US6] Create test for eBayClient.getItemById with mocked HTTP provider in packages/shared/__tests__/marketplace/clients/ebay-client.test.ts
 
 ### Implementation for User Story 6
 
-- [ ] T072 [US6] Extract AmazonClient class to packages/shared/src/lib/marketplace/clients/amazon/client.ts from packages/web/src/lib/marketplace/amazon/client.ts
-- [ ] T073 [US6] Update AmazonClient constructor to accept ICryptoProvider and IHttpClient via dependency injection in packages/shared/src/lib/marketplace/clients/amazon/client.ts
-- [ ] T074 [US6] Replace node:crypto calls with ICryptoProvider methods in AmazonClient in packages/shared/src/lib/marketplace/clients/amazon/client.ts
-- [ ] T075 [US6] Replace fetch calls with IHttpClient.fetch in AmazonClient in packages/shared/src/lib/marketplace/clients/amazon/client.ts
-- [ ] T076 [US6] Extract AmazonClient types to packages/shared/src/lib/marketplace/clients/amazon/types.ts from packages/web/src/lib/marketplace/amazon/types.ts
-- [ ] T077 [US6] Extract RapidAPIAmazonClient class to packages/shared/src/lib/marketplace/clients/amazon/rapidapi-client.ts from packages/web/src/lib/marketplace/amazon/rapidapi-client.ts
-- [ ] T078 [US6] Update RapidAPIAmazonClient to use IHttpClient in packages/shared/src/lib/marketplace/clients/amazon/rapidapi-client.ts
-- [ ] T079 [US6] Extract RapidAPI types to packages/shared/src/lib/marketplace/clients/amazon/rapidapi-types.ts from packages/web/src/lib/marketplace/amazon/rapidapi-types.ts
-- [ ] T080 [US6] Extract eBayClient class to packages/shared/src/lib/marketplace/clients/ebay/client.ts from packages/web/src/lib/marketplace/ebay/client.ts
-- [ ] T081 [US6] Update eBayClient constructor to accept IHttpClient via dependency injection in packages/shared/src/lib/marketplace/clients/ebay/client.ts
-- [ ] T082 [US6] Replace fetch calls with IHttpClient.fetch in eBayClient in packages/shared/src/lib/marketplace/clients/ebay/client.ts
-- [ ] T083 [US6] Extract eBayClient types to packages/shared/src/lib/marketplace/clients/ebay/types.ts from packages/web/src/lib/marketplace/ebay/types.ts
-- [ ] T084 [US6] Export all marketplace clients from packages/shared/src/lib/marketplace/clients/index.ts
-- [ ] T085 [US6] Update packages/shared/src/lib/index.ts to export marketplace clients
+- [x] T072 [US6] Extract AmazonClient class to packages/shared/src/lib/marketplace/clients/amazon/client.ts from packages/web/src/lib/marketplace/amazon/client.ts
+- [x] T073 [US6] Update AmazonClient constructor to accept ICryptoProvider and IHttpClient via dependency injection in packages/shared/src/lib/marketplace/clients/amazon/client.ts
+- [x] T074 [US6] Replace node:crypto calls with ICryptoProvider methods in AmazonClient in packages/shared/src/lib/marketplace/clients/amazon/client.ts
+- [x] T075 [US6] Replace fetch calls with IHttpClient.fetch in AmazonClient in packages/shared/src/lib/marketplace/clients/amazon/client.ts
+- [x] T076 [US6] Extract AmazonClient types to packages/shared/src/lib/marketplace/clients/amazon/types.ts from packages/web/src/lib/marketplace/amazon/types.ts
+- [x] T077 [US6] Extract RapidAPIAmazonClient class to packages/shared/src/lib/marketplace/clients/amazon/rapidapi-client.ts from packages/web/src/lib/marketplace/amazon/rapidapi-client.ts
+- [x] T078 [US6] Update RapidAPIAmazonClient to use IHttpClient in packages/shared/src/lib/marketplace/clients/amazon/rapidapi-client.ts
+- [x] T079 [US6] Extract RapidAPI types to packages/shared/src/lib/marketplace/clients/amazon/rapidapi-types.ts from packages/web/src/lib/marketplace/amazon/rapidapi-types.ts
+- [x] T080 [US6] Extract eBayClient class to packages/shared/src/lib/marketplace/clients/ebay/client.ts from packages/web/src/lib/marketplace/ebay/client.ts
+- [x] T081 [US6] Update eBayClient constructor to accept IHttpClient via dependency injection in packages/shared/src/lib/marketplace/clients/ebay/client.ts
+- [x] T082 [US6] Replace fetch calls with IHttpClient.fetch in eBayClient in packages/shared/src/lib/marketplace/clients/ebay/client.ts
+- [x] T083 [US6] Extract eBayClient types to packages/shared/src/lib/marketplace/clients/ebay/types.ts from packages/web/src/lib/marketplace/ebay/types.ts
+- [x] T084 [US6] Export all marketplace clients from packages/shared/src/lib/marketplace/clients/index.ts
+- [x] T085 [US6] Update packages/shared/src/lib/index.ts to export marketplace clients
 
 **Checkpoint**: At this point, User Stories 1, 2, 3, 4, 5, AND 6 should all work independently
 
@@ -222,13 +222,13 @@
 
 ### Implementation for User Story 7
 
-- [ ] T086 [US7] Organize all type exports in packages/shared/src/types/index.ts
-- [ ] T087 [US7] Ensure MarketplaceListing type is exported from packages/shared/src/types/index.ts
-- [ ] T088 [US7] Ensure EvaluationResult type is exported from packages/shared/src/types/index.ts
-- [ ] T089 [US7] Ensure all service interfaces are exported from packages/shared/src/lib/interfaces.ts
-- [ ] T090 [US7] Update packages/shared/src/index.ts to re-export all types from packages/shared/src/types/index.ts
-- [ ] T091 [US7] Verify TypeScript project references are configured in packages/web/tsconfig.json
-- [ ] T092 [US7] Add TypeScript project reference to shared package in packages/mobile/tsconfig.json
+- [x] T086 [US7] Organize all type exports in packages/shared/src/types/index.ts
+- [x] T087 [US7] Ensure MarketplaceListing type is exported from packages/shared/src/types/index.ts
+- [x] T088 [US7] Ensure EvaluationResult type is exported from packages/shared/src/types/index.ts
+- [x] T089 [US7] Ensure all service interfaces are exported from packages/shared/src/lib/interfaces.ts
+- [x] T090 [US7] Update packages/shared/src/index.ts to re-export all types from packages/shared/src/types/index.ts
+- [x] T091 [US7] Verify TypeScript project references are configured in packages/web/tsconfig.json
+- [x] T092 [US7] Add TypeScript project reference to shared package in packages/mobile/tsconfig.json
 
 **Checkpoint**: At this point, all user stories should be complete and types/interfaces properly exported
 

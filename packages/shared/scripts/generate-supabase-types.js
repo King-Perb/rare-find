@@ -14,7 +14,7 @@
 
 import { config } from 'dotenv';
 import { spawnSync } from 'node:child_process';
-import { writeFileSync, existsSync } from 'node:fs';
+import { writeFileSync, existsSync, accessSync, constants } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -155,6 +155,10 @@ try {
   // Use spawn with proper argument passing to prevent command injection
   // Sanitize environment: only pass safe, necessary variables
   // PATH is restricted to system directories to prevent PATH injection
+  const safePath = process.platform === 'win32'
+    ? String.raw`C:\Windows\System32;C:\Windows;C:\Windows\System32\WindowsPowerShell\v1.0`
+    : '/usr/bin:/bin:/usr/sbin:/sbin';
+
   const safeEnv = {
     ...Object.fromEntries(
       Object.entries(process.env).filter(([key]) =>
@@ -166,13 +170,57 @@ try {
     ),
     // Use safe default PATH (system directories only) to prevent PATH injection
     // Never use process.env.PATH as it may contain user-writable directories
-    PATH: process.platform === 'win32'
-      ? String.raw`C:\Windows\System32;C:\Windows;C:\Windows\System32\WindowsPowerShell\v1.0`
-      : '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin',
+    // Only include fixed, system-owned directories that are never user-writable
+    PATH: safePath,
     SUPABASE_ACCESS_TOKEN: cleanToken
   };
 
-  const result = spawnSync('npx', ['supabase', 'gen', 'types', 'typescript', '--project-id', projectId], {
+  // Find npx in the safe PATH to satisfy SonarQube security check
+  // This prevents PATH injection by only searching in system directories
+  const safePathDirs = safePath.split(process.platform === 'win32' ? ';' : ':');
+  const npxName = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  let npxPath = null;
+
+  // First, search in safe system PATH directories
+  for (const dir of safePathDirs) {
+    const candidate = join(dir, npxName);
+    try {
+      accessSync(candidate, constants.F_OK);
+      npxPath = candidate;
+      break;
+    } catch {
+      // Continue searching
+    }
+  }
+
+  // Fallback: Check Node.js installation directory (where npx is typically located)
+  // Only use if it's in a safe location (not in user home directory)
+  if (!npxPath) {
+    const nodeDir = dirname(process.execPath);
+    // Check if node directory is safe (not in user home or temp directories)
+    const isSafeNodeDir = process.platform === 'win32'
+      ? !nodeDir.includes(process.env.USERPROFILE || '') && !nodeDir.includes('AppData')
+      : !nodeDir.startsWith(process.env.HOME || '') && !nodeDir.includes('/tmp');
+
+    if (isSafeNodeDir) {
+      const candidate = join(nodeDir, npxName);
+      try {
+        accessSync(candidate, constants.F_OK);
+        npxPath = candidate;
+      } catch {
+        // Not found in node directory either
+      }
+    }
+  }
+
+  if (!npxPath) {
+    console.error('❌ Error: npx not found in safe PATH directories');
+    console.error(`   Searched in: ${safePath}`);
+    console.error('   Please ensure Node.js is installed and npx is available in system directories');
+    process.exit(1);
+  }
+
+  const result = spawnSync(npxPath, ['supabase', 'gen', 'types', 'typescript', '--project-id', projectId], {
     encoding: 'utf-8',
     cwd: rootDir,
     stdio: 'pipe',

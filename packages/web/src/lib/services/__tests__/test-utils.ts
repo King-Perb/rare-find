@@ -142,3 +142,43 @@ export function createSampleEvaluationResult(overrides?: Partial<EvaluationResul
     ...overrides,
   };
 }
+
+/**
+ * Create a mock fetch response for successful API calls
+ */
+export function createMockFetchResponse<T>(data: T, ok: boolean = true): Response {
+  return {
+    ok,
+    status: ok ? 200 : 400,
+    statusText: ok ? 'OK' : 'Bad Request',
+    json: async () => data,
+  } as Response;
+}
+
+/**
+ * Create a mock fetch response for evaluation API success
+ */
+export function createMockEvaluationResponse(
+  result: EvaluationResult,
+  listing: MarketplaceListing
+): Response {
+  return createMockFetchResponse({
+    success: true,
+    result,
+    listing,
+  });
+}
+
+/**
+ * Create a mock fetch response for evaluation API error
+ */
+export function createMockEvaluationErrorResponse(error: string | { message: string; code?: string }): Response {
+  return createMockFetchResponse(
+    {
+      success: false,
+      error: typeof error === 'string' ? error : error.message,
+      ...(typeof error === 'object' && 'code' in error ? { code: error.code } : {}),
+    },
+    false
+  );
+}

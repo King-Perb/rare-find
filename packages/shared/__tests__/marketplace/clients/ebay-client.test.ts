@@ -8,6 +8,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { IHttpClient } from '../../../src/lib/interfaces';
 import type { MarketplaceSearchParams } from '../../../src/lib/marketplace/types';
 import type { eBayCredentials } from '../../../src/lib/marketplace/clients/ebay/types';
+import {
+  createMockEbayApiResponse,
+  createMockEbayEmptyResponse,
+  createMockEbayHttpResponse,
+} from '../../marketplace/test-utils';
 
 // Mock the rate limiter
 vi.mock('../../../src/lib/marketplace/rate-limiter', () => ({
@@ -46,54 +51,21 @@ describe('eBayClient', () => {
         limit: 10,
       };
 
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          findItemsAdvancedResponse: [
-            {
-              searchResult: {
-                '@count': '1',
-                item: [
-                  {
-                    itemId: ['123456789'],
-                    title: ['Vintage Watch'],
-                    viewItemURL: ['https://ebay.com/itm/123456789'],
-                    sellingStatus: [
-                      {
-                        currentPrice: [
-                          {
-                            '@currencyId': 'USD',
-                            __value__: '99.99',
-                          },
-                        ],
-                        listingStatus: ['Active'],
-                      },
-                    ],
-                    condition: [
-                      {
-                        conditionDisplayName: ['Used'],
-                      },
-                    ],
-                    sellerInfo: [
-                      {
-                        sellerUserName: ['test-seller'],
-                        positiveFeedbackPercent: ['98.5'],
-                      },
-                    ],
-                    galleryURL: ['https://example.com/image.jpg'],
-                    categoryName: ['Watches'],
-                  },
-                ],
-              },
-              paginationOutput: {
-                totalPages: ['1'],
-                totalEntries: ['1'],
-                pageNumber: ['1'],
-              },
-            },
-          ],
-        }),
-      } as unknown as Response;
+      const mockResponse = createMockEbayHttpResponse(
+        createMockEbayApiResponse({
+          itemId: '123456789',
+          title: 'Vintage Watch',
+          price: 99.99,
+          currency: 'USD',
+          viewItemURL: 'https://ebay.com/itm/123456789',
+          condition: 'Used',
+          sellerName: 'test-seller',
+          sellerRating: '98.5',
+          galleryURL: 'https://example.com/image.jpg',
+          categoryName: 'Watches',
+          listingStatus: 'Active',
+        })
+      );
 
       vi.mocked(mockHttpClient.fetch).mockResolvedValue(mockResponse);
 
@@ -112,11 +84,7 @@ describe('eBayClient', () => {
         keywords: ['test'],
       };
 
-      const mockResponse = {
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-      } as Response;
+      const mockResponse = createMockEbayHttpResponse({}, false, 400);
 
       vi.mocked(mockHttpClient.fetch).mockResolvedValue(mockResponse);
 
@@ -145,24 +113,7 @@ describe('eBayClient', () => {
         offset: 10,
       };
 
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          findItemsAdvancedResponse: [
-            {
-              searchResult: {
-                '@count': '0',
-                item: [],
-              },
-              paginationOutput: {
-                totalPages: ['0'],
-                totalEntries: ['0'],
-                pageNumber: ['1'],
-              },
-            },
-          ],
-        }),
-      } as unknown as Response;
+      const mockResponse = createMockEbayHttpResponse(createMockEbayEmptyResponse());
 
       vi.mocked(mockHttpClient.fetch).mockResolvedValue(mockResponse);
 
@@ -180,49 +131,21 @@ describe('eBayClient', () => {
     it('should get item by ID successfully', async () => {
       const itemId = '123456789';
 
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          findItemsAdvancedResponse: [
-            {
-              searchResult: {
-                '@count': '1',
-                item: [
-                  {
-                    itemId: ['123456789'],
-                    title: ['Test Product'],
-                    viewItemURL: ['https://ebay.com/itm/123456789'],
-                    sellingStatus: [
-                      {
-                        currentPrice: [
-                          {
-                            '@currencyId': 'USD',
-                            __value__: '149.99',
-                          },
-                        ],
-                        listingStatus: ['Active'],
-                      },
-                    ],
-                    condition: [
-                      {
-                        conditionDisplayName: ['New'],
-                      },
-                    ],
-                    sellerInfo: [
-                      {
-                        sellerUserName: ['test-seller'],
-                        positiveFeedbackPercent: ['99.0'],
-                      },
-                    ],
-                    galleryURL: ['https://example.com/image.jpg'],
-                    categoryName: ['Electronics'],
-                  },
-                ],
-              },
-            },
-          ],
-        }),
-      } as unknown as Response;
+      const mockResponse = createMockEbayHttpResponse(
+        createMockEbayApiResponse({
+          itemId: '123456789',
+          title: 'Test Product',
+          price: 149.99,
+          currency: 'USD',
+          viewItemURL: 'https://ebay.com/itm/123456789',
+          condition: 'New',
+          sellerName: 'test-seller',
+          sellerRating: '99.0',
+          galleryURL: 'https://example.com/image.jpg',
+          categoryName: 'Electronics',
+          listingStatus: 'Active',
+        })
+      );
 
       vi.mocked(mockHttpClient.fetch).mockResolvedValue(mockResponse);
 
@@ -244,19 +167,7 @@ describe('eBayClient', () => {
     it('should return null when item not found', async () => {
       const itemId = '123456789';
 
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          findItemsAdvancedResponse: [
-            {
-              searchResult: {
-                '@count': '0',
-                item: [],
-              },
-            },
-          ],
-        }),
-      } as unknown as Response;
+      const mockResponse = createMockEbayHttpResponse(createMockEbayEmptyResponse());
 
       vi.mocked(mockHttpClient.fetch).mockResolvedValue(mockResponse);
 
@@ -268,12 +179,7 @@ describe('eBayClient', () => {
     it('should handle API errors', async () => {
       const itemId = '123456789';
 
-      const mockResponse = {
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-        text: vi.fn().mockResolvedValue('Server error'),
-      } as unknown as Response;
+      const mockResponse = createMockEbayHttpResponse('Server error', false, 500);
 
       vi.mocked(mockHttpClient.fetch).mockResolvedValue(mockResponse);
 

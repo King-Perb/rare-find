@@ -55,34 +55,104 @@ export function useEvaluation(): UseEvaluationReturn {
     listing: null,
   });
 
-  const evaluateListing = useCallback(async (url: string) => {
-    // Validate URL format
+  // Helper function to validate URL
+  const validateUrl = useCallback((url: string): { valid: boolean; error: string | null } => {
     if (!url || typeof url !== 'string' || url.trim().length === 0) {
-      setState((prev) => ({
-        ...prev,
-        isLoading: false,
-        error: 'Please provide a valid URL',
-        result: null,
-        listing: null,
-      }));
-      return;
+      return { valid: false, error: 'Please provide a valid URL' };
     }
 
-    // Check if URL is from a supported marketplace
     const trimmedUrl = url.trim();
     const isAmazon = trimmedUrl.includes('amazon.');
     const isEbay = trimmedUrl.includes('ebay.');
 
     if (!isAmazon && !isEbay) {
+      return { valid: false, error: 'Please provide an Amazon or eBay listing URL' };
+    }
+
+    return { valid: true, error: null };
+  }, []);
+
+  // Helper function to extract error message from middleware error format
+  const extractMiddlewareErrorMessage = useCallback((data: unknown): string | null => {
+    if (!data || typeof data !== 'object' || !('error' in data)) {
+      return null;
+    }
+    const errorObj = (data as { error: unknown }).error;
+    if (typeof errorObj === 'object' && errorObj !== null && 'message' in errorObj) {
+      return String(errorObj.message);
+    }
+    if (typeof errorObj === 'string') {
+      return errorObj;
+    }
+    return null;
+  }, []);
+
+  // Helper function to handle HTTP error responses
+  const handleHttpError = useCallback((data: unknown, response: Response): never => {
+    const middlewareError = extractMiddlewareErrorMessage(data);
+    if (middlewareError) {
+      // Using TypeError since this error occurs after type checking in extractMiddlewareErrorMessage
+      throw new TypeError(middlewareError);
+    }
+    if (data && typeof data === 'object' && 'success' in data && (data as { success: unknown }).success === false) {
+      const errorData = data as EvaluateListingError;
+      throw new Error(errorData.error || `Evaluation failed: ${response.statusText}`);
+    }
+    throw new TypeError(`Evaluation failed: ${response.statusText}`);
+  }, [extractMiddlewareErrorMessage]);
+
+  // Helper function to parse API response
+  // Note: This function throws errors for all error cases, so it only returns EvaluateListingResponse
+  const parseApiResponse = useCallback(async (response: Response): Promise<EvaluateListingResponse> => {
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
+      throw new Error(`Failed to parse API response: ${response.statusText || 'Unknown error'}. Parse error: ${errorMessage}`);
+    }
+
+    // Check if response is an HTTP error
+    if (!response.ok) {
+      handleHttpError(data, response);
+    }
+
+    // Check for success response
+    if (!data.success) {
+      const errorData = data as EvaluateListingError;
+      throw new Error(errorData.error || 'Evaluation failed');
+    }
+
+    return data as EvaluateListingResponse;
+  }, [handleHttpError]);
+
+  // Helper function to log error in development
+  const logErrorInDev = useCallback((error: unknown) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[use-evaluation] Caught error:', error);
+      console.log('[use-evaluation] Error type:', typeof error);
+      console.log('[use-evaluation] Error is Error instance:', error instanceof Error);
+      if (error instanceof Error) {
+        console.log('[use-evaluation] Error message:', error.message);
+      }
+    }
+  }, []);
+
+  const evaluateListing = useCallback(async (url: string) => {
+    // Validate URL format
+    const validation = validateUrl(url);
+    if (!validation.valid) {
       setState((prev) => ({
         ...prev,
         isLoading: false,
-        error: 'Please provide an Amazon or eBay listing URL',
+        error: validation.error,
         result: null,
         listing: null,
       }));
       return;
     }
+
+    const trimmedUrl = url.trim();
 
     // Set loading state
     setState((prev) => ({
@@ -109,44 +179,10 @@ export function useEvaluation(): UseEvaluationReturn {
         body: JSON.stringify(request),
       });
 
-      // Parse response - handle JSON parsing errors
-      let data;
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        // If JSON parsing fails, throw a more descriptive error
-        throw new Error(`Failed to parse API response: ${response.statusText || 'Unknown error'}`);
-      }
-
-      // Check if response is an error (from middleware formatErrorResponse)
-      if (!response.ok) {
-        // Handle middleware error format: { error: { message: string, code?: string, ... } }
-        if (data && typeof data === 'object' && 'error' in data) {
-          const errorObj = data.error;
-          if (typeof errorObj === 'object' && errorObj !== null && 'message' in errorObj) {
-            throw new Error(String(errorObj.message));
-          }
-          if (typeof errorObj === 'string') {
-            throw new Error(errorObj);
-          }
-        }
-        // Handle EvaluateListingError format: { success: false, error: string }
-        if (data && typeof data === 'object' && 'success' in data && data.success === false) {
-          const errorData = data as EvaluateListingError;
-          throw new Error(errorData.error || `Evaluation failed: ${response.statusText}`);
-        }
-        // Fallback
-        throw new Error(`Evaluation failed: ${response.statusText}`);
-      }
-
-      // Check for success response
-      if (!data.success) {
-        const errorData = data as EvaluateListingError;
-        throw new Error(errorData.error || 'Evaluation failed');
-      }
+      // Parse and validate response
+      const successData = await parseApiResponse(response);
 
       // Success - update state with results
-      const successData = data as EvaluateListingResponse;
       setState({
         isLoading: false,
         error: null,
@@ -155,15 +191,7 @@ export function useEvaluation(): UseEvaluationReturn {
       });
     } catch (error: unknown) {
       // Handle errors - use getErrorMessage for consistent error extraction
-      // Debug: Log the error to see what we're receiving
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[use-evaluation] Caught error:', error);
-        console.log('[use-evaluation] Error type:', typeof error);
-        console.log('[use-evaluation] Error is Error instance:', error instanceof Error);
-        if (error instanceof Error) {
-          console.log('[use-evaluation] Error message:', error.message);
-        }
-      }
+      logErrorInDev(error);
 
       // Type assertion for getErrorMessage - it handles unknown types
       const errorMessage = getErrorMessage(error as string | null | Error | Record<string, unknown>) || 'An unexpected error occurred during evaluation';
@@ -185,7 +213,7 @@ export function useEvaluation(): UseEvaluationReturn {
         listing: null,
       }));
     }
-  }, []);
+  }, [validateUrl, parseApiResponse, logErrorInDev]);
 
   const setMockData = useCallback((result: EvaluationResult, listing: MarketplaceListing) => {
     setState({

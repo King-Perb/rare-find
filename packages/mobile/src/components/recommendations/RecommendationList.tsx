@@ -6,7 +6,7 @@ import { useState } from 'react';
 interface RecommendationListProps {
     data: { recommendation: Recommendation; listing: Listing }[];
     onRecommendationPress: (id: string) => void;
-    onRefresh?: () => void;
+    onRefresh?: () => void | Promise<void>;
 }
 
 export const RecommendationList = ({ data, onRecommendationPress, onRefresh }: RecommendationListProps) => {
@@ -15,8 +15,15 @@ export const RecommendationList = ({ data, onRecommendationPress, onRefresh }: R
     const handleRefresh = async () => {
         if (onRefresh) {
             setRefreshing(true);
-            await onRefresh();
-            setRefreshing(false);
+            try {
+                const result = onRefresh();
+                // Only await if result is actually a Promise
+                if (result && typeof result === 'object' && 'then' in result && typeof result.then === 'function') {
+                    await result;
+                }
+            } finally {
+                setRefreshing(false);
+            }
         }
     };
 

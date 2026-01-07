@@ -223,9 +223,10 @@ export class RapidAPIAmazonClient {
     if (!priceStr) return 0;
 
     // Remove currency symbols, commas, and whitespace, then parse
-    const cleaned = priceStr.replace(/[$,\s]/g, '');
-    const price = parseFloat(cleaned);
-    return isNaN(price) ? 0 : price;
+    // Using replaceAll() with string patterns (ES2021+) instead of replace() with regex
+    const cleaned = priceStr.replaceAll('$', '').replaceAll(',', '').replaceAll(' ', '').replaceAll('\t', '').replaceAll('\n', '').replaceAll('\r', '');
+    const price = Number.parseFloat(cleaned);
+    return Number.isNaN(price) ? 0 : price;
   }
 
   /**
@@ -235,10 +236,11 @@ export class RapidAPIAmazonClient {
     if (!ratingStr) return undefined;
 
     // Extract number from "4.5 out of 5 stars" or "4.5"
-    const match = ratingStr.match(/(\d+\.?\d*)/);
+    const ratingPattern = /(\d+\.?\d*)/;
+    const match = ratingPattern.exec(ratingStr);
     if (match) {
-      const rating = parseFloat(match[1]);
-      return isNaN(rating) ? undefined : rating;
+      const rating = Number.parseFloat(match[1]);
+      return Number.isNaN(rating) ? undefined : rating;
     }
     return undefined;
   }

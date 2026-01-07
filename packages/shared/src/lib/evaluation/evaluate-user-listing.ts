@@ -116,6 +116,61 @@ function buildResponsesInput(
 }
 
 /**
+ * Extract citations from annotations
+ */
+function extractCitationsFromAnnotations(annotations: unknown[]): WebSearchCitation[] {
+  const citations: WebSearchCitation[] = [];
+  for (const annotation of annotations) {
+    if (
+      typeof annotation === 'object' &&
+      annotation !== null &&
+      'type' in annotation &&
+      annotation.type === 'url_citation' &&
+      'url' in annotation &&
+      'title' in annotation &&
+      'start_index' in annotation &&
+      'end_index' in annotation
+    ) {
+      const citation = annotation as {
+        type: 'url_citation';
+        url: string;
+        title: string;
+        start_index: number;
+        end_index: number;
+      };
+      citations.push({
+        url: citation.url,
+        title: citation.title,
+        startIndex: citation.start_index,
+        endIndex: citation.end_index,
+      });
+    }
+  }
+  return citations;
+}
+
+/**
+ * Extract citations from content parts
+ */
+function extractCitationsFromContent(content: unknown[]): WebSearchCitation[] {
+  const citations: WebSearchCitation[] = [];
+  for (const contentPart of content) {
+    if (
+      typeof contentPart === 'object' &&
+      contentPart !== null &&
+      'type' in contentPart &&
+      contentPart.type === 'output_text' &&
+      'annotations' in contentPart &&
+      Array.isArray(contentPart.annotations)
+    ) {
+      const partCitations = extractCitationsFromAnnotations(contentPart.annotations);
+      citations.push(...partCitations);
+    }
+  }
+  return citations;
+}
+
+/**
  * Extract web search usage information from OpenAI Responses API response
  *
  * The Responses API includes information about tool usage in the output array.
@@ -129,31 +184,20 @@ function extractWebSearchInfo(response: OpenAI.Responses.Response): {
   let webSearchUsed = false;
 
   // Check the output array for web search calls and message annotations
-  if (response.output && Array.isArray(response.output)) {
-    for (const outputItem of response.output) {
-      // Check for web_search_call type items
-      if (outputItem.type === 'web_search_call') {
-        webSearchUsed = true;
-      }
+  if (!response.output || !Array.isArray(response.output)) {
+    return { webSearchUsed, citations };
+  }
 
-      // Check for message items with annotations (citations)
-      if (outputItem.type === 'message' && outputItem.content) {
-        for (const contentPart of outputItem.content) {
-          // Check for output_text with annotations
-          if (contentPart.type === 'output_text' && contentPart.annotations) {
-            for (const annotation of contentPart.annotations) {
-              if (annotation.type === 'url_citation') {
-                citations.push({
-                  url: annotation.url,
-                  title: annotation.title,
-                  startIndex: annotation.start_index,
-                  endIndex: annotation.end_index,
-                });
-              }
-            }
-          }
-        }
-      }
+  for (const outputItem of response.output) {
+    // Check for web_search_call type items
+    if (outputItem.type === 'web_search_call') {
+      webSearchUsed = true;
+    }
+
+    // Check for message items with annotations (citations)
+    if (outputItem.type === 'message' && outputItem.content && Array.isArray(outputItem.content)) {
+      const partCitations = extractCitationsFromContent(outputItem.content);
+      citations.push(...partCitations);
     }
   }
 

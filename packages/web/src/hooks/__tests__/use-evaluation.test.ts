@@ -5,27 +5,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useEvaluation } from '@/hooks/use-evaluation';
-import type { EvaluationResult } from '@/lib/ai/types';
-import type { MarketplaceListing } from '@/lib/marketplace/types';
-
-// Helper to create mock EvaluationResult
-function createMockEvaluationResult(overrides?: Partial<EvaluationResult>): EvaluationResult {
-  return {
-    evaluation: {
-      estimatedMarketValue: 120,
-      undervaluationPercentage: 20,
-      confidenceScore: 85,
-      reasoning: 'Good deal',
-      factors: [],
-      isReplicaOrNovelty: false,
-    },
-    modelVersion: 'gpt-4o',
-    promptVersion: '1.0',
-    evaluationMode: 'multimodal',
-    evaluatedAt: new Date(),
-    ...overrides,
-  };
-}
+import {
+  createSampleListing,
+  createSampleEvaluationResult,
+  createMockEvaluationResponse,
+  createMockEvaluationErrorResponse,
+  createMockFetchResponse,
+} from '@/lib/services/__tests__/test-utils';
 
 // Mock fetch globally
 globalThis.fetch = vi.fn();
@@ -127,28 +113,16 @@ describe('useEvaluation', () => {
     });
 
     it('should accept Amazon URL', async () => {
-      const mockListing: MarketplaceListing = {
-        id: '1',
+      const mockListing = createSampleListing({
         marketplace: 'amazon',
         marketplaceId: 'B123',
-        title: 'Test Item',
-        price: 100,
-        currency: 'USD',
-        images: [],
         listingUrl: 'https://amazon.com/dp/B123',
-        available: true,
-      };
+      });
+      const mockResult = createSampleEvaluationResult();
 
-      const mockResult = createMockEvaluationResult();
-
-      vi.mocked(globalThis.fetch).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          result: mockResult,
-          listing: mockListing,
-        }),
-      } as Response);
+      vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+        createMockEvaluationResponse(mockResult, mockListing)
+      );
 
       const { result } = renderHook(() => useEvaluation());
 
@@ -173,28 +147,16 @@ describe('useEvaluation', () => {
     });
 
     it('should accept eBay URL', async () => {
-      const mockListing: MarketplaceListing = {
-        id: '1',
+      const mockListing = createSampleListing({
         marketplace: 'ebay',
         marketplaceId: '123',
-        title: 'Test Item',
-        price: 100,
-        currency: 'USD',
-        images: [],
         listingUrl: 'https://ebay.com/itm/123',
-        available: true,
-      };
+      });
+      const mockResult = createSampleEvaluationResult();
 
-      const mockResult = createMockEvaluationResult();
-
-      vi.mocked(globalThis.fetch).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          result: mockResult,
-          listing: mockListing,
-        }),
-      } as Response);
+      vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+        createMockEvaluationResponse(mockResult, mockListing)
+      );
 
       const { result } = renderHook(() => useEvaluation());
 
@@ -219,28 +181,16 @@ describe('useEvaluation', () => {
     });
 
     it('should trim URL whitespace', async () => {
-      const mockListing: MarketplaceListing = {
-        id: '1',
+      const mockListing = createSampleListing({
         marketplace: 'amazon',
         marketplaceId: 'B123',
-        title: 'Test Item',
-        price: 100,
-        currency: 'USD',
-        images: [],
         listingUrl: 'https://amazon.com/dp/B123',
-        available: true,
-      };
+      });
+      const mockResult = createSampleEvaluationResult();
 
-      const mockResult = createMockEvaluationResult();
-
-      vi.mocked(globalThis.fetch).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          result: mockResult,
-          listing: mockListing,
-        }),
-      } as Response);
+      vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+        createMockEvaluationResponse(mockResult, mockListing)
+      );
 
       const { result } = renderHook(() => useEvaluation());
 
@@ -267,19 +217,12 @@ describe('useEvaluation', () => {
 
   describe('evaluateListing - loading state', () => {
     it('should set loading state during evaluation', async () => {
-      const mockListing: MarketplaceListing = {
-        id: '1',
+      const mockListing = createSampleListing({
         marketplace: 'amazon',
         marketplaceId: 'B123',
-        title: 'Test Item',
-        price: 100,
-        currency: 'USD',
-        images: [],
         listingUrl: 'https://amazon.com/dp/B123',
-        available: true,
-      };
-
-      const mockResult = createMockEvaluationResult();
+      });
+      const mockResult = createSampleEvaluationResult();
 
       let resolvePromise: (value: Response) => void;
       const promise = new Promise<Response>((resolve) => {
@@ -300,14 +243,7 @@ describe('useEvaluation', () => {
       expect(result.current.error).toBeNull();
 
       // Resolve the fetch
-      resolvePromise!({
-        ok: true,
-        json: async () => ({
-          success: true,
-          result: mockResult,
-          listing: mockListing,
-        }),
-      } as Response);
+      resolvePromise!(createMockEvaluationResponse(mockResult, mockListing));
 
       await act(async () => {
         await evaluatePromise;
@@ -330,28 +266,16 @@ describe('useEvaluation', () => {
       });
 
       // Then start a valid evaluation
-      const mockListing: MarketplaceListing = {
-        id: '1',
+      const mockListing = createSampleListing({
         marketplace: 'amazon',
         marketplaceId: 'B123',
-        title: 'Test Item',
-        price: 100,
-        currency: 'USD',
-        images: [],
         listingUrl: 'https://amazon.com/dp/B123',
-        available: true,
-      };
+      });
+      const mockResult = createSampleEvaluationResult();
 
-      const mockResult = createMockEvaluationResult();
-
-      vi.mocked(globalThis.fetch).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          result: mockResult,
-          listing: mockListing,
-        }),
-      } as Response);
+      vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+        createMockEvaluationResponse(mockResult, mockListing)
+      );
 
       await act(async () => {
         await result.current.evaluateListing('https://amazon.com/dp/B123');
@@ -365,19 +289,13 @@ describe('useEvaluation', () => {
 
   describe('evaluateListing - success handling', () => {
     it('should handle successful evaluation', async () => {
-      const mockListing: MarketplaceListing = {
-        id: '1',
+      const mockListing = createSampleListing({
         marketplace: 'amazon',
         marketplaceId: 'B123',
-        title: 'Test Item',
-        price: 100,
-        currency: 'USD',
         images: ['image1.jpg'],
         listingUrl: 'https://amazon.com/dp/B123',
-        available: true,
-      };
-
-      const mockResult = createMockEvaluationResult({
+      });
+      const mockResult = createSampleEvaluationResult({
         evaluation: {
           estimatedMarketValue: 120,
           undervaluationPercentage: 20,
@@ -388,14 +306,9 @@ describe('useEvaluation', () => {
         },
       });
 
-      vi.mocked(globalThis.fetch).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          result: mockResult,
-          listing: mockListing,
-        }),
-      } as Response);
+      vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+        createMockEvaluationResponse(mockResult, mockListing)
+      );
 
       const { result } = renderHook(() => useEvaluation());
 
@@ -431,16 +344,9 @@ describe('useEvaluation', () => {
     });
 
     it('should handle non-OK response with error object', async () => {
-      vi.mocked(globalThis.fetch).mockResolvedValueOnce({
-        ok: false,
-        statusText: 'Bad Request',
-        json: async () => ({
-          error: {
-            message: 'Invalid listing URL',
-            code: 'VALIDATION_ERROR',
-          },
-        }),
-      } as Response);
+      vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+        createMockEvaluationErrorResponse({ message: 'Invalid listing URL', code: 'VALIDATION_ERROR' })
+      );
 
       const { result } = renderHook(() => useEvaluation());
 
@@ -455,13 +361,9 @@ describe('useEvaluation', () => {
     });
 
     it('should handle non-OK response with error string', async () => {
-      vi.mocked(globalThis.fetch).mockResolvedValueOnce({
-        ok: false,
-        statusText: 'Bad Request',
-        json: async () => ({
-          error: 'Invalid listing URL',
-        }),
-      } as Response);
+      vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+        createMockEvaluationErrorResponse('Invalid listing URL')
+      );
 
       const { result } = renderHook(() => useEvaluation());
 
@@ -476,14 +378,9 @@ describe('useEvaluation', () => {
     });
 
     it('should handle non-OK response with EvaluateListingError format', async () => {
-      vi.mocked(globalThis.fetch).mockResolvedValueOnce({
-        ok: false,
-        statusText: 'Bad Request',
-        json: async () => ({
-          success: false,
-          error: 'Evaluation failed',
-        }),
-      } as Response);
+      vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+        createMockEvaluationErrorResponse('Evaluation failed')
+      );
 
       const { result } = renderHook(() => useEvaluation());
 
@@ -517,13 +414,12 @@ describe('useEvaluation', () => {
     });
 
     it('should handle success: false in response', async () => {
-      vi.mocked(globalThis.fetch).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+        createMockFetchResponse({
           success: false,
           error: 'Evaluation failed',
-        }),
-      } as Response);
+        })
+      );
 
       const { result } = renderHook(() => useEvaluation());
 
@@ -561,19 +457,12 @@ describe('useEvaluation', () => {
 
   describe('setMockData', () => {
     it('should set mock evaluation data', () => {
-      const mockListing: MarketplaceListing = {
-        id: '1',
+      const mockListing = createSampleListing({
         marketplace: 'amazon',
         marketplaceId: 'B123',
-        title: 'Test Item',
-        price: 100,
-        currency: 'USD',
-        images: [],
         listingUrl: 'https://amazon.com/dp/B123',
-        available: true,
-      };
-
-      const mockResult = createMockEvaluationResult();
+      });
+      const mockResult = createSampleEvaluationResult();
 
       const { result } = renderHook(() => useEvaluation());
 
@@ -601,19 +490,12 @@ describe('useEvaluation', () => {
       });
 
       // Then set mock data
-      const mockListing: MarketplaceListing = {
-        id: '1',
+      const mockListing = createSampleListing({
         marketplace: 'amazon',
         marketplaceId: 'B123',
-        title: 'Test Item',
-        price: 100,
-        currency: 'USD',
-        images: [],
         listingUrl: 'https://amazon.com/dp/B123',
-        available: true,
-      };
-
-      const mockResult = createMockEvaluationResult();
+      });
+      const mockResult = createSampleEvaluationResult();
 
       act(() => {
         result.current.setMockData(mockResult, mockListing);
@@ -625,19 +507,12 @@ describe('useEvaluation', () => {
 
   describe('reset', () => {
     it('should reset all state to initial values', async () => {
-      const mockListing: MarketplaceListing = {
-        id: '1',
+      const mockListing = createSampleListing({
         marketplace: 'amazon',
         marketplaceId: 'B123',
-        title: 'Test Item',
-        price: 100,
-        currency: 'USD',
-        images: [],
         listingUrl: 'https://amazon.com/dp/B123',
-        available: true,
-      };
-
-      const mockResult = createMockEvaluationResult();
+      });
+      const mockResult = createSampleEvaluationResult();
 
       const { result } = renderHook(() => useEvaluation());
 

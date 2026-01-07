@@ -165,10 +165,10 @@ try {
       )
     ),
     // Use safe default PATH (system directories only) to prevent PATH injection
-    PATH: process.env.PATH || (process.platform === 'win32'
+    // Never use process.env.PATH as it may contain user-writable directories
+    PATH: process.platform === 'win32'
       ? String.raw`C:\Windows\System32;C:\Windows;C:\Windows\System32\WindowsPowerShell\v1.0`
-      : '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
-    ),
+      : '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin',
     SUPABASE_ACCESS_TOKEN: cleanToken
   };
 

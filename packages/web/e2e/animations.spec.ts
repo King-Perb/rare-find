@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
 /**
  * E2E Tests for Page Load Animations
@@ -11,6 +12,98 @@ import { test, expect } from '@playwright/test';
  * - Animation completion within 1 second
  * - 60fps performance
  */
+
+// RegExp patterns for SVG element identification
+const CIRCLE_CLUSTER_PATTERN = /<circle[^>]*r="[34]0"/;
+const FLOATING_DOTS_PATTERN = /<circle[^>]*r="[345]"/;
+const MATRIX_PATTERN = /matrix\(([^)]+)\)/;
+
+/**
+ * Identify SVG element type from its content
+ */
+function identifyElementType(svgContent: string): string {
+  if (svgContent.includes('M300,100 C400,50')) return 'GradientBlob';
+  if (CIRCLE_CLUSTER_PATTERN.exec(svgContent)) return 'CircleCluster';
+  if (FLOATING_DOTS_PATTERN.exec(svgContent)) return 'FloatingDots';
+  if (svgContent.includes('cx="11"') && svgContent.includes('cy="11"')) return 'MagnifyingGlass';
+  if (svgContent.includes('M20.59 13.41')) return 'PriceTag';
+  if (svgContent.includes('M12 2l2.4 7.2')) return 'Sparkle';
+  return 'Unknown';
+}
+
+/**
+ * Check if bounding box is within viewport
+ */
+function isInViewport(
+  boundingBox: { x: number; y: number; width: number; height: number } | null,
+  viewportSize: { width: number; height: number } | null
+): boolean {
+  if (!boundingBox || !viewportSize) return false;
+  return (
+    boundingBox.x + boundingBox.width > 0 &&
+    boundingBox.y + boundingBox.height > 0 &&
+    boundingBox.x < viewportSize.width &&
+    boundingBox.y < viewportSize.height
+  );
+}
+
+/**
+ * Check if element intersects with viewport
+ */
+function intersectsViewport(
+  boundingBox: { x: number; y: number; width: number; height: number },
+  viewportWidth: number,
+  viewportHeight: number
+): boolean {
+  const { x, y, width, height } = boundingBox;
+  return (
+    x < viewportWidth &&
+    y < viewportHeight &&
+    x + width > 0 &&
+    y + height > 0
+  );
+}
+
+/**
+ * Helper functions for reduced motion tests (extracted to module level to reduce nesting)
+ */
+const emptyFunction = () => {};
+const createMediaQueryList = (matches: boolean, query: string) => ({
+  matches,
+  media: query,
+  onchange: null,
+  addListener: emptyFunction,
+  removeListener: emptyFunction,
+  addEventListener: emptyFunction,
+  removeEventListener: emptyFunction,
+  dispatchEvent: () => true,
+});
+
+const createReducedMotionMedia = (query: string) => createMediaQueryList(true, query);
+
+const createMatchMediaHandler = (originalMatchMedia: typeof globalThis.matchMedia) => {
+  return (query: string) => {
+    if (query === '(prefers-reduced-motion: reduce)') {
+      return createReducedMotionMedia(query);
+    }
+    return originalMatchMedia(query);
+  };
+};
+
+/**
+ * Analyze SVG element visibility
+ */
+async function analyzeSvgVisibility(
+  svg: Locator,
+  page: Page
+): Promise<{ isVisible: boolean; boundingBox: { x: number; y: number; width: number; height: number } | null; inViewport: boolean }> {
+  const isVisible = await svg.isVisible().catch(() => false);
+  const boundingBox = await svg.boundingBox().catch(() => null);
+  const viewportSize = page.viewportSize();
+  const inViewport = isInViewport(boundingBox, viewportSize);
+  return { isVisible, boundingBox, inViewport };
+}
+
 test.describe('Page Load Animations', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to home page
@@ -506,29 +599,12 @@ test.describe('Parallax Background Effects', () => {
       const svg = container.locator('svg').first();
 
       // Check if element is visible and in viewport
-      const isVisible = await svg.isVisible().catch(() => false);
-      const boundingBox = await svg.boundingBox().catch(() => null);
-
-      // Check if bounding box is within viewport
-      const viewportSize = page.viewportSize();
-      const inViewport = boundingBox && viewportSize
-        ? boundingBox.x + boundingBox.width > 0 &&
-          boundingBox.y + boundingBox.height > 0 &&
-          boundingBox.x < viewportSize.width &&
-          boundingBox.y < viewportSize.height
-        : false;
-
+      const { isVisible, boundingBox, inViewport } = await analyzeSvgVisibility(svg, page);
       const actuallyVisible = isVisible && inViewport;
 
       // Try to identify element type by checking SVG content
       const svgContent = await svg.innerHTML().catch(() => '');
-      let elementType = 'Unknown';
-      if (svgContent.includes('M300,100 C400,50')) elementType = 'GradientBlob';
-      else if (svgContent.match(/<circle[^>]*r="[34]0"/)) elementType = 'CircleCluster';
-      else if (svgContent.match(/<circle[^>]*r="[345]"/)) elementType = 'FloatingDots';
-      else if (svgContent.includes('cx="11"') && svgContent.includes('cy="11"')) elementType = 'MagnifyingGlass';
-      else if (svgContent.includes('M20.59 13.41')) elementType = 'PriceTag';
-      else if (svgContent.includes('M12 2l2.4 7.2')) elementType = 'Sparkle';
+      const elementType = identifyElementType(svgContent);
 
       visibleElementInfo.push({
         type: elementType,
@@ -540,7 +616,9 @@ test.describe('Parallax Background Effects', () => {
         visibleElements++;
         console.log(`Visible: ${elementType} at (${boundingBox?.x}, ${boundingBox?.y}), size: ${boundingBox?.width}x${boundingBox?.height}`);
       } else {
-        console.log(`Not visible: ${elementType} - isVisible: ${isVisible}, inViewport: ${inViewport}, bounds: ${boundingBox ? `(${boundingBox.x}, ${boundingBox.y})` : 'null'}`);
+        const boundsStr = boundingBox ? `(${boundingBox.x}, ${boundingBox.y})` : 'null';
+        const visibilityInfo = `isVisible: ${isVisible}, inViewport: ${inViewport}`;
+        console.log(`Not visible: ${elementType} - ${visibilityInfo}, bounds: ${boundsStr}`);
       }
     }
 
@@ -548,7 +626,8 @@ test.describe('Parallax Background Effects', () => {
     console.log(`- Total containers: ${containerCount}`);
     console.log(`- Actually visible in viewport: ${visibleElements}`);
     visibleElementInfo.forEach((info, idx) => {
-      console.log(`  ${idx + 1}. ${info.type}: visible=${info.visible}, bounds=${info.bounds ? `(${info.bounds.x}, ${info.bounds.y}, ${info.bounds.width}x${info.bounds.height})` : 'null'}`);
+      const boundsStr = info.bounds ? `(${info.bounds.x}, ${info.bounds.y}, ${info.bounds.width}x${info.bounds.height})` : 'null';
+      console.log(`  ${idx + 1}. ${info.type}: visible=${info.visible}, bounds=${boundsStr}`);
     });
 
     // At least some elements should be visible
@@ -591,31 +670,21 @@ test.describe('Parallax Background Effects', () => {
 
       // Identify element type
       const svgContent = await svg.innerHTML().catch(() => '');
-      let elementType = 'Unknown';
-      if (svgContent.includes('M300,100 C400,50')) elementType = 'GradientBlob';
-      else if (svgContent.match(/<circle[^>]*r="[34]0"/)) elementType = 'CircleCluster';
-      else if (svgContent.match(/<circle[^>]*r="[345]"/)) elementType = 'FloatingDots';
-      else if (svgContent.includes('cx="11"') && svgContent.includes('cy="11"')) elementType = 'MagnifyingGlass';
-      else if (svgContent.includes('M20.59 13.41')) elementType = 'PriceTag';
-      else if (svgContent.includes('M12 2l2.4 7.2')) elementType = 'Sparkle';
+      const elementType = identifyElementType(svgContent);
 
       if (boundingBox) {
         // Check if element intersects with viewport
-        const { x, y, width, height } = boundingBox;
-        const intersectsViewport =
-          x < viewportWidth &&
-          y < viewportHeight &&
-          x + width > 0 &&
-          y + height > 0;
+        const intersects = intersectsViewport(boundingBox, viewportWidth, viewportHeight);
+        const position = `(${Math.round(boundingBox.x)}, ${Math.round(boundingBox.y)})`;
 
-        const position = `(${Math.round(x)}, ${Math.round(y)})`;
-
-        if (intersectsViewport && opacity > 0.05) {
+        if (intersects && opacity > 0.05) {
           visibleInViewport.push({ type: elementType, position, opacity });
-          console.log(`✓ Visible: ${elementType} at ${position}, opacity: ${opacity.toFixed(2)}`);
+          const opacityStr = opacity.toFixed(2);
+          console.log(`✓ Visible: ${elementType} at ${position}, opacity: ${opacityStr}`);
         } else {
           offScreen.push({ type: elementType, position });
-          console.log(`✗ Off-screen or too transparent: ${elementType} at ${position}, opacity: ${opacity.toFixed(2)}`);
+          const opacityStr = opacity.toFixed(2);
+          console.log(`✗ Off-screen or too transparent: ${elementType} at ${position}, opacity: ${opacityStr}`);
         }
       }
     }
@@ -663,19 +732,30 @@ test.describe('Parallax Background Effects', () => {
     expect(svgCount).toBeGreaterThan(0);
 
     // Check opacity of visible elements
-    let highOpacityCount = 0;
-    for (let i = 0; i < Math.min(svgCount, 5); i++) {
-      const svg = svgs.nth(i);
+    const checkElementOpacity = async (svg: Locator, index: number, viewportHeight: number): Promise<boolean> => {
       const opacity = await svg.evaluate((el) => {
         return Number.parseFloat(globalThis.getComputedStyle(el).opacity);
       }).catch(() => 0);
 
       const boundingBox = await svg.boundingBox().catch(() => null);
-      const inViewport = boundingBox && boundingBox.y < (page.viewportSize()?.height ?? 720);
+      const inViewport = boundingBox && boundingBox.y < viewportHeight;
 
       if (inViewport && opacity > 0.3) {
+        const boundsStr = boundingBox ? `(${boundingBox.x}, ${boundingBox.y})` : 'null';
+        const opacityStr = opacity.toFixed(2);
+        const elementNum = index + 1;
+        console.log(`High opacity element ${elementNum}: opacity=${opacityStr}, bounds=${boundsStr}`);
+        return true;
+      }
+      return false;
+    };
+
+    let highOpacityCount = 0;
+    const viewportHeight = page.viewportSize()?.height ?? 720;
+    for (let i = 0; i < Math.min(svgCount, 5); i++) {
+      const svg = svgs.nth(i);
+      if (await checkElementOpacity(svg, i, viewportHeight)) {
         highOpacityCount++;
-        console.log(`High opacity element ${i + 1}: opacity=${opacity.toFixed(2)}, bounds=${boundingBox ? `(${boundingBox.x}, ${boundingBox.y})` : 'null'}`);
       }
     }
 
@@ -697,22 +777,7 @@ test.describe('Parallax Background Effects', () => {
     // Set reduced motion preference
     await context.addInitScript(() => {
       const originalMatchMedia = globalThis.matchMedia;
-      const createReducedMotionMedia = (query: string) => ({
-        matches: true,
-        media: query,
-        onchange: null,
-        addListener: () => {},
-        removeListener: () => {},
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        dispatchEvent: () => true,
-      });
-      const matchMediaHandler = (query: string) => {
-        if (query === '(prefers-reduced-motion: reduce)') {
-          return createReducedMotionMedia(query);
-        }
-        return originalMatchMedia(query);
-      };
+      const matchMediaHandler = createMatchMediaHandler(originalMatchMedia);
       Object.defineProperty(globalThis, 'matchMedia', {
         writable: true,
         value: matchMediaHandler,
@@ -740,7 +805,7 @@ test.describe('Parallax Background Effects', () => {
       // Or if there's translation, it should be minimal (due to initial scroll position)
       console.log(`Transform with reduced motion: ${transform}`);
       // Extract translation values from matrix
-      const matrixMatch = transform.match(/matrix\(([^)]+)\)/);
+      const matrixMatch = MATRIX_PATTERN.exec(transform);
       if (matrixMatch) {
         const values = matrixMatch[1].split(',').map((v) => Number.parseFloat(v.trim()));
         // matrix(a, b, c, d, tx, ty) - tx and ty should be 0 or very close to 0

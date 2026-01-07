@@ -16,13 +16,13 @@ set -e
 PROJECT_ID="${SUPABASE_PROJECT_ID:-xabpmvuubgfjuroenxuq}"
 OUTPUT_FILE="src/lib/db/types.ts"
 
-if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
-  echo "❌ Error: SUPABASE_ACCESS_TOKEN environment variable is not set"
-  echo ""
-  echo "Please set it:"
-  echo "  export SUPABASE_ACCESS_TOKEN=your-token-here"
-  echo ""
-  echo "Or get a new token from: https://app.supabase.com/account/tokens"
+if [[ -z "$SUPABASE_ACCESS_TOKEN" ]]; then
+  echo "❌ Error: SUPABASE_ACCESS_TOKEN environment variable is not set" >&2
+  echo "" >&2
+  echo "Please set it:" >&2
+  echo "  export SUPABASE_ACCESS_TOKEN=your-token-here" >&2
+  echo "" >&2
+  echo "Or get a new token from: https://app.supabase.com/account/tokens" >&2
   exit 1
 fi
 
@@ -30,7 +30,7 @@ echo "🔧 Generating Supabase types for project: $PROJECT_ID..."
 
 npx supabase gen types typescript --project-id "$PROJECT_ID" > "$OUTPUT_FILE"
 
-if [ $? -eq 0 ]; then
+if [[ $? -eq 0 ]]; then
   echo "✅ Types generated successfully: $OUTPUT_FILE"
   echo ""
   echo "✨ Types are ready to use!"

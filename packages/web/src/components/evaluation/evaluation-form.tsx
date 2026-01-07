@@ -7,7 +7,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type { UseEvaluationReturn } from '@/hooks/use-evaluation';
 import { getErrorMessage } from '@/lib/errors';
 import { ErrorDisplay } from '@/components/ui/error-display';
@@ -57,50 +57,85 @@ export function EvaluationForm({
   const [shouldShake, setShouldShake] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
+  /**
+   * Trigger shake animation on error
+   */
+  const triggerShakeAnimation = () => {
+    if (!shouldReduceMotion) {
+      setShouldShake(true);
+      setTimeout(() => setShouldShake(false), 500);
+    }
+  };
+
+  /**
+   * Set error and trigger shake animation
+   */
+  const setErrorWithShake = (error: string) => {
+    setLocalError(error);
+    triggerShakeAnimation();
+  };
+
+  /**
+   * Validate URL format
+   */
+  const validateUrlFormat = (urlToValidate: string): string | null => {
+    if (!urlToValidate.trim()) {
+      return 'Please enter a URL';
+    }
+
+    try {
+      new URL(urlToValidate.trim());
+      return null;
+    } catch {
+      return 'Please enter a valid URL';
+    }
+  };
+
+  /**
+   * Validate URL using all validation methods
+   */
+  const validateUrl = (urlToValidate: string): string | null => {
+    // Basic format validation
+    const formatError = validateUrlFormat(urlToValidate);
+    if (formatError) return formatError;
+
+    // Custom validation if provided
+    if (onValidate) {
+      return onValidate(urlToValidate.trim());
+    }
+
+    return null;
+  };
+
+  /**
+   * Normalize error message to string
+   */
+  const normalizeErrorMessage = (): string | null => {
+    const message = getErrorMessage(localError) || getErrorMessage(evaluation.error);
+    if (!message) return null;
+
+    if (typeof message !== 'string') {
+      console.error('[evaluation-form] ERROR: displayError is not a string! Converting...', message);
+      const stringMessage = String(message);
+      return stringMessage === '[object Object]' ? 'An error occurred. Please try again.' : stringMessage;
+    }
+
+    return message;
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLocalError(null);
 
-    // Basic URL validation
-    if (!url.trim()) {
-      setLocalError('Please enter a URL');
-      // Trigger shake animation on error
-      if (!shouldReduceMotion) {
-        setShouldShake(true);
-        setTimeout(() => setShouldShake(false), 500);
-      }
+    const trimmedUrl = url.trim();
+    const validationError = validateUrl(trimmedUrl);
+
+    if (validationError) {
+      setErrorWithShake(validationError);
       return;
     }
 
-    // Validate URL format
-    try {
-      new URL(url.trim());
-    } catch {
-      setLocalError('Please enter a valid URL');
-      // Trigger shake animation on error
-      if (!shouldReduceMotion) {
-        setShouldShake(true);
-        setTimeout(() => setShouldShake(false), 500);
-      }
-      return;
-    }
-
-    // Custom validation if provided
-    if (onValidate) {
-      const customError = onValidate(url.trim());
-      if (customError) {
-        setLocalError(customError);
-        // Trigger shake animation on error
-        if (!shouldReduceMotion) {
-          setShouldShake(true);
-          setTimeout(() => setShouldShake(false), 500);
-        }
-        return;
-      }
-    }
-
-    // Submit evaluation
-    await evaluation.evaluateListing(url.trim());
+    await evaluation.evaluateListing(trimmedUrl);
   };
 
   const handleReset = () => {
@@ -109,17 +144,7 @@ export function EvaluationForm({
     evaluation.reset();
   };
 
-  let displayError = getErrorMessage(localError) || getErrorMessage(evaluation.error);
-
-  // Safety check: Ensure displayError is always a string (never an object)
-  if (displayError && typeof displayError !== 'string') {
-    console.error('[evaluation-form] ERROR: displayError is not a string! Converting...', displayError);
-    displayError = String(displayError);
-    // If it's still "[object Object]", use fallback
-    if (displayError === '[object Object]') {
-      displayError = 'An error occurred. Please try again.';
-    }
-  }
+  const displayError = normalizeErrorMessage();
 
   const isHero = variant === 'hero';
 
@@ -129,11 +154,81 @@ export function EvaluationForm({
   // Standard variant input classes with enhanced focus animation
   const standardInputClasses = "flex-1 px-4 py-2 border border-gray-300 rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-75 dark:bg-gray-800 dark:border-gray-600 dark:text-white";
 
-  // Hero variant button classes
-  const heroButtonClasses = "h-14 px-8 text-base font-semibold rounded-2xl bg-blue-600 text-white opacity-100 transition-all hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 disabled:bg-zinc-300 disabled:text-zinc-500 disabled:cursor-not-allowed dark:disabled:bg-zinc-700 dark:disabled:text-zinc-500 flex items-center justify-center gap-2 min-w-[160px] relative z-10";
+  /**
+   * Handle input change
+   */
+  const handleInputChange = (value: string) => {
+    setUrl(value);
+    setLocalError(null);
+  };
 
-  // Standard variant button classes
-  const standardButtonClasses = "px-6 py-2 bg-blue-600 text-white rounded-lg opacity-100 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors relative z-10";
+  /**
+   * Get input props common to both regular and motion inputs
+   */
+  const getInputProps = () => ({
+    id: 'listing-url' as const,
+    type: 'url' as const,
+    value: url,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e.target.value),
+    placeholder,
+    disabled: evaluation.isLoading,
+    className: isHero ? heroInputClasses : standardInputClasses,
+    'aria-invalid': displayError ? 'true' as const : 'false' as const,
+    'aria-describedby': displayError ? 'url-error' as const : undefined,
+  });
+
+  /**
+   * Render URL input with optional shake animation
+   */
+  const renderUrlInput = () => {
+    const inputProps = getInputProps();
+    const shouldAnimate = !shouldReduceMotion && shouldShake;
+
+    if (shouldAnimate) {
+      return (
+        <motion.input
+          {...inputProps}
+          animate={shouldShake ? 'shake' : 'normal'}
+          variants={shake}
+        />
+      );
+    }
+
+    return <input {...inputProps} />;
+  };
+
+  /**
+   * Render submit button based on variant
+   */
+  const renderSubmitButton = () => {
+    const commonProps = {
+      type: 'submit' as const,
+      disabled: evaluation.isLoading || !url.trim(),
+      isLoading: evaluation.isLoading,
+    };
+
+    if (isHero) {
+      return (
+        <AnimatedButton
+          {...commonProps}
+          loadingText="Analyzing..."
+          className="h-14 px-8 text-base font-semibold rounded-2xl min-w-[160px] opacity-100"
+        >
+          {submitText}
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </AnimatedButton>
+      );
+    }
+
+    return (
+      <AnimatedButton {...commonProps} loadingText="Evaluating...">
+        {submitText}
+      </AnimatedButton>
+    );
+  };
+
 
   return (
     <form onSubmit={handleSubmit} className={isHero ? "w-full max-w-2xl mt-4" : "w-full max-w-2xl space-y-4"}>
@@ -157,63 +252,9 @@ export function EvaluationForm({
                 </svg>
               </div>
             )}
-            {shouldReduceMotion || !shouldShake ? (
-              <input
-                id="listing-url"
-                type="url"
-                value={url}
-                onChange={(e) => {
-                  setUrl(e.target.value);
-                  setLocalError(null);
-                }}
-                placeholder={placeholder}
-                disabled={evaluation.isLoading}
-                className={isHero ? heroInputClasses : standardInputClasses}
-                aria-invalid={displayError ? 'true' : 'false'}
-                aria-describedby={displayError ? 'url-error' : undefined}
-              />
-            ) : (
-              <motion.input
-                id="listing-url"
-                type="url"
-                value={url}
-                onChange={(e) => {
-                  setUrl(e.target.value);
-                  setLocalError(null);
-                }}
-                placeholder={placeholder}
-                disabled={evaluation.isLoading}
-                className={isHero ? heroInputClasses : standardInputClasses}
-                aria-invalid={displayError ? 'true' : 'false'}
-                aria-describedby={displayError ? 'url-error' : undefined}
-                animate={shouldShake ? 'shake' : 'normal'}
-                variants={shake}
-              />
-            )}
+            {renderUrlInput()}
           </div>
-          {isHero ? (
-            <AnimatedButton
-              type="submit"
-              disabled={evaluation.isLoading || !url.trim()}
-              isLoading={evaluation.isLoading}
-              loadingText="Analyzing..."
-              className="h-14 px-8 text-base font-semibold rounded-2xl min-w-[160px] opacity-100"
-            >
-              {submitText}
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </AnimatedButton>
-          ) : (
-            <AnimatedButton
-              type="submit"
-              disabled={evaluation.isLoading || !url.trim()}
-              isLoading={evaluation.isLoading}
-              loadingText="Evaluating..."
-            >
-              {submitText}
-            </AnimatedButton>
-          )}
+          {renderSubmitButton()}
         </div>
         <ErrorDisplay
           error={displayError}

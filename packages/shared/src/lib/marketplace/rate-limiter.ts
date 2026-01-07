@@ -22,7 +22,7 @@ interface TokenBucket {
 }
 
 class MarketplaceRateLimiter {
-  private buckets: Map<RateLimitSource, TokenBucket> = new Map();
+  private readonly buckets: Map<RateLimitSource, TokenBucket> = new Map();
 
   constructor() {
     // Initialize token buckets for each marketplace/API source
@@ -123,9 +123,7 @@ let rateLimiterInstance: MarketplaceRateLimiter | null = null;
  * Get the rate limiter instance
  */
 export function getRateLimiter(): MarketplaceRateLimiter {
-  if (!rateLimiterInstance) {
-    rateLimiterInstance = new MarketplaceRateLimiter();
-  }
+  rateLimiterInstance ??= new MarketplaceRateLimiter();
   return rateLimiterInstance;
 }
 

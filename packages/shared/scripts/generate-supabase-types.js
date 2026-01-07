@@ -13,7 +13,7 @@
  */
 
 import { config } from 'dotenv';
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -88,7 +88,18 @@ try {
   // Trim token in case there's whitespace in .env file
   // Remove quotes from start and end if present, and any newlines/carriage returns
   // Also remove any trailing non-hex characters (tokens should be sbp_ + hex only)
-  let cleanToken = accessToken.trim().replaceAll(/(^["']+)|(["']+$)/g, '').replaceAll(/\r?\n/g, '').trim();
+  let cleanToken = accessToken.trim();
+
+  // Remove quotes from start and end (safer than regex to avoid ReDoS)
+  while ((cleanToken.startsWith('"') || cleanToken.startsWith("'")) && cleanToken.length > 0) {
+    cleanToken = cleanToken.substring(1);
+  }
+  while ((cleanToken.endsWith('"') || cleanToken.endsWith("'")) && cleanToken.length > 0) {
+    cleanToken = cleanToken.slice(0, -1);
+  }
+
+  // Remove newlines/carriage returns
+  cleanToken = cleanToken.replaceAll(/\r?\n/g, '').trim();
 
   // Remove any trailing non-hex characters after sbp_ prefix
   // Token format should be: sbp_[hex characters only]
@@ -131,16 +142,52 @@ try {
     process.exit(1);
   }
 
-  const command = `npx supabase gen types typescript --project-id ${projectId}`;
-  const types = execSync(command, {
+  // Validate projectId to prevent command injection
+  // Supabase project IDs are alphanumeric with hyphens and underscores
+  const projectIdPattern = /^[a-zA-Z0-9_-]+$/;
+  if (!projectIdPattern.test(projectId)) {
+    console.error('❌ Error: Project ID format is invalid');
+    console.error(`   Project ID should only contain alphanumeric characters, hyphens, and underscores`);
+    console.error(`   Received: ${projectId}`);
+    process.exit(1);
+  }
+
+  // Use spawn with proper argument passing to prevent command injection
+  // Sanitize environment: only pass safe, necessary variables
+  // PATH is restricted to system directories to prevent PATH injection
+  const safeEnv = {
+    ...Object.fromEntries(
+      Object.entries(process.env).filter(([key]) =>
+        // Only include safe environment variables (exclude PATH and potentially dangerous vars)
+        key !== 'PATH' &&
+        !key.startsWith('npm_') && // Exclude npm-specific vars that might be manipulated
+        key !== 'NODE_PATH' // Exclude NODE_PATH for security
+      )
+    ),
+    // Use safe default PATH (system directories only) to prevent PATH injection
+    PATH: process.env.PATH || (process.platform === 'win32'
+      ? String.raw`C:\Windows\System32;C:\Windows;C:\Windows\System32\WindowsPowerShell\v1.0`
+      : '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
+    ),
+    SUPABASE_ACCESS_TOKEN: cleanToken
+  };
+
+  const result = spawnSync('npx', ['supabase', 'gen', 'types', 'typescript', '--project-id', projectId], {
     encoding: 'utf-8',
     cwd: rootDir,
     stdio: 'pipe',
-    env: {
-      ...process.env,
-      SUPABASE_ACCESS_TOKEN: cleanToken
-    }
+    env: safeEnv
   });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (result.status !== 0) {
+    throw new Error(`Command failed with exit code ${result.status}: ${result.stderr}`);
+  }
+
+  const types = result.stdout;
 
   // Add header comment to generated file
   const header = `/**

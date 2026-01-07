@@ -10,6 +10,21 @@ import { logApiRequest, logApiResponse } from '@/lib/logger';
 import { getCurrentUser } from '@/lib/supabase/auth';
 import type { User } from '@supabase/supabase-js';
 
+// Helper function to delay execution (extracted to module level to reduce nesting)
+const delay = (ms: number): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => resolve(), ms);
+  });
+};
+
+// Helper function to create delayed handler (extracted to module level to reduce nesting)
+const createDelayedHandler = (ms: number) => {
+  return async () => {
+    await delay(ms);
+    return NextResponse.json({ success: true });
+  };
+};
+
 // Mock dependencies
 vi.mock('@/lib/logger', () => ({
   logApiRequest: vi.fn(),
@@ -128,10 +143,15 @@ describe('API Middleware', () => {
       expect(logApiResponse).toHaveBeenCalledWith('POST', '/api/test', 400, expect.any(Number), undefined);
     });
 
-    it('should handle generic errors with 500 status', async () => {
-      const handler = vi.fn(async () => {
+    // Helper function to create error handler (extracted to reduce nesting)
+    const createErrorHandler = () => {
+      return async () => {
         throw new Error('Internal error');
-      });
+      };
+    };
+
+    it('should handle generic errors with 500 status', async () => {
+      const handler = vi.fn(createErrorHandler());
 
       const wrapped = withApiHandler(handler);
       const req = new NextRequest('http://localhost:3000/api/test', {
@@ -149,11 +169,7 @@ describe('API Middleware', () => {
     });
 
     it('should log response duration', async () => {
-      const handler = vi.fn(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
-        return NextResponse.json({ success: true });
-      });
-
+      const handler = vi.fn(createDelayedHandler(10));
       const wrapped = withApiHandler(handler);
       const req = new NextRequest('http://localhost:3000/api/test', {
         method: 'POST',
@@ -171,7 +187,7 @@ describe('API Middleware', () => {
         undefined
       );
       const callArgs = vi.mocked(logApiResponse).mock.calls[0];
-      const duration = callArgs[3] as number;
+      const duration = callArgs[3];
       expect(duration).toBeGreaterThanOrEqual(10);
     });
   });

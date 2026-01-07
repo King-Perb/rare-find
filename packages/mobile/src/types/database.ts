@@ -9,10 +9,11 @@
  *   cd packages/shared && npm run db:generate-types
  */
 
+// Import Database type for local use in type aliases
 import type { Database } from '@rare-find/shared';
 
 // Re-export Database type
-export type { Database };
+export type { Database } from '@rare-find/shared';
 
 // Convenient type aliases for table rows
 export type Listing = Database['public']['Tables']['listings']['Row'];

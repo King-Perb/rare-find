@@ -74,6 +74,29 @@ export function logError(error: unknown, context?: Record<string, unknown>) {
 }
 
 /**
+ * Extract message from error object with message property
+ */
+function extractMessageFromObject(error: Record<string, unknown>): string | null {
+  if ('message' in error && typeof error.message === 'string') {
+    return error.message;
+  }
+  return null;
+}
+
+/**
+ * Extract message from nested error object
+ */
+function extractNestedErrorMessage(error: Record<string, unknown>): string | null {
+  if ('error' in error && typeof error.error === 'object' && error.error !== null) {
+    const nestedError = error.error as Record<string, unknown>;
+    if ('message' in nestedError && typeof nestedError.message === 'string') {
+      return nestedError.message;
+    }
+  }
+  return null;
+}
+
+/**
  * Extract user-friendly error message from various error types
  *
  * Handles:
@@ -96,11 +119,11 @@ export function getErrorMessage(error: string | null | Error | Record<string, un
   if (error instanceof Error) return error.message;
 
   // Error objects with message/error properties
+  // After checking for string, null, and Error, remaining type is Record<string, unknown>
   if (typeof error === 'object' && error !== null) {
     // Check for direct message property
-    if ('message' in error && typeof error.message === 'string') {
-      return error.message;
-    }
+    const directMessage = extractMessageFromObject(error);
+    if (directMessage) return directMessage;
 
     // Check for error property (string)
     if ('error' in error && typeof error.error === 'string') {
@@ -108,12 +131,8 @@ export function getErrorMessage(error: string | null | Error | Record<string, un
     }
 
     // Check for nested error object with message
-    if ('error' in error && typeof error.error === 'object' && error.error !== null) {
-      const nestedError = error.error as Record<string, unknown>;
-      if ('message' in nestedError && typeof nestedError.message === 'string') {
-        return nestedError.message;
-      }
-    }
+    const nestedMessage = extractNestedErrorMessage(error);
+    if (nestedMessage) return nestedMessage;
   }
 
   // Fallback: return generic message instead of "[object Object]"

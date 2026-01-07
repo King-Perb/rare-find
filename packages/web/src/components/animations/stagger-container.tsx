@@ -9,7 +9,7 @@
 
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
-import { staggerContainer, staggerItem } from '@/lib/animations/variants';
+import { staggerItem } from '@/lib/animations/variants';
 import type { ReactNode } from 'react';
 
 export interface StaggerContainerProps {
@@ -46,7 +46,7 @@ export function StaggerContainer({
   delay = 0,
   staggerDelay = 0.1,
   disabled = false,
-}: StaggerContainerProps) {
+}: Readonly<StaggerContainerProps>) {
   const shouldReduceMotion = useReducedMotion();
 
   // If disabled or reduced motion, render without animation
@@ -76,11 +76,17 @@ export function StaggerContainer({
       className={className}
     >
       {Array.isArray(children) ? (
-        children.map((child, index) => (
-          <motion.div key={index} variants={staggerItem}>
-            {child}
-          </motion.div>
-        ))
+        children.map((child, index) => {
+          // Generate a stable key using child's identity if available, otherwise use index with prefix
+          const childKey = (child && typeof child === 'object' && 'key' in child && child.key)
+            ? `stagger-${String(child.key)}`
+            : `stagger-item-${index}`;
+          return (
+            <motion.div key={childKey} variants={staggerItem}>
+              {child}
+            </motion.div>
+          );
+        })
       ) : (
         <motion.div variants={staggerItem}>{children}</motion.div>
       )}

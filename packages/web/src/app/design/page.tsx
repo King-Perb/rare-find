@@ -339,20 +339,22 @@ export default function DesignPage() {
           <h3 className="text-lg font-medium">Input Fields</h3>
           <div className="space-y-4 max-w-md">
             <div>
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+              <label htmlFor="design-url-input" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 URL Input
               </label>
               <input
+                id="design-url-input"
                 type="url"
                 placeholder="Paste Amazon or eBay URL..."
                 className="w-full h-14 pl-12 pr-4 text-base rounded-2xl border-2 border-zinc-200 bg-white text-zinc-900 placeholder-zinc-400 transition-all focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white dark:placeholder-zinc-500 dark:focus:border-blue-400"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+              <label htmlFor="design-standard-input" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Standard Input
               </label>
               <input
+                id="design-standard-input"
                 type="text"
                 placeholder="Enter text..."
                 className="flex-1 px-4 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:border-zinc-600 dark:text-white"

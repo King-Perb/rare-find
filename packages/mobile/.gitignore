@@ -21,3 +21,10 @@ yarn-error.log
 
 # Testing
 coverage/
+
+# Android build artifacts
+android/app/build/
+android/build/
+android/.gradle/
+*.apk
+*.aab

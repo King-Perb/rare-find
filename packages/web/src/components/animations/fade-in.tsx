@@ -6,20 +6,12 @@
 
 'use client';
 
-import { motion } from 'framer-motion';
-import { useReducedMotion } from '@/hooks/use-reduced-motion';
+import { BaseAnimation, type BaseAnimationProps } from '@/lib/animations/base-animation';
 import { fadeIn } from '@/lib/animations/variants';
-import type { ReactNode } from 'react';
 
-export interface FadeInProps {
-  /** Child elements to animate */
-  readonly children: ReactNode;
+export interface FadeInProps extends BaseAnimationProps {
   /** Animation delay in seconds */
   readonly delay?: number;
-  /** Custom className */
-  readonly className?: string;
-  /** Disable animation (overrides reduced motion check) */
-  readonly disabled?: boolean;
 }
 
 /**
@@ -35,22 +27,14 @@ export interface FadeInProps {
  * ```
  */
 export function FadeIn({ children, delay = 0, className, disabled }: FadeInProps) {
-  const shouldReduceMotion = useReducedMotion();
-
-  // If disabled or reduced motion, render without animation
-  if (disabled || shouldReduceMotion) {
-    return <div className={className}>{children}</div>;
-  }
-
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
+    <BaseAnimation
       variants={fadeIn}
-      transition={{ delay }}
+      delay={delay}
       className={className}
+      disabled={disabled}
     >
       {children}
-    </motion.div>
+    </BaseAnimation>
   );
 }

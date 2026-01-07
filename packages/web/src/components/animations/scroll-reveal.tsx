@@ -7,18 +7,12 @@
 
 'use client';
 
-import { motion } from 'framer-motion';
+import { BaseAnimation, type BaseAnimationProps } from '@/lib/animations/base-animation';
 import { useScrollAnimation } from '@/hooks/use-scroll-animation';
-import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { fadeInUp } from '@/lib/animations/variants';
-import type { ReactNode } from 'react';
 import type { Variants } from 'framer-motion';
 
-export interface ScrollRevealProps {
-  /** Child elements to reveal */
-  readonly children: ReactNode;
-  /** Custom className */
-  readonly className?: string;
+export interface ScrollRevealProps extends BaseAnimationProps {
   /** Animation variants (default: fadeInUp) */
   readonly variants?: Variants;
   /** Threshold for intersection (0-1, default: 0.5) */
@@ -27,8 +21,6 @@ export interface ScrollRevealProps {
   readonly rootMargin?: string;
   /** Whether to trigger animation only once (default: true) */
   readonly triggerOnce?: boolean;
-  /** Disable animation */
-  readonly disabled?: boolean;
 }
 
 /**
@@ -53,31 +45,21 @@ export function ScrollReveal({
   triggerOnce = true,
   disabled = false,
 }: ScrollRevealProps) {
-  const shouldReduceMotion = useReducedMotion();
   const { isVisible, ref } = useScrollAnimation({
     threshold,
     rootMargin,
     triggerOnce,
   });
 
-  // If disabled or reduced motion, render without animation
-  if (disabled || shouldReduceMotion) {
-    return (
-      <div ref={ref} className={className}>
-        {children}
-      </div>
-    );
-  }
-
   return (
-    <motion.div
+    <BaseAnimation
       ref={ref}
-      initial="hidden"
-      animate={isVisible ? 'visible' : 'hidden'}
       variants={variants}
+      animate={isVisible ? 'visible' : 'hidden'}
       className={className}
+      disabled={disabled}
     >
       {children}
-    </motion.div>
+    </BaseAnimation>
   );
 }

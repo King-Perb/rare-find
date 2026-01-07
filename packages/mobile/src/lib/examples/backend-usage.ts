@@ -84,7 +84,7 @@ export async function exampleEvaluateWithErrorHandling(listingUrl: string): Prom
     // Check if evaluation was successful
     if (response.success) {
       // Handle successful evaluation
-      const { result, listing } = response;
+      const { result } = response;
 
       if (result.evaluation.confidenceScore > 80) {
         console.log('High confidence evaluation:', result);

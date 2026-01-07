@@ -142,9 +142,9 @@ describe('DI Setup', () => {
 
   describe('initializeDI', () => {
     it('should call setupDI', () => {
-      const setupDISpy = vi.spyOn({ setupDI }, 'setupDI');
       initializeDI();
       // Note: initializeDI just calls setupDI, so we verify setupDI was called
+      // by checking that services are registered in the container
       expect(container.has(ServiceKeys.Logger)).toBe(true);
     });
   });

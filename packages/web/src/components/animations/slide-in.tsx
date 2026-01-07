@@ -6,22 +6,15 @@
 
 'use client';
 
-import { motion } from 'framer-motion';
-import { useReducedMotion } from '@/hooks/use-reduced-motion';
+import { BaseAnimation, type BaseAnimationProps } from '@/lib/animations/base-animation';
 import { fadeInUp, slideInLeft, slideInRight, slideInDown } from '@/lib/animations/variants';
-import type { ReactNode } from 'react';
+import type { Variants } from 'framer-motion';
 
-export interface SlideInProps {
-  /** Child elements to animate */
-  readonly children: ReactNode;
+export interface SlideInProps extends BaseAnimationProps {
   /** Slide direction */
   readonly direction?: 'up' | 'down' | 'left' | 'right';
   /** Animation delay in seconds */
   readonly delay?: number;
-  /** Custom className */
-  readonly className?: string;
-  /** Disable animation (overrides reduced motion check) */
-  readonly disabled?: boolean;
 }
 
 /**
@@ -37,15 +30,8 @@ export interface SlideInProps {
  * ```
  */
 export function SlideIn({ children, direction = 'up', delay = 0, className, disabled }: SlideInProps) {
-  const shouldReduceMotion = useReducedMotion();
-
-  // If disabled or reduced motion, render without animation
-  if (disabled || shouldReduceMotion) {
-    return <div className={className}>{children}</div>;
-  }
-
   // Select variant based on direction
-  const variants = (() => {
+  const variants: Variants = (() => {
     switch (direction) {
       case 'up':
         return fadeInUp; // Combines fade and slide up
@@ -61,14 +47,13 @@ export function SlideIn({ children, direction = 'up', delay = 0, className, disa
   })();
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
+    <BaseAnimation
       variants={variants}
-      transition={{ delay }}
+      delay={delay}
       className={className}
+      disabled={disabled}
     >
       {children}
-    </motion.div>
+    </BaseAnimation>
   );
 }

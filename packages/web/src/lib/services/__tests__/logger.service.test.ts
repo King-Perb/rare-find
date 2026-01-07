@@ -8,12 +8,10 @@ import { LoggerService } from '../logger.service';
 describe('LoggerService', () => {
   let logger: LoggerService;
   let consoleLogSpy: ReturnType<typeof vi.spyOn>;
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     logger = new LoggerService();
     consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {

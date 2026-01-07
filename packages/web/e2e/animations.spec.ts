@@ -390,36 +390,27 @@ test.describe('Scroll-Triggered Animations', () => {
   });
 
   test('should reveal feature cards when scrolled into view', async ({ page }) => {
+    // Increase timeout for CI environments which may be slower
+    test.setTimeout(60000);
+
     // Get initial scroll position
     const initialScroll = await page.evaluate(() => window.scrollY);
 
-    // Scroll to feature section using direct scroll
+    // Use a simple, reliable scroll approach that works in CI
+    // Scroll directly to bottom of page to reveal feature cards
     await page.evaluate(() => {
-      const featuresSection = document.querySelector('section');
-      if (featuresSection) {
-        const rect = featuresSection.getBoundingClientRect();
-        window.scrollTo({
-          top: window.scrollY + rect.top - 100,
-          behavior: 'auto' // Use auto for more reliable scrolling in tests
-        });
-      } else {
-        // Fallback: scroll to bottom
-        window.scrollTo(0, document.body.scrollHeight);
-      }
+      window.scrollTo(0, document.body.scrollHeight);
     });
 
-    // Wait for scroll to complete
-    await page.waitForTimeout(500);
+    // Wait for scroll to complete and animations to trigger
+    await page.waitForTimeout(1500);
 
-    // Wait for scroll position to stabilize
-    await page.waitForFunction(() => {
-      return window.scrollY > 0;
-    }, { timeout: 2000 }).catch(() => {
-      // If scroll didn't happen, try again with direct scroll
-      return page.evaluate(() => {
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-    });
+    // Wait for scroll position to stabilize - use longer timeout for CI
+    // Check that scroll actually happened
+    await page.waitForFunction(
+      () => window.scrollY > 0,
+      { timeout: 15000 }
+    );
 
     // Verify scroll occurred
     const finalScroll = await page.evaluate(() => window.scrollY);

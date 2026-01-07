@@ -13,13 +13,13 @@ import type { ReactNode } from 'react';
 
 export interface FadeInProps {
   /** Child elements to animate */
-  children: ReactNode;
+  readonly children: ReactNode;
   /** Animation delay in seconds */
-  delay?: number;
+  readonly delay?: number;
   /** Custom className */
-  className?: string;
+  readonly className?: string;
   /** Disable animation (overrides reduced motion check) */
-  disabled?: boolean;
+  readonly disabled?: boolean;
 }
 
 /**

@@ -106,7 +106,7 @@ describe('MarketplaceService Integration (Web)', () => {
         json: async () => ({}),
       });
 
-      global.fetch = mockFetch;
+      globalThis.fetch = mockFetch;
 
       // Try to fetch a listing (will fail, but verifies WebHttpClient is used)
       await expect(

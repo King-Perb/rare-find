@@ -12,8 +12,11 @@
 import { EvaluationService } from '@rare-find/shared/lib/evaluation/services/evaluation.service';
 import { createMobileLogger } from '../logger/mobile-logger';
 import OpenAI from 'openai';
-import type { EvaluationInput, EvaluationResult } from '@rare-find/shared';
-import type { MarketplaceListing } from '@rare-find/shared';
+import type {
+  EvaluationInput,
+  EvaluationResult,
+  MarketplaceListing,
+} from '@rare-find/shared';
 
 /**
  * Example: Initialize EvaluationService with mobile providers

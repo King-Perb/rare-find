@@ -59,7 +59,7 @@ export class AmazonClient {
     payload: string,
     operation: string = 'SearchItems'
   ): Record<string, string> {
-    const timestamp = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '');
+    const timestamp = new Date().toISOString().replaceAll(/[:-]|\.\d{3}/g, '');
     const dateStamp = timestamp.substring(0, 8);
     const url = new URL(uri);
     const host = url.hostname;

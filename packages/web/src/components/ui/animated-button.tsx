@@ -13,25 +13,25 @@ import type { ReactNode } from 'react';
 
 export interface AnimatedButtonProps {
   /** Child elements (button content) */
-  children: ReactNode;
+  readonly children: ReactNode;
   /** Show loading state */
-  isLoading?: boolean;
+  readonly isLoading?: boolean;
   /** Loading text (default: "Loading...") */
-  loadingText?: string;
+  readonly loadingText?: string;
   /** Variant style */
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  readonly variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
   /** Button type */
-  type?: 'button' | 'submit' | 'reset';
+  readonly type?: 'button' | 'submit' | 'reset';
   /** Click handler */
-  onClick?: () => void;
+  readonly onClick?: () => void;
   /** Disabled state */
-  disabled?: boolean;
+  readonly disabled?: boolean;
   /** Custom className */
-  className?: string;
+  readonly className?: string;
   /** HTML id attribute */
-  id?: string;
+  readonly id?: string;
   /** HTML aria-label attribute */
-  'aria-label'?: string;
+  readonly 'aria-label'?: string;
 }
 
 /**

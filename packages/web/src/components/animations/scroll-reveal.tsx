@@ -16,19 +16,19 @@ import type { Variants } from 'framer-motion';
 
 export interface ScrollRevealProps {
   /** Child elements to reveal */
-  children: ReactNode;
+  readonly children: ReactNode;
   /** Custom className */
-  className?: string;
+  readonly className?: string;
   /** Animation variants (default: fadeInUp) */
-  variants?: Variants;
+  readonly variants?: Variants;
   /** Threshold for intersection (0-1, default: 0.5) */
-  threshold?: number | number[];
+  readonly threshold?: number | number[];
   /** Root margin for intersection observer (default: '0px') */
-  rootMargin?: string;
+  readonly rootMargin?: string;
   /** Whether to trigger animation only once (default: true) */
-  triggerOnce?: boolean;
+  readonly triggerOnce?: boolean;
   /** Disable animation */
-  disabled?: boolean;
+  readonly disabled?: boolean;
 }
 
 /**

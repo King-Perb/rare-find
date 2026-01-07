@@ -4,7 +4,7 @@
  * Helper functions and mocks for testing services
  */
 
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+import { vi } from 'vitest';
 import type {
   ILogger,
   IMarketplaceService,
@@ -12,8 +12,10 @@ import type {
   IEvaluationService,
 } from '@rare-find/shared/lib/interfaces';
 import type { IDatabaseService, IAuthService } from '../interfaces';
-import type { MarketplaceListing, MarketplaceSearchParams, MarketplaceSearchResult } from '@rare-find/shared';
-import type { EvaluationInput, EvaluationResult } from '@rare-find/shared';
+import type {
+  MarketplaceListing,
+  EvaluationResult,
+} from '@rare-find/shared';
 
 /**
  * Create a mock logger
@@ -127,8 +129,8 @@ export function createSampleListing(overrides?: Partial<MarketplaceListing>): Ma
 export function createSampleEvaluationResult(overrides?: Partial<EvaluationResult>): EvaluationResult {
   return {
     evaluation: {
-      estimatedMarketValue: 120.0,
-      undervaluationPercentage: 20.0,
+      estimatedMarketValue: 120,
+      undervaluationPercentage: 20,
       confidenceScore: 85,
       reasoning: 'This is a good deal based on market analysis',
       factors: ['Price below market average', 'Good seller rating'],

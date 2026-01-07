@@ -95,7 +95,7 @@ vi.mock('@/app/api/middleware', () => ({
 }));
 
 // Mock fetch for marketplace API calls
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
 
 describe('API Route Integration (Full Flow)', () => {
   beforeEach(() => {
@@ -120,7 +120,7 @@ describe('API Route Integration (Full Flow)', () => {
   describe('Full Flow: API Route → Shared Services → Platform Providers', () => {
     it('should handle evaluation request through full stack', async () => {
       // Mock Amazon PA-API 5.0 GetItems response
-      vi.mocked(global.fetch).mockResolvedValueOnce({
+      vi.mocked(globalThis.fetch).mockResolvedValueOnce({
         ok: true,
         status: 200,
         json: async () => ({

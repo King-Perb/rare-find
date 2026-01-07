@@ -8,20 +8,20 @@
 
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
-import { fadeInUp, slideInLeft, slideInRight, slideInUp, slideInDown } from '@/lib/animations/variants';
+import { fadeInUp, slideInLeft, slideInRight, slideInDown } from '@/lib/animations/variants';
 import type { ReactNode } from 'react';
 
 export interface SlideInProps {
   /** Child elements to animate */
-  children: ReactNode;
+  readonly children: ReactNode;
   /** Slide direction */
-  direction?: 'up' | 'down' | 'left' | 'right';
+  readonly direction?: 'up' | 'down' | 'left' | 'right';
   /** Animation delay in seconds */
-  delay?: number;
+  readonly delay?: number;
   /** Custom className */
-  className?: string;
+  readonly className?: string;
   /** Disable animation (overrides reduced motion check) */
-  disabled?: boolean;
+  readonly disabled?: boolean;
 }
 
 /**

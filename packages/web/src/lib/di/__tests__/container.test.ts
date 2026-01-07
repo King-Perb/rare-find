@@ -53,7 +53,9 @@ describe('DIContainer', () => {
     });
 
     it('should return same instance on multiple resolves', () => {
-      const factory = () => ({ value: 'singleton', id: Math.random() });
+      // Use a fixed test ID instead of Math.random() for security and test determinism
+      const testId = 12345;
+      const factory = () => ({ value: 'singleton', id: testId });
       container.registerSingleton('singleton-service', factory);
 
       const instance1 = container.resolve<{ value: string; id: number }>('singleton-service');

@@ -21,7 +21,7 @@ class MockIntersectionObserver {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  global.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
+  globalThis.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
 });
 
 afterEach(() => {
@@ -37,7 +37,7 @@ describe('useScrollAnimation', () => {
   });
 
   it('should return true when element enters viewport', () => {
-    const { result } = renderHook(() => useScrollAnimation({ threshold: 0.5 }));
+    renderHook(() => useScrollAnimation({ threshold: 0.5 }));
 
     // Simulate element entering viewport
     const mockEntry: IntersectionObserverEntry = {
@@ -122,7 +122,7 @@ describe('useScrollAnimation', () => {
 
   it('should work with reduced motion preferences', () => {
     // Mock reduced motion
-    Object.defineProperty(window, 'matchMedia', {
+    Object.defineProperty(globalThis, 'matchMedia', {
       writable: true,
       value: vi.fn().mockImplementation((query) => ({
         matches: query === '(prefers-reduced-motion: reduce)',
@@ -146,7 +146,7 @@ describe('useScrollAnimation', () => {
     // Mock element already in viewport
     const mockEntry: IntersectionObserverEntry = {
       boundingClientRect: { top: 0, bottom: 100 } as DOMRect,
-      intersectionRatio: 1.0,
+      intersectionRatio: 1,
       intersectionRect: { top: 0, bottom: 100 } as DOMRect,
       isIntersecting: true,
       rootBounds: { top: 0, bottom: 1000 } as DOMRect,

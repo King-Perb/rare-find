@@ -141,6 +141,9 @@ export function getErrorMessage(error: string | null | Error | Record<string, un
 
 /**
  * Format error for API response
+ * 
+ * In production, error messages are hidden unless EXPOSE_ERROR_DETAILS=true
+ * In development, error messages are always shown
  */
 export function formatErrorResponse(error: unknown) {
   if (error instanceof AppError) {
@@ -154,10 +157,16 @@ export function formatErrorResponse(error: unknown) {
   }
 
   if (error instanceof Error) {
+    const shouldExposeDetails =
+      process.env.NODE_ENV !== 'production' ||
+      process.env.EXPOSE_ERROR_DETAILS === 'true';
+
     return {
       error: {
         code: 'INTERNAL_ERROR',
-        message: process.env.NODE_ENV === 'production' ? 'An internal error occurred' : error.message,
+        message: shouldExposeDetails
+          ? error.message
+          : 'An internal error occurred',
       },
     };
   }
